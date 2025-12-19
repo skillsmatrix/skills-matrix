@@ -9,20 +9,20 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0f1c;
-            --bg-secondary: #111827;
-            --bg-card: #1a2234;
-            --bg-input: #243049;
-            --accent-blue: #3b82f6;
-            --accent-cyan: #06b6d4;
-            --accent-green: #10b981;
-            --accent-orange: #f59e0b;
-            --accent-purple: #8b5cf6;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --accent-blue: #2563eb;
+            --accent-cyan: #0891b2;
+            --accent-green: #059669;
+            --accent-orange: #d97706;
+            --accent-purple: #7c3aed;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
             --text-muted: #64748b;
-            --border-color: #2d3a52;
-            --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+            --border-color: #e2e8f0;
+            --shadow-glow: 0 4px 24px rgba(0, 0, 0, 0.08);
         }
 
         * {
@@ -48,8 +48,8 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+                linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             pointer-events: none;
             z-index: -1;
@@ -318,7 +318,7 @@
         .employee-card:hover {
             border-color: var(--accent-blue);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
 
         .employee-name {
@@ -528,11 +528,11 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 6px 12px;
-            background: var(--bg-primary);
+            background: var(--text-primary);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 0.75rem;
-            color: var(--text-primary);
+            color: white;
             white-space: nowrap;
             z-index: 10;
         }
