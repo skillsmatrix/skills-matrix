@@ -6,7 +6,7 @@
    "Software": "[S1] SRV500 software;#[S2] Cal1/Hyperterminal;#[S3] (Z-One)",
    "Accreditations": "[A1] SRV500 training;#[A4] Safe Isolation & Proving Dead",
    "Training": "[T1] ABB Magmaster Verification",
-   "MinRating": "3/5",
+   "MinRating": "3",
    "ThamesWater": "[A9] Thames Water Health & Safety Passport",
    "ScottishWater": "[A10] EUSR DOMS",
    "AnglianWater": "[A8] Anglian Water Health and Safety Induction 2023/2024"
@@ -245,7 +245,7 @@
    "Hardware": "[H1] SRV500;#[H2] Current simulator;#[H3] Megger;#[H4] Moving coil meter;#[H5] DVM (digital volt meter);#[H6] Laptop;#[H7] Martindale proving unit;#[H8] Lock off kit (with key)",
    "Software": "[S1] SRV500 software;#[S2] Cal1/Hyperterminal;#[S3] (Z-One)",
    "Accreditations": "[A1] SRV500 training;#[A4] Safe Isolation & Proving Dead",
-   "Training": "",
+   "Training": "[T1] ABB Magmaster Verification",
    "MinRating": "3",
    "ThamesWater": "[A9] Thames Water Health & Safety Passport",
    "ScottishWater": "[A10] EUSR DOMS",
