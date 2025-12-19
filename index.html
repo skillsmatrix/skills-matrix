@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills Matrix | Find Your Tech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1c;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-input: #243049;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #2d3a52;
+            --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-orange);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--accent-green);
+            animation: none;
+        }
+
+        .status-dot.error {
+            background: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            height: fit-content;
+            position: sticky;
+            top: 24px;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .filter-panel h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-panel h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-cyan));
+            border-radius: 2px;
+        }
+
+        .filter-section {
+            margin-bottom: 24px;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-row select {
+            flex: 1;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        select:hover, input[type="text"]:hover {
+            border-color: var(--accent-blue);
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Preset Dropdown */
+        .preset-select {
+            background: linear-gradient(135deg, var(--bg-input), var(--bg-card));
+            border: 1px dashed var(--accent-purple);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            color: white;
+            margin-top: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Results Panel */
+        .results-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            min-height: 500px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .results-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-count {
+            background: var(--bg-input);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .results-count span {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        /* Employee Cards */
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .employee-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .employee-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .employee-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .employee-role {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .employee-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .meta-icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .employee-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .skill-tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .skill-tag.hardware {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .skill-tag.software {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .skill-tag.training {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .skill-tag.accreditation {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        /* Rating Badge */
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        .rating-badge.low {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .rating-badge.medium {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--accent-orange);
+        }
+
+        .rating-badge.high {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--accent-green);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            margin-top: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 20px 0;
+        }
+
+        /* Quick Filters */
+        .quick-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .quick-filter-tag {
+            padding: 6px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-filter-tag:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .quick-filter-tag .remove {
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 50%;
+            font-size: 10px;
+            color: #ef4444;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>SKILLS MATRIX</h1>
+            <p>Find the right technician for the job</p>
+            <div class="connection-status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting to SharePoint...</span>
+            </div>
+        </header>
+
+        <main class="main-layout">
+            <!-- Filter Panel -->
+            <aside class="filter-panel">
+                <h2>Filter Technicians</h2>
+
+                <!-- Preset Selection -->
+                <div class="filter-section">
+                    <label class="filter-label">Quick Preset</label>
+                    <select class="preset-select" id="presetSelect">
+                        <option value="">-- Select a preset --</option>
+                        <option value="abb-magmaster">ABB Magmaster Full Setup</option>
+                        <option value="siemens-fullbore">Siemens Full-bore</option>
+                        <option value="ultrasonic">Ultrasonic Specialist</option>
+                    </select>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Department -->
+                <div class="filter-section">
+                    <label class="filter-label">Department</label>
+                    <select id="departmentSelect">
+                        <option value="">All Departments</option>
+                        <option value="Clean">Clean</option>
+                        <option value="Waste">Waste</option>
+                        <option value="Projects">Projects</option>
+                    </select>
+                </div>
+
+                <!-- Training with Rating -->
+                <div class="filter-section">
+                    <label class="filter-label">Training / Competency</label>
+                    <div class="filter-row">
+                        <select id="trainingSelect">
+                            <option value="">Any Training</option>
+                        </select>
+                        <select id="trainingRating" style="width: 100px; flex: none;">
+                            <option value="">Any</option>
+                            <option value="1">≥ 1/5</option>
+                            <option value="2">≥ 2/5</option>
+                            <option value="3">≥ 3/5</option>
+                            <option value="4">≥ 4/5</option>
+                            <option value="5">5/5</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Hardware -->
+                <div class="filter-section">
+                    <label class="filter-label">Hardware</label>
+                    <select id="hardwareSelect">
+                        <option value="">Any Hardware</option>
+                    </select>
+                </div>
+
+                <!-- Software -->
+                <div class="filter-section">
+                    <label class="filter-label">Software</label>
+                    <select id="softwareSelect">
+                        <option value="">Any Software</option>
+                    </select>
+                </div>
+
+                <!-- Accreditations -->
+                <div class="filter-section">
+                    <label class="filter-label">Accreditations</label>
+                    <select id="accreditationSelect">
+                        <option value="">Any Accreditation</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" id="searchBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Search
+                </button>
+
+                <button class="btn btn-secondary" id="clearBtn">Clear Filters</button>
+            </aside>
+
+            <!-- Results Panel -->
+            <section class="results-panel">
+                <div class="results-header">
+                    <h2>Results</h2>
+                    <div class="results-count">
+                        Found <span id="resultCount">0</span> technicians
+                    </div>
+                </div>
+
+                <!-- Active Filters -->
+                <div class="quick-filters" id="activeFilters"></div>
+
+                <!-- Results Container -->
+                <div id="resultsContainer">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <h3>Search for technicians</h3>
+                        <p>Use the filters on the left to find the right person for the job</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - UPDATE THESE VALUES
+        // ============================================
+        const CONFIG = {
+            siteUrl: 'https://morrisonus.sharepoint.com/sites/SkillsMatrix',
+            listName: 'Employees'
+        };
+
+        // ============================================
+        // TRAINING COLUMNS - All your T1-T25 columns
+        // ============================================
+        const TRAINING_COLUMNS = [
+            '[T1] ABB Magmaster Verification',
+            '[T2] ABB Watermaster Verification',
+            '[T3] Siemens Full-bore Verification',
+            '[T4] Fischer Porter Verification',
+            '[T5] Khrone Verification',
+            '[T6] ABB Process Master Verification',
+            '[T7] Siemens LUT (400 series) Verification',
+            '[T8] Siemens Hydroranger Verification',
+            '[T9] Milltronics Verification',
+            '[T10] Pulsar Verification',
+            '[T11] Vega Verification',
+            '[T12] Warren Jones Verification',
+            '[T13] Flexim Ultrasonic',
+            '[T14] Siemens Ultrasonic',
+            '[T15] GE Panametrics',
+            '[T16] Katronic',
+            '[T17] Nivus (Area Velocity) Verification',
+            '[T18] Teledyne Isco Laser Flow Verification',
+            '[T19] GWF Verification',
+            '[T20] Fujitsu Siemens',
+            '[T21] Insertion Probe',
+            '[T22] ABB Aquamaster',
+            '[T23] Siemens Battery Powered',
+            '[T24] Nivus (Open Channel) Verification',
+            '[T25] Synapsis Ultrasonic'
+        ];
+
+        // ============================================
+        // HARDWARE OPTIONS
+        // ============================================
+        const HARDWARE_OPTIONS = [
+            '[H1] SRV500',
+            '[H2] Current simulator',
+            '[H3] Megger',
+            '[H4] Moving coil meter',
+            '[H5] DVM (digital volt meter)',
+            '[H6] Laptop',
+            '[H7] Martindale proving unit',
+            '[H8] Lock off kit (with key)',
+            '[H9] Siemens Verificator',
+            '[H10] F&P simulator',
+            '[H11] Khrone MagCheck',
+            '[H13] Loop simulator',
+            '[H14] Micro USB cable',
+            '[H15] Reference plate',
+            '[H16] Bracket',
+            '[H17] Clamp',
+            '[H18] Steel ruler',
+            '[H19] Flow calculator',
+            '[H20] Hand terminal / HART',
+            '[H21] USB drive (not encrypted)',
+            '[H22] Low pressure druck',
+            '[H23] ID Tool',
+            '[H24] Various Reducers',
+            '[H25] PTFE',
+            '[H26] Chlorus',
+            '[H27] Screwdriver',
+            '[H28] IR Reader & Dongle',
+            '[H29] Micro USB Cable',
+            '[H30] Tape',
+            '[H31] Compact Flashcard',
+            '[H32] OD Tape',
+            '[H33] Generic Tools',
+            '[H34] Gas Monitor',
+            '[H35] AQ4 - NFC Reader'
+        ];
+
+        // ============================================
+        // SOFTWARE OPTIONS
+        // ============================================
+        const SOFTWARE_OPTIONS = [
+            '[S1] SRV500 software',
+            '[S2] Cal1/Hyperterminal',
+            '[S3] (Z-One)',
+            '[S4] Verimaster',
+            '[S5] MagFlo 5.1',
+            '[S6] Conversion document (Excel)',
+            '[S7] Asset Vision Basic',
+            '[S8] Siemens - Sitrans LUT400 (Server)',
+            '[S9] Dolphin software',
+            '[S10] Vega Tools',
+            '[S11] FluxDiag',
+            '[S12] PanaView',
+            '[S13] Kat View TBC',
+            '[S14] NivuFlow',
+            '[S15] External (RSHydro)',
+            '[S16] Calculator',
+            '[S17] Utils',
+            '[S18] Logmaster',
+            '[S19] AQ4 App',
+            '[S20] Flow tool/IDM',
+            '[S21] River Surveyor Software (Xylem boat hired from Xylem)'
+        ];
+
+        // ============================================
+        // ACCREDITATION OPTIONS
+        // ============================================
+        const ACCREDITATION_OPTIONS = [
+            '[A1] SRV500 training',
+            '[A2] EUSR SHEA',
+            '[A3] EUSR',
+            '[A4] Safe Isolation & Proving Dead',
+            '[A5] Emergency First Aid at Work',
+            '[A6] NRSWA - Signing, Lighting & Guarding',
+            '[A7] 6160-09 Level 2 Award in Medium Risk',
+            '[A8] Anglian Water Health and Safety Induction 2023/2024',
+            '[A9] Thames Water Health & Safety Passport',
+            '[A10] EUSR DOMS',
+            '[A11] EUSR National Water Hygiene',
+            '[A12] Anglian Water Health and Safety Induction',
+            '[A13] Disinfection Procedure Compliance',
+            '[A14] Procedural Knowledge',
+            '[A15] Nivus Portable Knowledge',
+            '[A16] Understanding Pipe Recognition',
+            '[A17] Z472- ABB Ability SRV500 Verification',
+            '[A18] Competency Cloud Demonstration for Supervisors and Line Managers',
+            '[A19] Company Induction',
+            '[A20] An Introduction to Leadership (MGS E-Learning)',
+            '[A21] Business Ethics & Information Security Briefing for Operational Workers',
+            '[A22] Confined Spaces: Medium Risk',
+            '[A23] First Aid at Work: Emergency (1 day)',
+            '[A24] Internal Drug & Alcohol Tester',
+            '[A25] Thames Water - PPTW',
+            '[A26] Manual Handling Awareness (MGS E-Learning)',
+            '[A27] Asbestos Awareness (MGS E-Learning)',
+            '[A28] NRSWA: O1 - Signing, lighting and guarding',
+            '[A29] Ladder Safety (MGS E-Learning)',
+            '[A30] Ladder Association: Ladders & Stepladders Inspection',
+            '[A31] Ladder Association: Ladders & Stepladders for Users',
+            '[A32] Site Supervisor Safety Training Scheme (SSSTS)',
+            '[A33] Effective Communication Skills',
+            '[A34] NVQ L2: Electrotechnical Technology - Installation',
+            '[A35] Abrasive Wheels',
+            '[A36] Level 3 Award in the Requirements for Electrical',
+            '[A37] Energy Safe Victoria: Electrician\'s Licence',
+            '[A38] Inclusion and Diversity (MGS E-Learning)',
+            '[A39] Financial Crime (M Group E-Learning)',
+            '[A40] Modern Slavery (MGS E-Learning)',
+            '[A41] D&A Test Evidence',
+            '[A42] Water Quality - Third Party (Thames Water)',
+            '[A43] Business Expenses (MGS E-Learning)',
+            '[A44] DBS Check',
+            '[A45] Health, Safety and Environment Test for Operatives',
+            '[A46] Site Management Safety Training Scheme (SMSTS)'
+        ];
+
+        // ============================================
+        // PRESETS
+        // ============================================
+        const PRESETS = {
+            'abb-magmaster': {
+                name: 'ABB Magmaster Full Setup',
+                training: '[T1] ABB Magmaster Verification',
+                trainingRating: '3',
+                hardware: '[H1] SRV500',
+                software: '[S1] SRV500 software'
+            },
+            'siemens-fullbore': {
+                name: 'Siemens Full-bore',
+                training: '[T3] Siemens Full-bore Verification',
+                trainingRating: '3',
+                hardware: '[H9] Siemens Verificator',
+                software: ''
+            },
+            'ultrasonic': {
+                name: 'Ultrasonic Specialist',
+                training: '[T13] Flexim Ultrasonic',
+                trainingRating: '4',
+                hardware: '',
+                software: ''
+            }
+        };
+
+        // ============================================
+        // STATE
+        // ============================================
+        let allEmployees = [];
+        let isConnected = false;
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        const elements = {
+            statusDot: document.getElementById('statusDot'),
+            statusText: document.getElementById('statusText'),
+            presetSelect: document.getElementById('presetSelect'),
+            departmentSelect: document.getElementById('departmentSelect'),
+            trainingSelect: document.getElementById('trainingSelect'),
+            trainingRating: document.getElementById('trainingRating'),
+            hardwareSelect: document.getElementById('hardwareSelect'),
+            softwareSelect: document.getElementById('softwareSelect'),
+            accreditationSelect: document.getElementById('accreditationSelect'),
+            searchBtn: document.getElementById('searchBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            resultsContainer: document.getElementById('resultsContainer'),
+            resultCount: document.getElementById('resultCount'),
+            activeFilters: document.getElementById('activeFilters')
+        };
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            populateDropdowns();
+            attachEventListeners();
+            fetchEmployees();
+        });
+
+        function populateDropdowns() {
+            // Training dropdown
+            TRAINING_COLUMNS.forEach(training => {
+                const option = document.createElement('option');
+                option.value = training;
+                option.textContent = training;
+                elements.trainingSelect.appendChild(option);
+            });
+
+            // Hardware dropdown
+            HARDWARE_OPTIONS.forEach(hw => {
+                const option = document.createElement('option');
+                option.value = hw;
+                option.textContent = hw;
+                elements.hardwareSelect.appendChild(option);
+            });
+
+            // Software dropdown
+            SOFTWARE_OPTIONS.forEach(sw => {
+                const option = document.createElement('option');
+                option.value = sw;
+                option.textContent = sw;
+                elements.softwareSelect.appendChild(option);
+            });
+
+            // Accreditation dropdown
+            ACCREDITATION_OPTIONS.forEach(acc => {
+                const option = document.createElement('option');
+                option.value = acc;
+                option.textContent = acc;
+                elements.accreditationSelect.appendChild(option);
+            });
+        }
+
+        function attachEventListeners() {
+            elements.searchBtn.addEventListener('click', performSearch);
+            elements.clearBtn.addEventListener('click', clearFilters);
+            elements.presetSelect.addEventListener('change', applyPreset);
+            
+            // Enter key triggers search
+            document.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+        }
+
+        // ============================================
+        // SHAREPOINT API
+        // ============================================
+        async function fetchEmployees() {
+            showLoading();
+            
+            try {
+                // Build the select query for all columns we need
+                const selectColumns = [
+                    'Id',
+                    'Employee/Title',
+                    'Employee/EMail',
+                    'Role',
+                    'Department',
+                    'Manager/Title',
+                    'Hardware',
+                    'Software',
+                    'Accreditations',
+                    ...TRAINING_COLUMNS.map(t => encodeURIComponent(t))
+                ].join(',');
+
+                const expandColumns = 'Employee,Manager';
+                
+                const apiUrl = `${CONFIG.siteUrl}/_api/web/lists/getbytitle('${CONFIG.listName}')/items?$select=${selectColumns}&$expand=${expandColumns}&$top=500`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json;odata=verbose',
+                        'Content-Type': 'application/json;odata=verbose'
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                allEmployees = data.d.results.map(parseEmployee);
+                
+                updateConnectionStatus(true);
+                showEmptyState();
+                
+            } catch (error) {
+                console.error('Error fetching employees:', error);
+                updateConnectionStatus(false, error.message);
+                showError(error.message);
+            }
+        }
+
+        function parseEmployee(item) {
+            const employee = {
+                id: item.Id,
+                name: item.Employee?.Title || 'Unknown',
+                email: item.Employee?.EMail || '',
+                role: item.Role || '',
+                department: item.Department || '',
+                manager: item.Manager?.Title || '',
+                hardware: parseMultiSelect(item.Hardware),
+                software: parseMultiSelect(item.Software),
+                accreditations: parseMultiSelect(item.Accreditations),
+                trainings: {}
+            };
+
+            // Parse training ratings
+            TRAINING_COLUMNS.forEach(training => {
+                const value = item[training];
+                if (value && value !== 'N/A') {
+                    employee.trainings[training] = value;
+                }
+            });
+
+            return employee;
+        }
+
+        function parseMultiSelect(value) {
+            if (!value) return [];
+            if (Array.isArray(value)) return value;
+            if (typeof value === 'string') {
+                return value.split(';#').filter(v => v.trim());
+            }
+            return [];
+        }
+
+        function parseRating(ratingStr) {
+            if (!ratingStr || ratingStr === 'N/A') return 0;
+            const match = ratingStr.match(/^(\d)\/5$/);
+            return match ? parseInt(match[1]) : 0;
+        }
+
+        // ============================================
+        // SEARCH & FILTER
+        // ============================================
+        function performSearch() {
+            const filters = {
+                department: elements.departmentSelect.value,
+                training: elements.trainingSelect.value,
+                trainingRating: parseInt(elements.trainingRating.value) || 0,
+                hardware: elements.hardwareSelect.value,
+                software: elements.softwareSelect.value,
+                accreditation: elements.accreditationSelect.value
+            };
+
+            let results = allEmployees.filter(emp => {
+                // Department filter
+                if (filters.department && emp.department !== filters.department) {
+                    return false;
+                }
+
+                // Training filter with rating
+                if (filters.training) {
+                    const empRating = parseRating(emp.trainings[filters.training]);
+                    if (empRating < filters.trainingRating || empRating === 0) {
+                        return false;
+                    }
+                }
+
+                // Hardware filter
+                if (filters.hardware && !emp.hardware.includes(filters.hardware)) {
+                    return false;
+                }
+
+                // Software filter
+                if (filters.software && !emp.software.includes(filters.software)) {
+                    return false;
+                }
+
+                // Accreditation filter
+                if (filters.accreditation && !emp.accreditations.includes(filters.accreditation)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            displayResults(results);
+            updateActiveFilters(filters);
+        }
+
+        function clearFilters() {
+            elements.presetSelect.value = '';
+            elements.departmentSelect.value = '';
+            elements.trainingSelect.value = '';
+            elements.trainingRating.value = '';
+            elements.hardwareSelect.value = '';
+            elements.softwareSelect.value = '';
+            elements.accreditationSelect.value = '';
+            elements.activeFilters.innerHTML = '';
+            showEmptyState();
+        }
+
+        function applyPreset() {
+            const presetKey = elements.presetSelect.value;
+            if (!presetKey) return;
+
+            const preset = PRESETS[presetKey];
+            if (!preset) return;
+
+            elements.trainingSelect.value = preset.training || '';
+            elements.trainingRating.value = preset.trainingRating || '';
+            elements.hardwareSelect.value = preset.hardware || '';
+            elements.softwareSelect.value = preset.software || '';
+
+            performSearch();
+        }
+
+        // ============================================
+        // DISPLAY FUNCTIONS
+        // ============================================
+        function displayResults(employees) {
+            elements.resultCount.textContent = employees.length;
+
+            if (employees.length === 0) {
+                elements.resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <h3>No technicians found</h3>
+                        <p>Try adjusting your filters or clearing them to see all results</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const cardsHTML = employees.map(emp => createEmployeeCard(emp)).join('');
+            elements.resultsContainer.innerHTML = `<div class="employee-grid">${cardsHTML}</div>`;
+        }
+
+        function createEmployeeCard(employee) {
+            // Get relevant skills to show
+            const hardwareToShow = employee.hardware.slice(0, 3);
+            const trainingsToShow = Object.entries(employee.trainings).slice(0, 3);
+
+            const hardwareTags = hardwareToShow.map(hw => 
+                `<span class="skill-tag hardware">${hw}</span>`
+            ).join('');
+
+            const trainingTags = trainingsToShow.map(([name, rating]) => {
+                const ratingNum = parseRating(rating);
+                const ratingClass = ratingNum >= 4 ? 'high' : ratingNum >= 3 ? 'medium' : 'low';
+                const shortName = name.replace(/^\[T\d+\]\s*/, '').substring(0, 25);
+                return `<span class="rating-badge ${ratingClass}">${shortName}: ${rating}</span>`;
+            }).join('');
+
+            return `
+                <div class="employee-card">
+                    <div class="employee-name">${employee.name}</div>
+                    <div class="employee-role">${employee.role || 'No role specified'}</div>
+                    <div class="employee-meta">
+                        <div class="meta-item">
+                            <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            ${employee.department || 'No dept'}
+                        </div>
+                        ${employee.manager ? `
+                        <div class="meta-item">
+                            <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="8.5" cy="7" r="4"/>
+                                <line x1="20" y1="8" x2="20" y2="14"/>
+                                <line x1="23" y1="11" x2="17" y2="11"/>
+                            </svg>
+                            ${employee.manager}
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="employee-skills">
+                        ${trainingTags}
+                        ${hardwareTags}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateActiveFilters(filters) {
+            const tags = [];
+
+            if (filters.department) {
+                tags.push(`<span class="quick-filter-tag">Dept: ${filters.department}</span>`);
+            }
+            if (filters.training) {
+                const label = filters.trainingRating ? 
+                    `${filters.training} ≥ ${filters.trainingRating}/5` : 
+                    filters.training;
+                tags.push(`<span class="quick-filter-tag">${label}</span>`);
+            }
+            if (filters.hardware) {
+                tags.push(`<span class="quick-filter-tag">${filters.hardware}</span>`);
+            }
+            if (filters.software) {
+                tags.push(`<span class="quick-filter-tag">${filters.software}</span>`);
+            }
+            if (filters.accreditation) {
+                tags.push(`<span class="quick-filter-tag">${filters.accreditation}</span>`);
+            }
+
+            elements.activeFilters.innerHTML = tags.join('');
+        }
+
+        function showLoading() {
+            elements.resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading employees from SharePoint...</p>
+                </div>
+            `;
+        }
+
+        function showEmptyState() {
+            elements.resultCount.textContent = '0';
+            elements.resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <h3>Search for technicians</h3>
+                    <p>Use the filters on the left to find the right person for the job</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            elements.resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <h3>Connection Error</h3>
+                    <p>${message}</p>
+                    <p style="margin-top: 12px; font-size: 0.85rem;">Make sure you're logged into SharePoint and have access to the list.</p>
+                </div>
+            `;
+        }
+
+        function updateConnectionStatus(connected, errorMsg = '') {
+            isConnected = connected;
+            elements.statusDot.className = 'status-dot ' + (connected ? 'connected' : 'error');
+            elements.statusText.textContent = connected ? 
+                `Connected • ${allEmployees.length} employees loaded` : 
+                `Connection failed: ${errorMsg}`;
+        }
+    </script>
+</body>
+</html>
