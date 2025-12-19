@@ -128,14 +128,27 @@
             <aside class="filter-panel">
                 <h2>Filter Technicians</h2>
                 <div class="filter-section">
-                    <label class="filter-label">Quick Preset</label>
-                    <select id="presetSelect">
-                        <option value="">-- Select a preset --</option>
-                        <option value="abb-magmaster">ABB Magmaster Full Setup</option>
-                        <option value="siemens-fullbore">Siemens Full-bore</option>
-                        <option value="ultrasonic">Ultrasonic Specialist</option>
+                    <label class="filter-label">Workstream</label>
+                    <select id="workstreamSelect">
+                        <option value="">-- Select workstream --</option>
                     </select>
                 </div>
+                <div class="filter-section">
+                    <label class="filter-label">Job Type</label>
+                    <select id="jobTypeSelect" disabled>
+                        <option value="">-- Select workstream first --</option>
+                    </select>
+                </div>
+                <div class="filter-section">
+                    <label class="filter-label">Company (optional)</label>
+                    <select id="companySelect">
+                        <option value="">None</option>
+                        <option value="ThamesWater">Thames Water</option>
+                        <option value="ScottishWater">Scottish Water</option>
+                        <option value="AnglianWater">Anglian Water</option>
+                    </select>
+                </div>
+                <div style="border-bottom: 2px dashed var(--border-color); margin: 24px 0;"></div>
                 <div class="filter-section">
                     <label class="filter-label">Department</label>
                     <select id="departmentSelect">
@@ -293,39 +306,14 @@
         ];
 
         let allEmployees = [];
+        let allPresets = [];
         let selectedFilters = { department: '', trainings: [], hardware: [], software: [], accreditations: [] };
-
-        const PRESETS = {
-            'abb-magmaster': {
-                name: 'ABB Magmaster Full Setup',
-                trainings: ['[T1] ABB Magmaster Verification'],
-                hardware: ['[H1] SRV500'],
-                software: ['[S1] SRV500 software'],
-                accreditations: [],
-                minRating: '3'
-            },
-            'siemens-fullbore': {
-                name: 'Siemens Full-bore',
-                trainings: ['[T3] Siemens Full-bore Verification'],
-                hardware: ['[H9] Siemens Verificator'],
-                software: [],
-                accreditations: [],
-                minRating: '3'
-            },
-            'ultrasonic': {
-                name: 'Ultrasonic Specialist',
-                trainings: ['[T13] Flexim Ultrasonic', '[T14] Siemens Ultrasonic'],
-                hardware: [],
-                software: [],
-                accreditations: [],
-                minRating: '4'
-            }
-        };
 
         document.addEventListener('DOMContentLoaded', () => {
             initMultiSelects();
             attachEventListeners();
             fetchEmployees();
+            fetchPresets();
         });
 
         function initMultiSelects() {
@@ -348,7 +336,9 @@
             document.getElementById('searchBtn').addEventListener('click', performSearch);
             document.getElementById('clearBtn').addEventListener('click', clearAllFilters);
             document.getElementById('departmentSelect').addEventListener('change', (e) => { selectedFilters.department = e.target.value; });
-            document.getElementById('presetSelect').addEventListener('change', applyPreset);
+            document.getElementById('workstreamSelect').addEventListener('change', onWorkstreamChange);
+            document.getElementById('jobTypeSelect').addEventListener('change', onJobTypeChange);
+            document.getElementById('companySelect').addEventListener('change', onCompanyChange);
             setupMultiSelect('training', 'trainings');
             setupMultiSelect('hardware', 'hardware');
             setupMultiSelect('software', 'software');
@@ -422,7 +412,11 @@
         function clearAllFilters() {
             selectedFilters = { department: '', trainings: [], hardware: [], software: [], accreditations: [] };
             document.getElementById('departmentSelect').value = '';
-            document.getElementById('presetSelect').value = '';
+            document.getElementById('workstreamSelect').value = '';
+            document.getElementById('jobTypeSelect').value = '';
+            document.getElementById('jobTypeSelect').disabled = true;
+            document.getElementById('jobTypeSelect').innerHTML = '<option value="">-- Select workstream first --</option>';
+            document.getElementById('companySelect').value = '';
             document.getElementById('minTrainingRating').value = '3';
             document.querySelectorAll('.multi-select-option').forEach(option => { option.querySelector('input[type="checkbox"]').checked = false; option.classList.remove('selected'); });
             document.querySelectorAll('.selected-tags').forEach(c => c.innerHTML = '');
@@ -431,28 +425,107 @@
             showEmptyState();
         }
 
-        function applyPreset() {
-            const presetKey = document.getElementById('presetSelect').value;
-            if (!presetKey) return;
-            const preset = PRESETS[presetKey];
+        async function fetchPresets() {
+            try {
+                const apiUrl = `${CONFIG.siteUrl}/_api/web/lists/getbytitle('Presets')/items?$top=500`;
+                const response = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json;odata=verbose', 'Content-Type': 'application/json;odata=verbose' }, credentials: 'include' });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                allPresets = data.d.results.map(item => ({
+                    id: item.Id,
+                    workstream: item.Workstream || '',
+                    jobType: item.JobType || '',
+                    hardware: parseMultiSelect(item.Hardware),
+                    software: parseMultiSelect(item.Software),
+                    accreditations: parseMultiSelect(item.Accreditations),
+                    training: parseMultiSelect(item.Training),
+                    minRating: item.MinRating || '3',
+                    thamesWater: parseMultiSelect(item.ThamesWater),
+                    scottishWater: parseMultiSelect(item.ScottishWater),
+                    anglianWater: parseMultiSelect(item.AnglianWater)
+                }));
+                populateWorkstreams();
+            } catch (error) {
+                console.error('Error fetching presets:', error);
+            }
+        }
+
+        function populateWorkstreams() {
+            const workstreamSelect = document.getElementById('workstreamSelect');
+            const workstreams = [...new Set(allPresets.map(p => p.workstream).filter(w => w))];
+            workstreams.sort();
+            workstreams.forEach(ws => {
+                const option = document.createElement('option');
+                option.value = ws;
+                option.textContent = ws;
+                workstreamSelect.appendChild(option);
+            });
+        }
+
+        function onWorkstreamChange() {
+            const workstream = document.getElementById('workstreamSelect').value;
+            const jobTypeSelect = document.getElementById('jobTypeSelect');
+            jobTypeSelect.innerHTML = '<option value="">-- Select job type --</option>';
+            
+            if (!workstream) {
+                jobTypeSelect.disabled = true;
+                jobTypeSelect.innerHTML = '<option value="">-- Select workstream first --</option>';
+                return;
+            }
+
+            const jobTypes = allPresets.filter(p => p.workstream === workstream).map(p => p.jobType).filter(j => j);
+            jobTypes.sort();
+            jobTypes.forEach(jt => {
+                const option = document.createElement('option');
+                option.value = jt;
+                option.textContent = jt;
+                jobTypeSelect.appendChild(option);
+            });
+            jobTypeSelect.disabled = false;
+        }
+
+        function onJobTypeChange() {
+            const workstream = document.getElementById('workstreamSelect').value;
+            const jobType = document.getElementById('jobTypeSelect').value;
+            if (!workstream || !jobType) return;
+
+            const preset = allPresets.find(p => p.workstream === workstream && p.jobType === jobType);
             if (!preset) return;
 
-            // Clear existing selections first
-            clearAllFilters();
-            document.getElementById('presetSelect').value = presetKey;
+            applyPresetToFilters(preset);
+        }
 
-            // Apply preset values
+        function onCompanyChange() {
+            const workstream = document.getElementById('workstreamSelect').value;
+            const jobType = document.getElementById('jobTypeSelect').value;
+            if (!workstream || !jobType) return;
+
+            const preset = allPresets.find(p => p.workstream === workstream && p.jobType === jobType);
+            if (!preset) return;
+
+            applyPresetToFilters(preset);
+        }
+
+        function applyPresetToFilters(preset) {
+            // Clear existing selections
+            document.querySelectorAll('.multi-select-option').forEach(option => { 
+                option.querySelector('input[type="checkbox"]').checked = false; 
+                option.classList.remove('selected'); 
+            });
+            selectedFilters = { department: '', trainings: [], hardware: [], software: [], accreditations: [] };
+
+            // Set min rating
             if (preset.minRating) document.getElementById('minTrainingRating').value = preset.minRating;
 
-            // Select trainings
-            preset.trainings.forEach(t => {
+            // Apply trainings
+            preset.training.forEach(t => {
                 if (!selectedFilters.trainings.includes(t)) selectedFilters.trainings.push(t);
                 const option = document.querySelector(`#trainingOptions [data-value="${t}"]`);
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
             });
             updateSelectedTags('training', 'trainings');
 
-            // Select hardware
+            // Apply hardware
             preset.hardware.forEach(h => {
                 if (!selectedFilters.hardware.includes(h)) selectedFilters.hardware.push(h);
                 const option = document.querySelector(`#hardwareOptions [data-value="${h}"]`);
@@ -460,7 +533,7 @@
             });
             updateSelectedTags('hardware', 'hardware');
 
-            // Select software
+            // Apply software
             preset.software.forEach(s => {
                 if (!selectedFilters.software.includes(s)) selectedFilters.software.push(s);
                 const option = document.querySelector(`#softwareOptions [data-value="${s}"]`);
@@ -468,8 +541,21 @@
             });
             updateSelectedTags('software', 'software');
 
-            // Select accreditations
+            // Apply base accreditations
             preset.accreditations.forEach(a => {
+                if (!selectedFilters.accreditations.includes(a)) selectedFilters.accreditations.push(a);
+                const option = document.querySelector(`#accreditationOptions [data-value="${a}"]`);
+                if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
+            });
+
+            // Apply company-specific accreditations
+            const company = document.getElementById('companySelect').value;
+            let companyAccreditations = [];
+            if (company === 'ThamesWater') companyAccreditations = preset.thamesWater;
+            else if (company === 'ScottishWater') companyAccreditations = preset.scottishWater;
+            else if (company === 'AnglianWater') companyAccreditations = preset.anglianWater;
+
+            companyAccreditations.forEach(a => {
                 if (!selectedFilters.accreditations.includes(a)) selectedFilters.accreditations.push(a);
                 const option = document.querySelector(`#accreditationOptions [data-value="${a}"]`);
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
