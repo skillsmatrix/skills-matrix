@@ -121,7 +121,7 @@
             <p>Find the right technician for the job</p>
             <div class="connection-status">
                 <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Connecting to SharePoint...</span>
+                <span id="statusText">Loading data...</span>
             </div>
         </header>
         <main class="main-layout">
@@ -427,22 +427,21 @@
 
         async function fetchPresets() {
             try {
-                const apiUrl = `${CONFIG.siteUrl}/_api/web/lists/getbytitle('Presets')/items?$top=500`;
-                const response = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json;odata=verbose', 'Content-Type': 'application/json;odata=verbose' }, credentials: 'include' });
+                const response = await fetch('./data/presets.json');
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                allPresets = data.d.results.map(item => ({
-                    id: item.Id,
-                    workstream: item.Workstream || '',
-                    jobType: item.JobType || '',
-                    hardware: parseMultiSelect(item.Hardware),
-                    software: parseMultiSelect(item.Software),
-                    accreditations: parseMultiSelect(item.Accreditations),
-                    training: parseMultiSelect(item.Training),
-                    minRating: item.MinRating || '3',
-                    thamesWater: parseMultiSelect(item.ThamesWater),
-                    scottishWater: parseMultiSelect(item.ScottishWater),
-                    anglianWater: parseMultiSelect(item.AnglianWater)
+                allPresets = data.map(item => ({
+                    id: item.Id || item.id || Math.random(),
+                    workstream: item.Workstream || item.workstream || '',
+                    jobType: item.JobType || item.jobType || '',
+                    hardware: parseMultiSelect(item.Hardware || item.hardware),
+                    software: parseMultiSelect(item.Software || item.software),
+                    accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
+                    training: parseMultiSelect(item.Training || item.training),
+                    minRating: item.MinRating || item.minRating || '3',
+                    thamesWater: parseMultiSelect(item.ThamesWater || item.thamesWater),
+                    scottishWater: parseMultiSelect(item.ScottishWater || item.scottishWater),
+                    anglianWater: parseMultiSelect(item.AnglianWater || item.anglianWater)
                 }));
                 populateWorkstreams();
             } catch (error) {
@@ -569,12 +568,21 @@
         async function fetchEmployees() {
             showLoading();
             try {
-                const selectColumns = ['Id', 'Employee/Title', 'Employee/EMail', 'Role', 'Department', 'Manager/Title', 'Hardware', 'Software', 'Accreditations', ...TRAINING_COLUMNS.map(t => encodeURIComponent(t))].join(',');
-                const apiUrl = `${CONFIG.siteUrl}/_api/web/lists/getbytitle('${CONFIG.listName}')/items?$select=${selectColumns}&$expand=Employee,Manager&$top=500`;
-                const response = await fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json;odata=verbose', 'Content-Type': 'application/json;odata=verbose' }, credentials: 'include' });
+                const response = await fetch('./data/employees.json');
                 if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 const data = await response.json();
-                allEmployees = data.d.results.map(parseEmployee);
+                allEmployees = data.map(item => ({
+                    id: item.Id || item.id || Math.random(),
+                    name: item.Employee || item.employee || item.Name || item.name || 'Unknown',
+                    email: item.Email || item.email || '',
+                    role: item.Role || item.role || '',
+                    department: item.Department || item.department || '',
+                    manager: item.Manager || item.manager || '',
+                    hardware: parseMultiSelect(item.Hardware || item.hardware),
+                    software: parseMultiSelect(item.Software || item.software),
+                    accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
+                    trainings: parseTrainings(item)
+                }));
                 updateConnectionStatus(true);
                 showEmptyState();
             } catch (error) {
@@ -584,15 +592,15 @@
             }
         }
 
-        function parseEmployee(item) {
-            const employee = {
-                id: item.Id, name: item.Employee?.Title || 'Unknown', email: item.Employee?.EMail || '',
-                role: item.Role || '', department: item.Department || '', manager: item.Manager?.Title || '',
-                hardware: parseMultiSelect(item.Hardware), software: parseMultiSelect(item.Software),
-                accreditations: parseMultiSelect(item.Accreditations), trainings: {}
-            };
-            TRAINING_COLUMNS.forEach(training => { const value = item[training]; if (value && value !== 'N/A') employee.trainings[training] = value; });
-            return employee;
+        function parseTrainings(item) {
+            const trainings = {};
+            TRAINING_COLUMNS.forEach(training => {
+                const value = item[training];
+                if (value && value !== 'N/A' && value !== '') {
+                    trainings[training] = value;
+                }
+            });
+            return trainings;
         }
 
         function parseMultiSelect(value) {
@@ -655,10 +663,10 @@
             container.innerHTML = tags.join('');
         }
 
-        function showLoading() { document.getElementById('resultsContainer').innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading employees from SharePoint...</p></div>`; }
+        function showLoading() { document.getElementById('resultsContainer').innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading employees...</p></div>`; }
         function showEmptyState() { document.getElementById('resultCount').textContent = '0'; document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><h3>Search for technicians</h3><p>Use the filters on the left to find the right person for the job</p></div>`; }
-        function showError(message) { document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h3>Connection Error</h3><p>${message}</p><p style="margin-top: 12px; font-size: 0.85rem;">Make sure you're logged into SharePoint and have access to the list.</p></div>`; }
-        function updateConnectionStatus(connected, errorMsg = '') { document.getElementById('statusDot').className = 'status-dot ' + (connected ? 'connected' : 'error'); document.getElementById('statusText').textContent = connected ? `Connected • ${allEmployees.length} employees loaded` : `Connection failed: ${errorMsg}`; }
+        function showError(message) { document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h3>Load Error</h3><p>${message}</p><p style="margin-top: 12px; font-size: 0.85rem;">Make sure the data files are in the correct location.</p></div>`; }
+        function updateConnectionStatus(connected, errorMsg = '') { document.getElementById('statusDot').className = 'status-dot ' + (connected ? 'connected' : 'error'); document.getElementById('statusText').textContent = connected ? `Loaded • ${allEmployees.length} employees` : `Load failed: ${errorMsg}`; }
     </script>
 </body>
 </html>
