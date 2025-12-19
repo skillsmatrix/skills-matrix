@@ -519,7 +519,8 @@
             // Apply trainings
             preset.training.forEach(t => {
                 if (!selectedFilters.trainings.includes(t)) selectedFilters.trainings.push(t);
-                const option = document.querySelector(`#trainingOptions [data-value="${t}"]`);
+                const option = document.querySelector('#trainingOptions').querySelector(`[data-value="${CSS.escape(t)}"]`) 
+                    || Array.from(document.querySelectorAll('#trainingOptions .multi-select-option')).find(el => el.dataset.value === t);
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
             });
             updateSelectedTags('training', 'trainings');
@@ -527,7 +528,7 @@
             // Apply hardware
             preset.hardware.forEach(h => {
                 if (!selectedFilters.hardware.includes(h)) selectedFilters.hardware.push(h);
-                const option = document.querySelector(`#hardwareOptions [data-value="${h}"]`);
+                const option = Array.from(document.querySelectorAll('#hardwareOptions .multi-select-option')).find(el => el.dataset.value === h);
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
             });
             updateSelectedTags('hardware', 'hardware');
@@ -535,7 +536,7 @@
             // Apply software
             preset.software.forEach(s => {
                 if (!selectedFilters.software.includes(s)) selectedFilters.software.push(s);
-                const option = document.querySelector(`#softwareOptions [data-value="${s}"]`);
+                const option = Array.from(document.querySelectorAll('#softwareOptions .multi-select-option')).find(el => el.dataset.value === s);
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
             });
             updateSelectedTags('software', 'software');
@@ -543,20 +544,20 @@
             // Apply base accreditations
             preset.accreditations.forEach(a => {
                 if (!selectedFilters.accreditations.includes(a)) selectedFilters.accreditations.push(a);
-                const option = document.querySelector(`#accreditationOptions [data-value="${a}"]`);
+                const option = Array.from(document.querySelectorAll('#accreditationOptions .multi-select-option')).find(el => el.dataset.value === a);
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
             });
 
             // Apply company-specific accreditations
             const company = document.getElementById('companySelect').value;
             let companyAccreditations = [];
-            if (company === 'ThamesWater') companyAccreditations = preset.thamesWater;
-            else if (company === 'ScottishWater') companyAccreditations = preset.scottishWater;
-            else if (company === 'AnglianWater') companyAccreditations = preset.anglianWater;
+            if (company === 'ThamesWater') companyAccreditations = preset.thamesWater || [];
+            else if (company === 'ScottishWater') companyAccreditations = preset.scottishWater || [];
+            else if (company === 'AnglianWater') companyAccreditations = preset.anglianWater || [];
 
             companyAccreditations.forEach(a => {
                 if (!selectedFilters.accreditations.includes(a)) selectedFilters.accreditations.push(a);
-                const option = document.querySelector(`#accreditationOptions [data-value="${a}"]`);
+                const option = Array.from(document.querySelectorAll('#accreditationOptions .multi-select-option')).find(el => el.dataset.value === a);
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
             });
             updateSelectedTags('accreditation', 'accreditations');
@@ -648,8 +649,9 @@
             }).join('');
             const matchedHardware = selectedFilters.hardware.slice(0, 3).map(hw => `<span class="skill-tag hardware">${hw}</span>`).join('');
             const matchedSoftware = selectedFilters.software.slice(0, 3).map(sw => `<span class="skill-tag software">${sw}</span>`).join('');
+            const matchedAccreditations = selectedFilters.accreditations.slice(0, 3).map(acc => `<span class="skill-tag accreditation">${acc}</span>`).join('');
             const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
-            return `<div class="employee-card">${totalFilters > 0 ? `<div class="match-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Matches all ${totalFilters} requirements</div>` : ''}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}</div><div class="employee-skills">${matchedTrainings}${matchedHardware}${matchedSoftware}</div></div>`;
+            return `<div class="employee-card">${totalFilters > 0 ? `<div class="match-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Matches all ${totalFilters} requirements</div>` : ''}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}</div><div class="employee-skills">${matchedTrainings}${matchedHardware}${matchedSoftware}${matchedAccreditations}</div></div>`;
         }
 
         function updateActiveFiltersDisplay() {
