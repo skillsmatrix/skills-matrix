@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skills Matrix | Find Your Tech</title>
+    <link rel="icon" type="image/x-icon" href="https://mgroupltd.com/favicon.ico">
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
@@ -13,22 +15,184 @@
             --bg-secondary: #ffffff;
             --bg-card: #ffffff;
             --bg-input: #f1f5f9;
-            --accent-blue: #2563eb;
-            --accent-cyan: #0891b2;
+            --accent-pink: #e91e8c;
+            --accent-orange: #f7941d;
+            --accent-yellow: #fbb040;
+            --accent-navy: #1a2744;
             --accent-green: #059669;
-            --accent-orange: #d97706;
             --accent-purple: #7c3aed;
-            --text-primary: #1e293b;
+            --text-primary: #1a2744;
             --text-secondary: #475569;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --shadow-glow: 0 4px 24px rgba(0, 0, 0, 0.08);
         }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --shadow-glow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-pink);
+            color: var(--text-primary);
+        }
+
+        .theme-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .theme-toggle .sun-icon { display: none; }
+        .theme-toggle .moon-icon { display: block; }
+
+        [data-theme="dark"] .theme-toggle .sun-icon { display: block; }
+        [data-theme="dark"] .theme-toggle .moon-icon { display: none; }
+
+        /* Login screen */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .login-screen h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .login-screen p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+        }
+
+        .login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(233, 30, 140, 0.3);
+        }
+
+        .login-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 6px 16px 6px 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            margin-left: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logout-btn:hover {
+            color: var(--accent-pink);
+        }
+
+        .app-content {
+            display: none;
+        }
+
+        .app-content.visible {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .user-info {
+                position: relative;
+                top: 0;
+                left: 0;
+                margin-bottom: 16px;
+                align-self: flex-start;
+            }
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DM Sans', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 40px 24px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 24px; position: relative; }
         .header { text-align: center; margin-bottom: 48px; }
-        .header h1 { font-family: 'Space Mono', monospace; font-size: 2.5rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+        .header h1 { font-family: 'Space Mono', monospace; font-size: 2.5rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
         .header p { color: var(--text-secondary); font-size: 1.1rem; }
         .connection-status { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; font-size: 0.875rem; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-orange); animation: pulse 2s infinite; }
@@ -36,28 +200,49 @@
         .status-dot.error { background: #ef4444; animation: none; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .main-layout { display: grid; grid-template-columns: 420px 1fr; gap: 32px; }
-        @media (max-width: 1024px) { .main-layout { grid-template-columns: 1fr; } }
-        .filter-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; height: fit-content; position: sticky; top: 24px; box-shadow: var(--shadow-glow); }
+        @media (max-width: 1024px) { 
+            .main-layout { grid-template-columns: 1fr; display: flex; flex-direction: column; }
+            .filter-panel { position: relative; top: 0; width: 100%; }
+            .results-panel { width: 100%; }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 20px 16px; padding-top: 60px; }
+            .header { margin-bottom: 24px; }
+            .header h1 { font-size: 1.8rem; }
+            .header p { font-size: 0.95rem; }
+            .theme-toggle { top: 16px; right: 16px; padding: 6px 10px; font-size: 0.8rem; }
+            .theme-toggle .toggle-text { display: none; }
+            .filter-panel { padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+            .filter-panel h2 { font-size: 1.1rem; margin-bottom: 20px; }
+            .filter-section { margin-bottom: 16px; }
+            .results-panel { padding: 20px; border-radius: 12px; min-height: auto; }
+            .results-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .employee-grid { grid-template-columns: 1fr; }
+            .employee-card { padding: 16px; }
+            .employee-skills { gap: 4px; }
+            .skill-tag, .rating-badge { font-size: 0.7rem; padding: 3px 8px; }
+        }
+        .filter-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; height: fit-content; box-shadow: var(--shadow-glow); }
         .filter-panel h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
-        .filter-panel h2::before { content: ''; width: 4px; height: 20px; background: linear-gradient(180deg, var(--accent-blue), var(--accent-cyan)); border-radius: 2px; }
+        .filter-panel h2::before { content: ''; width: 4px; height: 20px; background: linear-gradient(180deg, var(--accent-pink), var(--accent-orange)); border-radius: 2px; }
         .filter-section { margin-bottom: 20px; }
         .filter-label { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-        .filter-label .count { font-size: 0.7rem; background: var(--accent-blue); color: white; padding: 2px 8px; border-radius: 10px; }
+        .filter-label .count { font-size: 0.7rem; background: var(--accent-pink); color: white; padding: 2px 8px; border-radius: 10px; }
         .multi-select { position: relative; }
         .multi-select-trigger { width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; }
-        .multi-select-trigger:hover { border-color: var(--accent-blue); }
-        .multi-select-trigger.active { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .multi-select-trigger:hover { border-color: var(--accent-pink); }
+        .multi-select-trigger.active { border-color: var(--accent-pink); box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.1); }
         .multi-select-trigger svg { width: 18px; height: 18px; transition: transform 0.2s ease; }
         .multi-select-trigger.active svg { transform: rotate(180deg); }
         .multi-select-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; margin-top: 4px; max-height: 250px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); }
         .multi-select-dropdown.open { display: block; }
         .multi-select-search { padding: 10px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; background: var(--bg-card); }
         .multi-select-search input { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; }
-        .multi-select-search input:focus { outline: none; border-color: var(--accent-blue); }
+        .multi-select-search input:focus { outline: none; border-color: var(--accent-pink); }
         .multi-select-option { padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.15s ease; }
         .multi-select-option:hover { background: var(--bg-input); }
-        .multi-select-option.selected { background: rgba(37, 99, 235, 0.08); }
-        .multi-select-option input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-blue); }
+        .multi-select-option.selected { background: rgba(233, 30, 140, 0.08); }
+        .multi-select-option input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-pink); }
         .multi-select-option label { flex: 1; cursor: pointer; font-size: 0.9rem; }
         .selected-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .selected-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.75rem; color: var(--text-secondary); }
@@ -68,24 +253,24 @@
         .selected-tag .remove-tag { cursor: pointer; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(0,0,0,0.1); font-size: 10px; }
         .selected-tag .remove-tag:hover { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
         select { width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; cursor: pointer; }
-        select:hover { border-color: var(--accent-blue); }
-        select:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        select:hover { border-color: var(--accent-pink); }
+        select:focus { outline: none; border-color: var(--accent-pink); box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.1); }
         .min-rating-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px; background: var(--bg-input); border-radius: 8px; }
         .min-rating-row label { font-size: 0.85rem; color: var(--text-secondary); }
         .min-rating-row select { width: auto; padding: 6px 12px; font-size: 0.85rem; }
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary { width: 100%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan)); color: white; margin-top: 8px; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); }
+        .btn-primary { width: 100%; background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange)); color: white; margin-top: 8px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(233, 30, 140, 0.3); }
         .btn-secondary { width: 100%; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); margin-top: 12px; }
         .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
         .results-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; min-height: 500px; }
         .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .results-header h2 { font-size: 1.25rem; font-weight: 600; }
         .results-count { background: var(--bg-input); padding: 6px 14px; border-radius: 20px; font-size: 0.875rem; color: var(--text-secondary); }
-        .results-count span { color: var(--accent-cyan); font-weight: 600; }
+        .results-count span { color: var(--accent-orange); font-weight: 600; }
         .employee-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
         .employee-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; transition: all 0.2s ease; }
-        .employee-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+        .employee-card:hover { border-color: var(--accent-pink); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
         .employee-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
         .employee-role { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; }
         .employee-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -115,7 +300,51 @@
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <h1>SKILLS MATRIX</h1>
+        <p>Sign in with your M Group account to continue</p>
+        <button class="login-btn" id="loginBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                <polyline points="10 17 15 12 10 7"/>
+                <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Sign in with Microsoft
+        </button>
+    </div>
+
+    <!-- Main App Content -->
+    <div class="app-content" id="appContent">
     <div class="container">
+        <div class="user-info" id="userInfo">
+            <div class="user-avatar" id="userAvatar">?</div>
+            <span id="userName">User</span>
+            <button class="logout-btn" id="logoutBtn" title="Sign out">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+            </button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <span class="toggle-text">Dark</span>
+        </button>
         <header class="header">
             <h1>SKILLS MATRIX</h1>
             <p>Find the right technician for the job</p>
@@ -246,7 +475,34 @@
             </section>
         </main>
     </div>
+    </div>
     <script>
+        // ============================================
+        // MSAL CONFIGURATION
+        // ============================================
+        const msalConfig = {
+            auth: {
+                clientId: '85f768c8-fce1-4cd6-ba78-76892d0c849e',
+                authority: 'https://login.microsoftonline.com/ac8516b7-b864-4061-b563-3f0542e6780d',
+                redirectUri: window.location.origin + window.location.pathname,
+            },
+            cache: {
+                cacheLocation: 'localStorage',
+                storeAuthStateInCookie: false,
+            }
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        const loginRequest = {
+            scopes: ['https://graph.microsoft.com/Sites.Read.All']
+        };
+
+        let accessToken = null;
+
+        // ============================================
+        // SHAREPOINT CONFIGURATION
+        // ============================================
         const CONFIG = {
             siteUrl: 'https://morrisonus.sharepoint.com/sites/SkillsMatrix',
             listName: 'Employees'
@@ -309,12 +565,119 @@
         let allPresets = [];
         let selectedFilters = { department: '', trainings: [], hardware: [], software: [], accreditations: [] };
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            initTheme();
+            
+            // Handle redirect after login
+            try {
+                const response = await msalInstance.handleRedirectPromise();
+                if (response) {
+                    accessToken = response.accessToken;
+                    showApp(response.account);
+                } else {
+                    // Check if user is already signed in
+                    const accounts = msalInstance.getAllAccounts();
+                    if (accounts.length > 0) {
+                        try {
+                            const silentResponse = await msalInstance.acquireTokenSilent({
+                                ...loginRequest,
+                                account: accounts[0]
+                            });
+                            accessToken = silentResponse.accessToken;
+                            showApp(accounts[0]);
+                        } catch (e) {
+                            showLogin();
+                        }
+                    } else {
+                        showLogin();
+                    }
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                showLogin();
+            }
+
+            // Login button
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+        });
+
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appContent').classList.remove('visible');
+        }
+
+        function showApp(account) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContent').classList.add('visible');
+            
+            // Show user info
+            const name = account.name || account.username;
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userAvatar').textContent = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            
+            // Initialize app
             initMultiSelects();
             attachEventListeners();
             fetchEmployees();
             fetchPresets();
-        });
+        }
+
+        async function login() {
+            try {
+                await msalInstance.loginRedirect(loginRequest);
+            } catch (error) {
+                console.error('Login error:', error);
+            }
+        }
+
+        async function logout() {
+            try {
+                await msalInstance.logoutRedirect({
+                    postLogoutRedirectUri: window.location.origin + window.location.pathname
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        async function getAccessToken() {
+            if (accessToken) return accessToken;
+            
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+                try {
+                    const response = await msalInstance.acquireTokenSilent({
+                        ...loginRequest,
+                        account: accounts[0]
+                    });
+                    accessToken = response.accessToken;
+                    return accessToken;
+                } catch (e) {
+                    // Token expired, need to login again
+                    await msalInstance.loginRedirect(loginRequest);
+                }
+            }
+            return null;
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateToggleText(savedTheme);
+            
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateToggleText(newTheme);
+            });
+        }
+
+        function updateToggleText(theme) {
+            document.querySelector('.toggle-text').textContent = theme === 'dark' ? 'Light' : 'Dark';
+        }
 
         function initMultiSelects() {
             const containers = {
@@ -427,22 +790,46 @@
 
         async function fetchPresets() {
             try {
-                const response = await fetch('./data/presets.json');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                allPresets = data.map(item => ({
-                    id: item.Id || item.id || Math.random(),
-                    workstream: item.Workstream || item.workstream || '',
-                    jobType: item.JobType || item.jobType || '',
-                    hardware: parseMultiSelect(item.Hardware || item.hardware),
-                    software: parseMultiSelect(item.Software || item.software),
-                    accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
-                    training: parseMultiSelect(item.Training || item.training),
-                    minRating: item.MinRating || item.minRating || '3',
-                    thamesWater: parseMultiSelect(item.ThamesWater || item.thamesWater),
-                    scottishWater: parseMultiSelect(item.ScottishWater || item.scottishWater),
-                    anglianWater: parseMultiSelect(item.AnglianWater || item.anglianWater)
-                }));
+                const token = await getAccessToken();
+                if (!token) throw new Error('Not authenticated');
+
+                // First get the site ID
+                const siteResponse = await fetch(
+                    `https://graph.microsoft.com/v1.0/sites/morrisonus.sharepoint.com:/sites/SkillsMatrix`,
+                    {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
+                if (!siteResponse.ok) throw new Error(`Site error: ${siteResponse.status}`);
+                const siteData = await siteResponse.json();
+                const siteId = siteData.id;
+
+                // Get the presets list
+                const listResponse = await fetch(
+                    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/Presets/items?expand=fields&$top=500`,
+                    {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
+                if (!listResponse.ok) throw new Error(`Presets list error: ${listResponse.status}`);
+                const listData = await listResponse.json();
+
+                allPresets = listData.value.map(item => {
+                    const fields = item.fields;
+                    return {
+                        id: item.id,
+                        workstream: fields.Workstream || '',
+                        jobType: fields.JobType || '',
+                        hardware: parseMultiSelect(fields.Hardware),
+                        software: parseMultiSelect(fields.Software),
+                        accreditations: parseMultiSelect(fields.Accreditations),
+                        training: parseMultiSelect(fields.Training),
+                        minRating: fields.MinRating || '3',
+                        thamesWater: parseMultiSelect(fields.ThamesWater),
+                        scottishWater: parseMultiSelect(fields.ScottishWater),
+                        anglianWater: parseMultiSelect(fields.AnglianWater)
+                    };
+                });
                 populateWorkstreams();
             } catch (error) {
                 console.error('Error fetching presets:', error);
@@ -569,21 +956,46 @@
         async function fetchEmployees() {
             showLoading();
             try {
-                const response = await fetch('./data/employees.json');
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                const data = await response.json();
-                allEmployees = data.map(item => ({
-                    id: item.Id || item.id || Math.random(),
-                    name: item.Employee || item.employee || item.Name || item.name || 'Unknown',
-                    email: item.Email || item.email || '',
-                    role: item.Role || item.role || '',
-                    department: item.Department || item.department || '',
-                    manager: item.Manager || item.manager || '',
-                    hardware: parseMultiSelect(item.Hardware || item.hardware),
-                    software: parseMultiSelect(item.Software || item.software),
-                    accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
-                    trainings: parseTrainings(item)
-                }));
+                const token = await getAccessToken();
+                if (!token) throw new Error('Not authenticated');
+
+                // First get the site ID
+                const siteResponse = await fetch(
+                    `https://graph.microsoft.com/v1.0/sites/morrisonus.sharepoint.com:/sites/SkillsMatrix`,
+                    {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
+                if (!siteResponse.ok) throw new Error(`Site error: ${siteResponse.status}`);
+                const siteData = await siteResponse.json();
+                const siteId = siteData.id;
+
+                // Get the list
+                const listResponse = await fetch(
+                    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/Employees/items?expand=fields&$top=500`,
+                    {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
+                if (!listResponse.ok) throw new Error(`List error: ${listResponse.status}`);
+                const listData = await listResponse.json();
+
+                allEmployees = listData.value.map(item => {
+                    const fields = item.fields;
+                    return {
+                        id: item.id,
+                        name: fields.Employee || fields.Title || 'Unknown',
+                        email: fields.Email || '',
+                        role: fields.Role || '',
+                        department: fields.Department || '',
+                        manager: fields.Manager || '',
+                        hardware: parseMultiSelect(fields.Hardware),
+                        software: parseMultiSelect(fields.Software),
+                        accreditations: parseMultiSelect(fields.Accreditations),
+                        trainings: parseTrainingsFromFields(fields)
+                    };
+                });
+
                 updateConnectionStatus(true);
                 showEmptyState();
             } catch (error) {
@@ -593,10 +1005,11 @@
             }
         }
 
-        function parseTrainings(item) {
+        function parseTrainingsFromFields(fields) {
             const trainings = {};
             TRAINING_COLUMNS.forEach(training => {
-                const value = item[training];
+                // Try different possible field name formats
+                const value = fields[training] || fields[training.replace(/[\[\]]/g, '')] || fields[training.replace(/\s/g, '_x0020_')];
                 if (value && value !== 'N/A' && value !== '') {
                     trainings[training] = value;
                 }
