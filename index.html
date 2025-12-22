@@ -364,14 +364,10 @@
 
         .modal-tabs {
             display: flex;
-            justify-content: flex-start;
             border-bottom: 1px solid var(--border-color);
-            padding: 0 24px;
+            padding: 0;
             flex-shrink: 0;
             background: var(--bg-card);
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
             min-height: 50px;
         }
 
@@ -380,8 +376,9 @@
         }
 
         .modal-tab {
-            padding: 14px 20px;
-            margin: 0 0 -1px 0;
+            flex: 1;
+            padding: 14px 10px;
+            margin: 0;
             background: none;
             border: none;
             font-family: 'DM Sans', sans-serif;
@@ -392,6 +389,7 @@
             border-bottom: 2px solid transparent;
             transition: all 0.2s ease;
             white-space: nowrap;
+            text-align: center;
         }
 
         .modal-tab:hover {
