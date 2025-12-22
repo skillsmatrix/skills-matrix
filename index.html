@@ -280,6 +280,223 @@
         .location-input::placeholder { color: var(--text-muted); }
         .distance-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(233, 30, 140, 0.1); border: 1px solid rgba(233, 30, 140, 0.3); border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: var(--accent-pink); margin-bottom: 12px; }
         .distance-badge svg { width: 14px; height: 14px; }
+
+        /* Employee Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .modal-header-info h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .modal-header-info p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .modal-close {
+            background: var(--bg-input);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-pink);
+            color: white;
+        }
+
+        .modal-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            overflow-x: auto;
+        }
+
+        .modal-tab {
+            padding: 14px 20px;
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .modal-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-tab.active {
+            color: var(--accent-pink);
+            border-bottom-color: var(--accent-pink);
+        }
+
+        .modal-content {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-tab-panel {
+            display: none;
+        }
+
+        .modal-tab-panel.active {
+            display: block;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .info-item {
+            background: var(--bg-input);
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .info-item-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .info-item-value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-list-item {
+            padding: 8px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .skill-list-item.training {
+            background: rgba(5, 150, 105, 0.1);
+            border-color: rgba(5, 150, 105, 0.3);
+        }
+
+        .skill-list-item.training .rating {
+            color: var(--accent-green);
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .skill-list-item.hardware {
+            background: rgba(217, 119, 6, 0.1);
+            border-color: rgba(217, 119, 6, 0.3);
+        }
+
+        .skill-list-item.software {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        .skill-list-item.accreditation {
+            background: rgba(8, 145, 178, 0.1);
+            border-color: rgba(8, 145, 178, 0.3);
+        }
+
+        .empty-tab {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .modal {
+                max-height: 90vh;
+            }
+            .modal-header {
+                padding: 20px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-tab {
+                padding: 12px 14px;
+                font-size: 0.85rem;
+            }
+        }
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
         .btn-primary { width: 100%; background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange)); color: white; margin-top: 8px; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(233, 30, 140, 0.3); }
@@ -293,7 +510,7 @@
         .results-count { background: var(--bg-input); padding: 6px 14px; border-radius: 20px; font-size: 0.875rem; color: var(--text-secondary); }
         .results-count span { color: var(--accent-orange); font-weight: 600; }
         .employee-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
-        .employee-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; transition: all 0.2s ease; }
+        .employee-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; transition: all 0.2s ease; cursor: pointer; }
         .employee-card:hover { border-color: var(--accent-pink); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
         .employee-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
         .employee-role { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; }
@@ -324,6 +541,48 @@
     </style>
 </head>
 <body>
+    <!-- Employee Modal -->
+    <div class="modal-overlay" id="employeeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-header-info">
+                    <h2 id="modalEmployeeName">Employee Name</h2>
+                    <p id="modalEmployeeRole">Role</p>
+                </div>
+                <button class="modal-close" id="modalClose">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="info">Info</button>
+                <button class="modal-tab" data-tab="training">Training</button>
+                <button class="modal-tab" data-tab="accreditations">Accreditations</button>
+                <button class="modal-tab" data-tab="hardware">Hardware</button>
+                <button class="modal-tab" data-tab="software">Software</button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-tab-panel active" id="panel-info">
+                    <div class="info-grid" id="modalInfoGrid"></div>
+                </div>
+                <div class="modal-tab-panel" id="panel-training">
+                    <div class="skill-list" id="modalTrainingList"></div>
+                </div>
+                <div class="modal-tab-panel" id="panel-accreditations">
+                    <div class="skill-list" id="modalAccreditationsList"></div>
+                </div>
+                <div class="modal-tab-panel" id="panel-hardware">
+                    <div class="skill-list" id="modalHardwareList"></div>
+                </div>
+                <div class="modal-tab-panel" id="panel-software">
+                    <div class="skill-list" id="modalSoftwareList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <h1>SKILLS MATRIX</h1>
@@ -650,6 +909,7 @@
             document.getElementById('userAvatar').textContent = 'DU';
             
             // Initialize app with JSON data
+            initModal();
             initMultiSelects();
             attachEventListeners();
             fetchEmployeesDemo();
@@ -734,6 +994,7 @@
             document.getElementById('userAvatar').textContent = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             
             // Initialize app
+            initModal();
             initMultiSelects();
             attachEventListeners();
             fetchEmployees();
@@ -1050,6 +1311,120 @@
             document.getElementById('resultsContainer').innerHTML = `<div class="employee-grid">${results.map(emp => createEmployeeCard(emp)).join('')}</div>`;
         }
 
+        // ============================================
+        // EMPLOYEE MODAL
+        // ============================================
+        function initModal() {
+            const modal = document.getElementById('employeeModal');
+            const closeBtn = document.getElementById('modalClose');
+            const tabs = document.querySelectorAll('.modal-tab');
+
+            // Close button
+            closeBtn.addEventListener('click', closeEmployeeModal);
+
+            // Click outside to close
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeEmployeeModal();
+            });
+
+            // Escape key to close
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeEmployeeModal();
+            });
+
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.querySelectorAll('.modal-tab-panel').forEach(p => p.classList.remove('active'));
+                    document.getElementById(`panel-${tab.dataset.tab}`).classList.add('active');
+                });
+            });
+        }
+
+        function openEmployeeModal(employeeId) {
+            const employee = allEmployees.find(e => e.id === employeeId || e.id === String(employeeId));
+            if (!employee) return;
+
+            // Populate header
+            document.getElementById('modalEmployeeName').textContent = employee.name;
+            document.getElementById('modalEmployeeRole').textContent = employee.role || 'No role specified';
+
+            // Populate info tab
+            document.getElementById('modalInfoGrid').innerHTML = `
+                <div class="info-item">
+                    <div class="info-item-label">Department</div>
+                    <div class="info-item-value">${employee.department || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-label">Manager</div>
+                    <div class="info-item-value">${employee.manager || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-label">Postcode</div>
+                    <div class="info-item-value">${employee.postcode || 'N/A'}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-label">Email</div>
+                    <div class="info-item-value">${employee.email || 'N/A'}</div>
+                </div>
+            `;
+
+            // Populate training tab
+            const trainings = Object.entries(employee.trainings || {}).filter(([k, v]) => v && v !== 'N/A');
+            if (trainings.length > 0) {
+                document.getElementById('modalTrainingList').innerHTML = trainings.map(([name, rating]) => {
+                    const shortName = name.replace(/^\[T\d+\]\s*/, '');
+                    return `<div class="skill-list-item training">${shortName}<span class="rating">${rating}</span></div>`;
+                }).join('');
+            } else {
+                document.getElementById('modalTrainingList').innerHTML = '<div class="empty-tab">No training records</div>';
+            }
+
+            // Populate accreditations tab
+            if (employee.accreditations && employee.accreditations.length > 0) {
+                document.getElementById('modalAccreditationsList').innerHTML = employee.accreditations.map(acc => 
+                    `<div class="skill-list-item accreditation">${acc}</div>`
+                ).join('');
+            } else {
+                document.getElementById('modalAccreditationsList').innerHTML = '<div class="empty-tab">No accreditations</div>';
+            }
+
+            // Populate hardware tab
+            if (employee.hardware && employee.hardware.length > 0) {
+                document.getElementById('modalHardwareList').innerHTML = employee.hardware.map(hw => 
+                    `<div class="skill-list-item hardware">${hw}</div>`
+                ).join('');
+            } else {
+                document.getElementById('modalHardwareList').innerHTML = '<div class="empty-tab">No hardware</div>';
+            }
+
+            // Populate software tab
+            if (employee.software && employee.software.length > 0) {
+                document.getElementById('modalSoftwareList').innerHTML = employee.software.map(sw => 
+                    `<div class="skill-list-item software">${sw}</div>`
+                ).join('');
+            } else {
+                document.getElementById('modalSoftwareList').innerHTML = '<div class="empty-tab">No software</div>';
+            }
+
+            // Reset to first tab
+            document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.modal-tab[data-tab="info"]').classList.add('active');
+            document.querySelectorAll('.modal-tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-info').classList.add('active');
+
+            // Open modal
+            document.getElementById('employeeModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
         async function fetchPresets() {
             try {
                 const token = await getAccessToken();
@@ -1353,7 +1728,7 @@
                 }
             }
             
-            return `<div class="employee-card">${distanceBadge}${totalFilters > 0 ? `<div class="match-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Matches all ${totalFilters} requirements</div>` : ''}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div><div class="employee-skills">${matchedTrainings}${matchedHardware}${matchedSoftware}${matchedAccreditations}</div></div>`;
+            return `<div class="employee-card" onclick="openEmployeeModal(${employee.id})">${distanceBadge}${totalFilters > 0 ? `<div class="match-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Matches all ${totalFilters} requirements</div>` : ''}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div><div class="employee-skills">${matchedTrainings}${matchedHardware}${matchedSoftware}${matchedAccreditations}</div></div>`;
         }
 
         function updateActiveFiltersDisplay() {
