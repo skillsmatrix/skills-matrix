@@ -310,11 +310,11 @@
             width: 100%;
             max-width: 600px;
             max-height: 80vh;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
             transform: scale(0.95);
             transition: transform 0.2s ease;
+            overflow: hidden;
         }
 
         .modal-overlay.open .modal {
@@ -327,6 +327,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            flex-shrink: 0;
         }
 
         .modal-header-info h2 {
@@ -365,7 +366,8 @@
             display: flex;
             border-bottom: 1px solid var(--border-color);
             padding: 0 24px;
-            overflow-x: auto;
+            flex-shrink: 0;
+            background: var(--bg-card);
         }
 
         .modal-tab {
@@ -396,6 +398,7 @@
             padding: 24px;
             overflow-y: auto;
             flex: 1;
+            min-height: 0;
         }
 
         .modal-tab-panel {
@@ -491,6 +494,10 @@
             }
             .info-grid {
                 grid-template-columns: 1fr;
+            }
+            .modal-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
             .modal-tab {
                 padding: 12px 14px;
