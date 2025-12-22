@@ -368,6 +368,13 @@
             padding: 0 24px;
             flex-shrink: 0;
             background: var(--bg-card);
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .modal-tabs::-webkit-scrollbar {
+            display: none;
         }
 
         .modal-tab {
@@ -933,6 +940,7 @@
                     id: item.Id || item.id || Math.random(),
                     name: item.Employee || item.employee || item.Name || item.name || 'Unknown',
                     email: item.Email || item.email || '',
+                    phone: item.Phone || item.phone || item.PhoneNumber || '',
                     role: item.Role || item.role || '',
                     department: item.Department || item.department || '',
                     manager: item.Manager || item.manager || '',
@@ -1373,8 +1381,8 @@
                     <div class="info-item-value">${employee.postcode || 'N/A'}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-item-label">Email</div>
-                    <div class="info-item-value">${employee.email || 'N/A'}</div>
+                    <div class="info-item-label">Phone Number</div>
+                    <div class="info-item-value">${employee.phone || 'N/A'}</div>
                 </div>
             `;
 
@@ -1630,6 +1638,7 @@
                         id: item.id,
                         name: fields.Employee || fields.Title || 'Unknown',
                         email: fields.Email || '',
+                        phone: fields.Phone || fields.PhoneNumber || '',
                         role: fields.Role || '',
                         department: fields.Department || '',
                         manager: fields.Manager || '',
