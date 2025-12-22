@@ -402,7 +402,6 @@
                         <option value="AnglianWater">Anglian Water</option>
                     </select>
                 </div>
-                <div style="border-bottom: 2px dashed var(--border-color); margin: 24px 0;"></div>
                 <div class="filter-section">
                     <label class="filter-label">Department</label>
                     <select id="departmentSelect">
@@ -412,6 +411,7 @@
                         <option value="Projects">Projects</option>
                     </select>
                 </div>
+                <div style="border-bottom: 2px dashed var(--border-color); margin: 24px 0;"></div>
                 <div class="filter-section">
                     <label class="filter-label">Job Location</label>
                     <input type="text" id="jobLocationInput" class="location-input" placeholder="Enter postcode or town (e.g., CB11, Reading)">
@@ -941,7 +941,7 @@
             document.getElementById('searchBtn').addEventListener('click', performSearch);
             document.getElementById('showAllBtn').addEventListener('click', showAllEmployees);
             document.getElementById('clearBtn').addEventListener('click', clearAllFilters);
-            document.getElementById('departmentSelect').addEventListener('change', (e) => { selectedFilters.department = e.target.value; });
+            document.getElementById('departmentSelect').addEventListener('change', (e) => { selectedFilters.department = e.target.value; performSearch(); });
             document.getElementById('workstreamSelect').addEventListener('change', onWorkstreamChange);
             document.getElementById('jobTypeSelect').addEventListener('change', onJobTypeChange);
             document.getElementById('companySelect').addEventListener('change', onCompanyChange);
