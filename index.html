@@ -1466,6 +1466,8 @@
                 if (!listResponse.ok) throw new Error(`Presets list error: ${listResponse.status}`);
                 const listData = await listResponse.json();
 
+                console.log('[Presets] Raw SharePoint fields from first item:', listData.value.length > 0 ? Object.keys(listData.value[0].fields) : 'no items');
+                if (listData.value.length > 0) console.log('[Presets] First item fields:', JSON.stringify(listData.value[0].fields));
                 allPresets = listData.value.map(item => {
                     const fields = item.fields;
                     return {
@@ -1545,6 +1547,9 @@
         }
 
         function applyPresetToFilters(preset) {
+            console.log('[Preset Debug] Full preset:', JSON.stringify(preset));
+            console.log('[Preset Debug] Training data:', preset.training);
+            console.log('[Preset Debug] Hardware data:', preset.hardware);
             // Clear existing selections
             document.querySelectorAll('.multi-select-option').forEach(option => { 
                 option.querySelector('input[type="checkbox"]').checked = false; 
