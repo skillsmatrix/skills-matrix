@@ -1613,53 +1613,93 @@
                 console.log('[SkillsMatrix] Token obtained:', token ? 'yes' : 'no');
                 if (!token) throw new Error('Not authenticated');
 
-                // First get the site ID
+                // Get site ID
                 const siteResponse = await fetch(
                     `https://graph.microsoft.com/v1.0/sites/morrisonus.sharepoint.com:/sites/SkillsMatrix`,
-                    {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    }
+                    { headers: { 'Authorization': `Bearer ${token}` } }
                 );
                 if (!siteResponse.ok) throw new Error(`Site error: ${siteResponse.status}`);
                 const siteData = await siteResponse.json();
                 const siteId = siteData.id;
                 console.log('[SkillsMatrix] Site ID:', siteId);
 
-                // Get the list items
+                // Fetch column definitions to understand lookup columns and internal field names
+                const columnsResponse = await fetch(
+                    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/Employees/columns`,
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+                if (!columnsResponse.ok) throw new Error(`Columns error: ${columnsResponse.status}`);
+                const columnsData = await columnsResponse.json();
+
+                // Build display name -> internal name map, and identify lookup columns
+                const columnMap = {};
+                const lookupColumns = [];
+                columnsData.value.forEach(col => {
+                    columnMap[col.displayName] = col.name;
+                    if (col.lookup) {
+                        lookupColumns.push({
+                            displayName: col.displayName,
+                            internalName: col.name,
+                            listId: col.lookup.listId,
+                            columnName: col.lookup.columnName
+                        });
+                    }
+                });
+                console.log('[SkillsMatrix] Column display->internal map:', columnMap);
+                console.log('[SkillsMatrix] Lookup columns:', lookupColumns);
+
+                // Resolve Employee lookup column if it's a lookup
+                let employeeLookupMap = null;
+                const employeeLookup = lookupColumns.find(lc =>
+                    lc.displayName === 'Employee' || lc.internalName === 'Employee'
+                );
+                if (employeeLookup) {
+                    console.log('[SkillsMatrix] Employee is a lookup column, resolving from list:', employeeLookup.listId);
+                    const lookupResp = await fetch(
+                        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${employeeLookup.listId}/items?expand=fields&$top=500`,
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+                    if (lookupResp.ok) {
+                        const lookupData = await lookupResp.json();
+                        employeeLookupMap = {};
+                        lookupData.value.forEach(item => {
+                            employeeLookupMap[item.id] = item.fields[employeeLookup.columnName] || item.fields.Title || '';
+                        });
+                        console.log('[SkillsMatrix] Employee lookup map:', employeeLookupMap);
+                    }
+                }
+
+                // Get list items
                 const listResponse = await fetch(
                     `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/Employees/items?expand=fields&$top=500`,
-                    {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    }
+                    { headers: { 'Authorization': `Bearer ${token}` } }
                 );
                 if (!listResponse.ok) throw new Error(`List error: ${listResponse.status}`);
                 const listData = await listResponse.json();
                 console.log('[SkillsMatrix] Items returned:', listData.value ? listData.value.length : 0);
 
-                // Debug: log ALL field names from SharePoint so we can match column names
                 if (listData.value && listData.value.length > 0) {
-                    const fieldNames = Object.keys(listData.value[0].fields);
-                    console.log('[SkillsMatrix] All SharePoint field names:', fieldNames);
+                    console.log('[SkillsMatrix] All field names:', Object.keys(listData.value[0].fields));
                     console.log('[SkillsMatrix] First employee raw fields:', listData.value[0].fields);
                 }
 
                 allEmployees = listData.value.map(item => {
                     const fields = item.fields;
-                    // Find the name - try known field names, then scan all fields
-                    let name = fields.Employee || fields.Title || fields.Name || fields.FullName || fields.DisplayName || fields.EmployeeName;
-                    if (!name) {
-                        // Last resort: look through all field keys for anything containing 'employee' or 'name'
-                        const nameKey = Object.keys(fields).find(k =>
-                            /employee|fullname|displayname/i.test(k) && typeof fields[k] === 'string' && k !== 'EmployeeNameId'
-                        );
-                        if (nameKey) {
-                            console.log('[SkillsMatrix] Found name in field:', nameKey);
-                            name = fields[nameKey];
-                        }
+
+                    // Resolve employee name - handle lookup column
+                    let name;
+                    if (employeeLookupMap) {
+                        const lookupIdKey = `${employeeLookup.internalName}LookupId`;
+                        const lookupId = fields[lookupIdKey] || fields.EmployeeLookupId;
+                        name = employeeLookupMap[lookupId];
                     }
+                    if (!name) {
+                        name = fields.Employee || fields.Title || 'Unknown';
+                    }
+
                     return {
                         id: item.id,
-                        name: name || 'Unknown',
+                        name: name,
                         email: fields.Email || '',
                         phone: fields.Phone || fields.PhoneNumber || '',
                         role: fields.Role || '',
@@ -1669,7 +1709,7 @@
                         hardware: parseMultiSelect(fields.Hardware),
                         software: parseMultiSelect(fields.Software),
                         accreditations: parseMultiSelect(fields.Accreditations),
-                        trainings: parseTrainingsFromFields(fields)
+                        trainings: parseTrainingsFromFields(fields, columnMap)
                     };
                 });
 
@@ -1683,11 +1723,20 @@
             }
         }
 
-        function parseTrainingsFromFields(fields) {
+        function parseTrainingsFromFields(fields, columnMap) {
             const trainings = {};
             TRAINING_COLUMNS.forEach(training => {
-                // Try different possible field name formats
-                const value = fields[training] || fields[training.replace(/[\[\]]/g, '')] || fields[training.replace(/\s/g, '_x0020_')];
+                let value;
+                // Use column map to get the internal field name from the display name
+                if (columnMap && columnMap[training]) {
+                    value = fields[columnMap[training]];
+                }
+                // Fallback: try the display name directly
+                if (!value) value = fields[training];
+                // Fallback: try without brackets
+                if (!value) value = fields[training.replace(/[\[\]]/g, '')];
+                // Fallback: try with SharePoint space encoding
+                if (!value) value = fields[training.replace(/\s/g, '_x0020_')];
                 if (value && value !== 'N/A' && value !== '') {
                     trainings[training] = value;
                 }
