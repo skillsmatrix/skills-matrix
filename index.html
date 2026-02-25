@@ -1623,7 +1623,7 @@
                 const siteId = siteData.id;
                 console.log('[SkillsMatrix] Site ID:', siteId);
 
-                // Fetch column definitions to understand lookup columns and internal field names
+                // Fetch column definitions to understand column types and internal field names
                 const columnsResponse = await fetch(
                     `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/Employees/columns`,
                     { headers: { 'Authorization': `Bearer ${token}` } }
@@ -1631,41 +1631,89 @@
                 if (!columnsResponse.ok) throw new Error(`Columns error: ${columnsResponse.status}`);
                 const columnsData = await columnsResponse.json();
 
-                // Build display name -> internal name map, and identify lookup columns
+                // Build display name -> internal name map
                 const columnMap = {};
-                const lookupColumns = [];
                 columnsData.value.forEach(col => {
                     columnMap[col.displayName] = col.name;
-                    if (col.lookup) {
-                        lookupColumns.push({
-                            displayName: col.displayName,
-                            internalName: col.name,
-                            listId: col.lookup.listId,
-                            columnName: col.lookup.columnName
-                        });
-                    }
                 });
                 console.log('[SkillsMatrix] Column display->internal map:', columnMap);
-                console.log('[SkillsMatrix] Lookup columns:', lookupColumns);
 
-                // Resolve Employee lookup column if it's a lookup
-                let employeeLookupMap = null;
-                const employeeLookup = lookupColumns.find(lc =>
-                    lc.displayName === 'Employee' || lc.internalName === 'Employee'
+                // Find the Employee column definition and log its full structure
+                const employeeColumn = columnsData.value.find(col =>
+                    col.displayName === 'Employee' || col.name === 'Employee'
                 );
-                if (employeeLookup) {
-                    console.log('[SkillsMatrix] Employee is a lookup column, resolving from list:', employeeLookup.listId);
-                    const lookupResp = await fetch(
-                        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${employeeLookup.listId}/items?expand=fields&$top=500`,
-                        { headers: { 'Authorization': `Bearer ${token}` } }
-                    );
-                    if (lookupResp.ok) {
-                        const lookupData = await lookupResp.json();
-                        employeeLookupMap = {};
-                        lookupData.value.forEach(item => {
-                            employeeLookupMap[item.id] = item.fields[employeeLookup.columnName] || item.fields.Title || '';
-                        });
-                        console.log('[SkillsMatrix] Employee lookup map:', employeeLookupMap);
+                console.log('[SkillsMatrix] Employee column definition:', JSON.stringify(employeeColumn, null, 2));
+
+                // Also find Manager column (it's also a lookup)
+                const managerColumn = columnsData.value.find(col =>
+                    col.displayName === 'Manager' || col.name === 'Manager'
+                );
+
+                // Resolve lookup/person IDs to names
+                // SharePoint uses "User Information List" for Person/Group columns
+                // and a referenced list for regular Lookup columns
+                let employeeLookupMap = null;
+                let managerLookupMap = null;
+
+                if (employeeColumn) {
+                    if (employeeColumn.lookup && employeeColumn.lookup.listId) {
+                        // Regular lookup column
+                        console.log('[SkillsMatrix] Employee is a regular lookup column, source list:', employeeColumn.lookup.listId);
+                        try {
+                            const lookupResp = await fetch(
+                                `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${employeeColumn.lookup.listId}/items?expand=fields&$top=500`,
+                                { headers: { 'Authorization': `Bearer ${token}` } }
+                            );
+                            if (lookupResp.ok) {
+                                const lookupData = await lookupResp.json();
+                                employeeLookupMap = {};
+                                lookupData.value.forEach(item => {
+                                    employeeLookupMap[item.id] = item.fields[employeeColumn.lookup.columnName] || item.fields.Title || '';
+                                });
+                            }
+                        } catch (e) { console.warn('[SkillsMatrix] Failed to resolve Employee lookup:', e); }
+                    } else if (employeeColumn.personOrGroup) {
+                        // Person/Group column - resolve from User Information List
+                        console.log('[SkillsMatrix] Employee is a Person/Group column');
+                        try {
+                            const userInfoResp = await fetch(
+                                `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/User%20Information%20List/items?expand=fields&$top=500`,
+                                { headers: { 'Authorization': `Bearer ${token}` } }
+                            );
+                            if (userInfoResp.ok) {
+                                const userInfoData = await userInfoResp.json();
+                                employeeLookupMap = {};
+                                managerLookupMap = {};
+                                userInfoData.value.forEach(item => {
+                                    const displayName = item.fields.Title || item.fields.UserName || '';
+                                    employeeLookupMap[item.id] = displayName;
+                                    managerLookupMap[item.id] = displayName;
+                                });
+                            }
+                        } catch (e) { console.warn('[SkillsMatrix] Failed to fetch User Information List:', e); }
+                    }
+                }
+                console.log('[SkillsMatrix] Employee lookup map:', employeeLookupMap);
+
+                // If Manager is also a lookup and we don't have a map yet, resolve it
+                if (!managerLookupMap && managerColumn) {
+                    if (managerColumn.lookup && managerColumn.lookup.listId) {
+                        try {
+                            const lookupResp = await fetch(
+                                `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${managerColumn.lookup.listId}/items?expand=fields&$top=500`,
+                                { headers: { 'Authorization': `Bearer ${token}` } }
+                            );
+                            if (lookupResp.ok) {
+                                const lookupData = await lookupResp.json();
+                                managerLookupMap = {};
+                                lookupData.value.forEach(item => {
+                                    managerLookupMap[item.id] = item.fields[managerColumn.lookup.columnName] || item.fields.Title || '';
+                                });
+                            }
+                        } catch (e) { console.warn('[SkillsMatrix] Failed to resolve Manager lookup:', e); }
+                    } else if (managerColumn.personOrGroup && employeeLookupMap) {
+                        // Same User Information List, reuse the map
+                        managerLookupMap = employeeLookupMap;
                     }
                 }
 
@@ -1686,15 +1734,22 @@
                 allEmployees = listData.value.map(item => {
                     const fields = item.fields;
 
-                    // Resolve employee name - handle lookup column
+                    // Resolve employee name from lookup map
                     let name;
-                    if (employeeLookupMap) {
-                        const lookupIdKey = `${employeeLookup.internalName}LookupId`;
-                        const lookupId = fields[lookupIdKey] || fields.EmployeeLookupId;
-                        name = employeeLookupMap[lookupId];
+                    if (employeeLookupMap && fields.EmployeeLookupId) {
+                        name = employeeLookupMap[String(fields.EmployeeLookupId)];
                     }
                     if (!name) {
                         name = fields.Employee || fields.Title || 'Unknown';
+                    }
+
+                    // Resolve manager name from lookup map
+                    let manager;
+                    if (managerLookupMap && fields.ManagerLookupId) {
+                        manager = managerLookupMap[String(fields.ManagerLookupId)];
+                    }
+                    if (!manager) {
+                        manager = fields.Manager || '';
                     }
 
                     return {
@@ -1704,7 +1759,7 @@
                         phone: fields.Phone || fields.PhoneNumber || '',
                         role: fields.Role || '',
                         department: fields.Department || '',
-                        manager: fields.Manager || '',
+                        manager: manager,
                         postcode: fields.Postcode || 'N/A',
                         hardware: parseMultiSelect(fields.Hardware),
                         software: parseMultiSelect(fields.Software),
