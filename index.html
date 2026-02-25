@@ -128,22 +128,6 @@
             height: 24px;
         }
 
-        .bypass-btn {
-            margin-top: 20px;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: underline;
-            transition: color 0.2s ease;
-        }
-
-        .bypass-btn:hover {
-            color: var(--text-secondary);
-        }
-
         .user-info {
             position: absolute;
             top: 24px;
@@ -609,7 +593,6 @@
             </svg>
             Sign in with Microsoft
         </button>
-        <button class="bypass-btn" id="bypassBtn">Continue without login (demo mode)</button>
     </div>
 
     <!-- Main App Content -->
@@ -808,58 +791,11 @@
             listName: 'Employees'
         };
 
-        const TRAINING_COLUMNS = [
-            '[T1] ABB Magmaster Verification', '[T2] ABB Watermaster Verification', '[T3] Siemens Full-bore Verification',
-            '[T4] Fischer Porter Verification', '[T5] Khrone Verification', '[T6] ABB Process Master Verification',
-            '[T7] Siemens LUT (400 series) Verification', '[T8] Siemens Hydroranger Verification', '[T9] Milltronics Verification',
-            '[T10] Pulsar Verification', '[T11] Vega Verification', '[T12] Warren Jones Verification',
-            '[T13] Flexim Ultrasonic', '[T14] Siemens Ultrasonic', '[T15] GE Panametrics', '[T16] Katronic',
-            '[T17] Nivus (Area Velocity) Verification', '[T18] Teledyne Isco Laser Flow Verification', '[T19] GWF Verification',
-            '[T20] Fujitsu Siemens', '[T21] Insertion Probe', '[T22] ABB Aquamaster', '[T23] Siemens Battery Powered',
-            '[T24] Nivus (Open Channel) Verification', '[T25] Synapsis Ultrasonic'
-        ];
-
-        const HARDWARE_OPTIONS = [
-            '[H1] SRV500', '[H2] Current simulator', '[H3] Megger', '[H4] Moving coil meter', '[H5] DVM (digital volt meter)',
-            '[H6] Laptop', '[H7] Martindale proving unit', '[H8] Lock off kit (with key)', '[H9] Siemens Verificator',
-            '[H10] F&P simulator', '[H11] Khrone MagCheck', '[H13] Loop simulator', '[H14] Micro USB cable',
-            '[H15] Reference plate', '[H16] Bracket', '[H17] Clamp', '[H18] Steel ruler', '[H19] Flow calculator',
-            '[H20] Hand terminal / HART', '[H21] USB drive (not encrypted)', '[H22] Low pressure druck', '[H23] ID Tool',
-            '[H24] Various Reducers', '[H25] PTFE', '[H26] Chlorus', '[H27] Screwdriver', '[H28] IR Reader & Dongle',
-            '[H29] Micro USB Cable', '[H30] Tape', '[H31] Compact Flashcard', '[H32] OD Tape', '[H33] Generic Tools',
-            '[H34] Gas Monitor', '[H35] AQ4 - NFC Reader'
-        ];
-
-        const SOFTWARE_OPTIONS = [
-            '[S1] SRV500 software', '[S2] Cal1/Hyperterminal', '[S3] (Z-One)', '[S4] Verimaster', '[S5] MagFlo 5.1',
-            '[S6] Conversion document (Excel)', '[S7] Asset Vision Basic', '[S8] Siemens - Sitrans LUT400 (Server)',
-            '[S9] Dolphin software', '[S10] Vega Tools', '[S11] FluxDiag', '[S12] PanaView', '[S13] Kat View TBC',
-            '[S14] NivuFlow', '[S15] External (RSHydro)', '[S16] Calculator', '[S17] Utils', '[S18] Logmaster',
-            '[S19] AQ4 App', '[S20] Flow tool/IDM', '[S21] River Surveyor Software (Xylem boat hired from Xylem)'
-        ];
-
-        const ACCREDITATION_OPTIONS = [
-            '[A1] SRV500 training', '[A2] EUSR SHEA', '[A3] EUSR', '[A4] Safe Isolation & Proving Dead',
-            '[A5] Emergency First Aid at Work', '[A6] NRSWA - Signing, Lighting & Guarding',
-            '[A7] 6160-09 Level 2 Award in Medium Risk', '[A8] Anglian Water Health and Safety Induction 2023/2024',
-            '[A9] Thames Water Health & Safety Passport', '[A10] EUSR DOMS', '[A11] EUSR National Water Hygiene',
-            '[A12] Anglian Water Health and Safety Induction', '[A13] Disinfection Procedure Compliance',
-            '[A14] Procedural Knowledge', '[A15] Nivus Portable Knowledge', '[A16] Understanding Pipe Recognition',
-            '[A17] Z472- ABB Ability SRV500 Verification', '[A18] Competency Cloud Demonstration for Supervisors and Line Managers',
-            '[A19] Company Induction', '[A20] An Introduction to Leadership (MGS E-Learning)',
-            '[A21] Business Ethics & Information Security Briefing for Operational Workers', '[A22] Confined Spaces: Medium Risk',
-            '[A23] First Aid at Work: Emergency (1 day)', '[A24] Internal Drug & Alcohol Tester', '[A25] Thames Water - PPTW',
-            '[A26] Manual Handling Awareness (MGS E-Learning)', '[A27] Asbestos Awareness (MGS E-Learning)',
-            '[A28] NRSWA: O1 - Signing, lighting and guarding', '[A29] Ladder Safety (MGS E-Learning)',
-            '[A30] Ladder Association: Ladders & Stepladders Inspection', '[A31] Ladder Association: Ladders & Stepladders for Users',
-            '[A32] Site Supervisor Safety Training Scheme (SSSTS)', '[A33] Effective Communication Skills',
-            '[A34] NVQ L2: Electrotechnical Technology - Installation', '[A35] Abrasive Wheels',
-            '[A36] Level 3 Award in the Requirements for Electrical', "[A37] Energy Safe Victoria: Electrician's Licence",
-            '[A38] Inclusion and Diversity (MGS E-Learning)', '[A39] Financial Crime (M Group E-Learning)',
-            '[A40] Modern Slavery (MGS E-Learning)', '[A41] D&A Test Evidence', '[A42] Water Quality - Third Party (Thames Water)',
-            '[A43] Business Expenses (MGS E-Learning)', '[A44] DBS Check', '[A45] Health, Safety and Environment Test for Operatives',
-            '[A46] Site Management Safety Training Scheme (SMSTS)'
-        ];
+        // Dynamic options - populated from SharePoint Presets list
+        let TRAINING_COLUMNS = [];
+        let HARDWARE_OPTIONS = [];
+        let SOFTWARE_OPTIONS = [];
+        let ACCREDITATION_OPTIONS = [];
 
         let allEmployees = [];
         let allPresets = [];
@@ -903,128 +839,28 @@
             // Login button
             document.getElementById('loginBtn').addEventListener('click', login);
             document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('bypassBtn').addEventListener('click', enterDemoMode);
         });
-
-        let demoMode = false;
-
-        function enterDemoMode() {
-            demoMode = true;
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('appContent').classList.add('visible');
-            
-            // Show demo user info
-            document.getElementById('userName').textContent = 'Demo User';
-            document.getElementById('userAvatar').textContent = 'DU';
-            
-            // Initialize app with JSON data
-            initModal();
-            initMultiSelects();
-            attachEventListeners();
-            fetchEmployeesDemo();
-            fetchPresetsDemo();
-        }
-
-        async function fetchEmployeesDemo() {
-            showLoading();
-            try {
-                const response = await fetch('./data/employees.json');
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                const data = await response.json();
-                allEmployees = data.map(item => ({
-                    id: item.Id || item.id || Math.random(),
-                    name: item.Employee || item.employee || item.Name || item.name || 'Unknown',
-                    email: item.Email || item.email || '',
-                    phone: item.Phone || item.phone || item.PhoneNumber || '',
-                    role: item.Role || item.role || '',
-                    department: item.Department || item.department || '',
-                    manager: item.Manager || item.manager || '',
-                    postcode: item.Postcode || item.postcode || 'N/A',
-                    hardware: parseMultiSelect(item.Hardware || item.hardware),
-                    software: parseMultiSelect(item.Software || item.software),
-                    accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
-                    trainings: parseTrainingsDemo(item)
-                }));
-                populateDepartments();
-                updateConnectionStatus(true);
-                showEmptyState();
-            } catch (error) {
-                console.error('Error fetching employees:', error);
-                updateConnectionStatus(false, error.message);
-                showError(error.message);
-            }
-        }
-
-        function parseTrainingsDemo(item) {
-            const trainings = {};
-            TRAINING_COLUMNS.forEach(training => {
-                const value = item[training];
-                if (value && value !== 'N/A' && value !== '') {
-                    trainings[training] = value;
-                }
-            });
-            return trainings;
-        }
-
-        async function fetchPresetsDemo() {
-            try {
-                const response = await fetch('./data/presets.json');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                // Auto-detect company columns from demo JSON (same logic as SharePoint)
-                const knownDemoFields = new Set(['Id', 'id', 'Workstream', 'workstream', 'JobType', 'jobType',
-                    'Hardware', 'hardware', 'Software', 'software', 'Accreditations', 'accreditations',
-                    'Training', 'training', 'Trainings', 'trainings', 'MinRating', 'minRating']);
-                if (data.length > 0) {
-                    detectedCompanies = Object.keys(data[0])
-                        .filter(key => !knownDemoFields.has(key) && typeof data[0][key] === 'string' && data[0][key] !== '')
-                        .filter(key => key !== 'MinRating' && key !== 'minRating')
-                        .map(key => ({ fieldName: key, displayName: key.replace(/([A-Z])/g, ' $1').trim() }));
-                }
-                allPresets = data.map(item => {
-                    const preset = {
-                        id: item.Id || item.id || Math.random(),
-                        workstream: item.Workstream || item.workstream || '',
-                        jobType: item.JobType || item.jobType || '',
-                        hardware: parseMultiSelect(item.Hardware || item.hardware),
-                        software: parseMultiSelect(item.Software || item.software),
-                        accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
-                        training: parseMultiSelect(item.Training || item.training || item.Trainings || item.trainings),
-                        minRating: (item.MinRating || item.minRating || '3').replace(/\/5$/, ''),
-                        companyAccreditations: {}
-                    };
-                    detectedCompanies.forEach(c => {
-                        preset.companyAccreditations[c.fieldName] = parseMultiSelect(item[c.fieldName]);
-                    });
-                    return preset;
-                });
-                populateWorkstreams();
-                populateCompanies();
-            } catch (error) {
-                console.error('Error fetching presets:', error);
-            }
-        }
 
         function showLogin() {
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('appContent').classList.remove('visible');
         }
 
-        function showApp(account) {
+        async function showApp(account) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appContent').classList.add('visible');
-            
+
             // Show user info
             const name = account.name || account.username;
             document.getElementById('userName').textContent = name;
             document.getElementById('userAvatar').textContent = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            
-            // Initialize app
+
+            // Initialize app - fetch presets first to build dynamic dropdowns
             initModal();
+            await fetchPresets();
             initMultiSelects();
             attachEventListeners();
             fetchEmployees();
-            fetchPresets();
         }
 
         async function login() {
@@ -1511,6 +1347,23 @@
                     });
                     return preset;
                 });
+                // Extract dynamic dropdown options from all presets
+                const allTrainings = new Set();
+                const allHardware = new Set();
+                const allSoftware = new Set();
+                const allAccreditations = new Set();
+                allPresets.forEach(p => {
+                    p.training.forEach(t => allTrainings.add(t));
+                    p.hardware.forEach(h => allHardware.add(h));
+                    p.software.forEach(s => allSoftware.add(s));
+                    p.accreditations.forEach(a => allAccreditations.add(a));
+                    Object.values(p.companyAccreditations).forEach(arr => arr.forEach(a => allAccreditations.add(a)));
+                });
+                TRAINING_COLUMNS = [...allTrainings].sort();
+                HARDWARE_OPTIONS = [...allHardware].sort();
+                SOFTWARE_OPTIONS = [...allSoftware].sort();
+                ACCREDITATION_OPTIONS = [...allAccreditations].sort();
+
                 populateWorkstreams();
                 populateCompanies();
             } catch (error) {
