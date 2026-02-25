@@ -670,18 +670,12 @@
                     <label class="filter-label">Department</label>
                     <select id="departmentSelect">
                         <option value="">All Departments</option>
-                        <option value="Clean">Clean</option>
-                        <option value="Waste">Waste</option>
-                        <option value="Projects">Projects</option>
                     </select>
                 </div>
                 <div class="filter-section">
                     <label class="filter-label">Company (optional)</label>
                     <select id="companySelect">
                         <option value="">None</option>
-                        <option value="ThamesWater">Thames Water</option>
-                        <option value="ScottishWater">Scottish Water</option>
-                        <option value="AnglianWater">Anglian Water</option>
                     </select>
                 </div>
                 <div style="border-bottom: 2px dashed var(--border-color); margin: 24px 0;"></div>
@@ -869,6 +863,7 @@
 
         let allEmployees = [];
         let allPresets = [];
+        let detectedCompanies = [];
         let selectedFilters = { department: '', trainings: [], hardware: [], software: [], accreditations: [], jobLocation: '' };
         let employeeCoordinates = {};
         let jobCoordinates = null;
@@ -950,6 +945,7 @@
                     accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
                     trainings: parseTrainingsDemo(item)
                 }));
+                populateDepartments();
                 updateConnectionStatus(true);
                 showEmptyState();
             } catch (error) {
@@ -975,20 +971,35 @@
                 const response = await fetch('./data/presets.json');
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const data = await response.json();
-                allPresets = data.map(item => ({
-                    id: item.Id || item.id || Math.random(),
-                    workstream: item.Workstream || item.workstream || '',
-                    jobType: item.JobType || item.jobType || '',
-                    hardware: parseMultiSelect(item.Hardware || item.hardware),
-                    software: parseMultiSelect(item.Software || item.software),
-                    accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
-                    training: parseMultiSelect(item.Training || item.training),
-                    minRating: item.MinRating || item.minRating || '3',
-                    thamesWater: parseMultiSelect(item.ThamesWater || item.thamesWater),
-                    scottishWater: parseMultiSelect(item.ScottishWater || item.scottishWater),
-                    anglianWater: parseMultiSelect(item.AnglianWater || item.anglianWater)
-                }));
+                // Auto-detect company columns from demo JSON (same logic as SharePoint)
+                const knownDemoFields = new Set(['Id', 'id', 'Workstream', 'workstream', 'JobType', 'jobType',
+                    'Hardware', 'hardware', 'Software', 'software', 'Accreditations', 'accreditations',
+                    'Training', 'training', 'Trainings', 'trainings', 'MinRating', 'minRating']);
+                if (data.length > 0) {
+                    detectedCompanies = Object.keys(data[0])
+                        .filter(key => !knownDemoFields.has(key) && typeof data[0][key] === 'string' && data[0][key] !== '')
+                        .filter(key => key !== 'MinRating' && key !== 'minRating')
+                        .map(key => ({ fieldName: key, displayName: key.replace(/([A-Z])/g, ' $1').trim() }));
+                }
+                allPresets = data.map(item => {
+                    const preset = {
+                        id: item.Id || item.id || Math.random(),
+                        workstream: item.Workstream || item.workstream || '',
+                        jobType: item.JobType || item.jobType || '',
+                        hardware: parseMultiSelect(item.Hardware || item.hardware),
+                        software: parseMultiSelect(item.Software || item.software),
+                        accreditations: parseMultiSelect(item.Accreditations || item.accreditations),
+                        training: parseMultiSelect(item.Training || item.training || item.Trainings || item.trainings),
+                        minRating: (item.MinRating || item.minRating || '3').replace(/\/5$/, ''),
+                        companyAccreditations: {}
+                    };
+                    detectedCompanies.forEach(c => {
+                        preset.companyAccreditations[c.fieldName] = parseMultiSelect(item[c.fieldName]);
+                    });
+                    return preset;
+                });
                 populateWorkstreams();
+                populateCompanies();
             } catch (error) {
                 console.error('Error fetching presets:', error);
             }
@@ -1466,25 +1477,42 @@
                 if (!listResponse.ok) throw new Error(`Presets list error: ${listResponse.status}`);
                 const listData = await listResponse.json();
 
-                console.log('[Presets] Raw SharePoint fields from first item:', listData.value.length > 0 ? Object.keys(listData.value[0].fields) : 'no items');
-                if (listData.value.length > 0) console.log('[Presets] First item fields:', JSON.stringify(listData.value[0].fields));
+                // Auto-detect company columns (any field that's not a known preset field or system field)
+                const knownFields = new Set(['@odata.etag', 'Workstream', 'JobType', 'Hardware', 'Software',
+                    'Accreditations', 'Trainings', 'MinRating', 'id', 'ContentType', 'Modified', 'Created',
+                    'AuthorLookupId', 'EditorLookupId', '_UIVersionString', 'Attachments', 'Edit',
+                    'ItemChildCount', 'FolderChildCount', '_ComplianceFlags', '_ComplianceTag',
+                    '_ComplianceTagWrittenTime', '_ComplianceTagUserId']);
+
+                if (listData.value.length > 0) {
+                    const firstFields = listData.value[0].fields;
+                    detectedCompanies = Object.keys(firstFields)
+                        .filter(key => !knownFields.has(key) && Array.isArray(firstFields[key]))
+                        .map(key => ({ fieldName: key, displayName: key.replace(/([A-Z])/g, ' $1').trim() }));
+                    console.log('[Presets] Auto-detected company columns:', detectedCompanies);
+                }
+
                 allPresets = listData.value.map(item => {
                     const fields = item.fields;
-                    return {
+                    const preset = {
                         id: item.id,
                         workstream: fields.Workstream || '',
                         jobType: fields.JobType || '',
                         hardware: parseMultiSelect(fields.Hardware),
                         software: parseMultiSelect(fields.Software),
                         accreditations: parseMultiSelect(fields.Accreditations),
-                        training: parseMultiSelect(fields.Training),
-                        minRating: fields.MinRating || '3',
-                        thamesWater: parseMultiSelect(fields.ThamesWater),
-                        scottishWater: parseMultiSelect(fields.ScottishWater),
-                        anglianWater: parseMultiSelect(fields.AnglianWater)
+                        training: parseMultiSelect(fields.Trainings),
+                        minRating: (fields.MinRating || '3').replace(/\/5$/, ''),
+                        companyAccreditations: {}
                     };
+                    // Dynamically load all company accreditations
+                    detectedCompanies.forEach(c => {
+                        preset.companyAccreditations[c.fieldName] = parseMultiSelect(fields[c.fieldName]);
+                    });
+                    return preset;
                 });
                 populateWorkstreams();
+                populateCompanies();
             } catch (error) {
                 console.error('Error fetching presets:', error);
             }
@@ -1499,6 +1527,30 @@
                 option.value = ws;
                 option.textContent = ws;
                 workstreamSelect.appendChild(option);
+            });
+        }
+
+        function populateCompanies() {
+            const companySelect = document.getElementById('companySelect');
+            companySelect.innerHTML = '<option value="">None</option>';
+            detectedCompanies.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.fieldName;
+                option.textContent = c.displayName;
+                companySelect.appendChild(option);
+            });
+        }
+
+        function populateDepartments() {
+            const deptSelect = document.getElementById('departmentSelect');
+            deptSelect.innerHTML = '<option value="">All Departments</option>';
+            const departments = [...new Set(allEmployees.map(e => e.department).filter(d => d))];
+            departments.sort();
+            departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept;
+                option.textContent = dept;
+                deptSelect.appendChild(option);
             });
         }
 
@@ -1547,9 +1599,6 @@
         }
 
         function applyPresetToFilters(preset) {
-            console.log('[Preset Debug] Full preset:', JSON.stringify(preset));
-            console.log('[Preset Debug] Training data:', preset.training);
-            console.log('[Preset Debug] Hardware data:', preset.hardware);
             // Clear existing selections
             document.querySelectorAll('.multi-select-option').forEach(option => { 
                 option.querySelector('input[type="checkbox"]').checked = false; 
@@ -1594,10 +1643,7 @@
 
             // Apply company-specific accreditations
             const company = document.getElementById('companySelect').value;
-            let companyAccreditations = [];
-            if (company === 'ThamesWater') companyAccreditations = preset.thamesWater || [];
-            else if (company === 'ScottishWater') companyAccreditations = preset.scottishWater || [];
-            else if (company === 'AnglianWater') companyAccreditations = preset.anglianWater || [];
+            const companyAccreditations = (company && preset.companyAccreditations && preset.companyAccreditations[company]) || [];
 
             companyAccreditations.forEach(a => {
                 if (!selectedFilters.accreditations.includes(a)) selectedFilters.accreditations.push(a);
@@ -1774,6 +1820,7 @@
                 });
 
                 console.log('[SkillsMatrix] Employees loaded:', allEmployees.length, '- First name:', allEmployees[0]?.name);
+                populateDepartments();
                 updateConnectionStatus(true);
                 showEmptyState();
             } catch (error) {
