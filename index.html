@@ -543,67 +543,6 @@
         .export-btn:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
         .export-btn svg { width: 16px; height: 16px; }
 
-        /* Collapsible filter sections */
-        .filter-section-collapsible {
-            margin-bottom: 8px;
-        }
-        .filter-section-collapsible .collapsible-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 10px 0;
-            user-select: none;
-        }
-        .filter-section-collapsible .collapsible-header:hover .filter-label {
-            color: var(--accent-pink);
-        }
-        .filter-section-collapsible .collapsible-body {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.25s ease, opacity 0.2s ease;
-            opacity: 0;
-        }
-        .filter-section-collapsible.open .collapsible-body {
-            max-height: 600px;
-            opacity: 1;
-        }
-        .collapse-chevron {
-            width: 18px;
-            height: 18px;
-            color: var(--text-muted);
-            transition: transform 0.2s ease;
-            flex-shrink: 0;
-        }
-        .filter-section-collapsible.open .collapse-chevron {
-            transform: rotate(180deg);
-        }
-
-        /* Sticky filter panel */
-        @media (min-width: 1025px) {
-            .filter-panel {
-                position: sticky;
-                top: 24px;
-                max-height: calc(100vh - 48px);
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: var(--border-color) transparent;
-            }
-            .filter-panel::-webkit-scrollbar {
-                width: 6px;
-            }
-            .filter-panel::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            .filter-panel::-webkit-scrollbar-thumb {
-                background: var(--border-color);
-                border-radius: 3px;
-            }
-            .filter-panel::-webkit-scrollbar-thumb:hover {
-                background: var(--text-muted);
-            }
-        }
-
         /* Sort controls */
         .results-toolbar {
             display: flex;
@@ -897,91 +836,71 @@
                     <input type="text" id="jobLocationInput" class="location-input" placeholder="Enter postcode or town (e.g., CB11, Reading)">
                 </div>
                 <div style="border-bottom: 2px dashed var(--border-color); margin: 24px 0;"></div>
-                <div class="filter-section-collapsible" id="trainingSection">
-                    <div class="collapsible-header" onclick="toggleFilterSection('trainingSection')">
-                        <label class="filter-label" style="margin-bottom:0;">Training / Competency <span class="count" id="trainingCount" style="display: none;">0</span></label>
-                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="collapsible-body">
-                        <div class="multi-select" id="trainingMultiSelect" style="margin-top:10px;">
-                            <div class="multi-select-trigger" id="trainingTrigger">
-                                <span>Select trainings...</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </div>
-                            <div class="multi-select-dropdown" id="trainingDropdown">
-                                <div class="multi-select-search"><input type="text" placeholder="Search trainings..." id="trainingSearch"></div>
-                                <div id="trainingOptions"></div>
-                            </div>
+                <div class="filter-section">
+                    <label class="filter-label">Training / Competency <span class="count" id="trainingCount" style="display: none;">0</span></label>
+                    <div class="multi-select" id="trainingMultiSelect">
+                        <div class="multi-select-trigger" id="trainingTrigger">
+                            <span>Select trainings...</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
-                        <div class="min-rating-row">
-                            <label>Minimum rating:</label>
-                            <select id="minTrainingRating">
-                                <option value="1">≥ 1/5</option>
-                                <option value="2">≥ 2/5</option>
-                                <option value="3" selected>≥ 3/5</option>
-                                <option value="4">≥ 4/5</option>
-                                <option value="5">5/5 only</option>
-                            </select>
+                        <div class="multi-select-dropdown" id="trainingDropdown">
+                            <div class="multi-select-search"><input type="text" placeholder="Search trainings..." id="trainingSearch"></div>
+                            <div id="trainingOptions"></div>
                         </div>
-                        <div class="selected-tags" id="selectedTrainings"></div>
                     </div>
+                    <div class="min-rating-row">
+                        <label>Minimum rating:</label>
+                        <select id="minTrainingRating">
+                            <option value="1">≥ 1/5</option>
+                            <option value="2">≥ 2/5</option>
+                            <option value="3" selected>≥ 3/5</option>
+                            <option value="4">≥ 4/5</option>
+                            <option value="5">5/5 only</option>
+                        </select>
+                    </div>
+                    <div class="selected-tags" id="selectedTrainings"></div>
                 </div>
-                <div class="filter-section-collapsible" id="hardwareSection">
-                    <div class="collapsible-header" onclick="toggleFilterSection('hardwareSection')">
-                        <label class="filter-label" style="margin-bottom:0;">Hardware <span class="count" id="hardwareCount" style="display: none;">0</span></label>
-                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="collapsible-body">
-                        <div class="multi-select" id="hardwareMultiSelect" style="margin-top:10px;">
-                            <div class="multi-select-trigger" id="hardwareTrigger">
-                                <span>Select hardware...</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </div>
-                            <div class="multi-select-dropdown" id="hardwareDropdown">
-                                <div class="multi-select-search"><input type="text" placeholder="Search hardware..." id="hardwareSearch"></div>
-                                <div id="hardwareOptions"></div>
-                            </div>
+                <div class="filter-section">
+                    <label class="filter-label">Hardware <span class="count" id="hardwareCount" style="display: none;">0</span></label>
+                    <div class="multi-select" id="hardwareMultiSelect">
+                        <div class="multi-select-trigger" id="hardwareTrigger">
+                            <span>Select hardware...</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
-                        <div class="selected-tags" id="selectedHardware"></div>
+                        <div class="multi-select-dropdown" id="hardwareDropdown">
+                            <div class="multi-select-search"><input type="text" placeholder="Search hardware..." id="hardwareSearch"></div>
+                            <div id="hardwareOptions"></div>
+                        </div>
                     </div>
+                    <div class="selected-tags" id="selectedHardware"></div>
                 </div>
-                <div class="filter-section-collapsible" id="softwareSection">
-                    <div class="collapsible-header" onclick="toggleFilterSection('softwareSection')">
-                        <label class="filter-label" style="margin-bottom:0;">Software <span class="count" id="softwareCount" style="display: none;">0</span></label>
-                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="collapsible-body">
-                        <div class="multi-select" id="softwareMultiSelect" style="margin-top:10px;">
-                            <div class="multi-select-trigger" id="softwareTrigger">
-                                <span>Select software...</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </div>
-                            <div class="multi-select-dropdown" id="softwareDropdown">
-                                <div class="multi-select-search"><input type="text" placeholder="Search software..." id="softwareSearch"></div>
-                                <div id="softwareOptions"></div>
-                            </div>
+                <div class="filter-section">
+                    <label class="filter-label">Software <span class="count" id="softwareCount" style="display: none;">0</span></label>
+                    <div class="multi-select" id="softwareMultiSelect">
+                        <div class="multi-select-trigger" id="softwareTrigger">
+                            <span>Select software...</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
-                        <div class="selected-tags" id="selectedSoftware"></div>
+                        <div class="multi-select-dropdown" id="softwareDropdown">
+                            <div class="multi-select-search"><input type="text" placeholder="Search software..." id="softwareSearch"></div>
+                            <div id="softwareOptions"></div>
+                        </div>
                     </div>
+                    <div class="selected-tags" id="selectedSoftware"></div>
                 </div>
-                <div class="filter-section-collapsible" id="accreditationSection">
-                    <div class="collapsible-header" onclick="toggleFilterSection('accreditationSection')">
-                        <label class="filter-label" style="margin-bottom:0;">Accreditations <span class="count" id="accreditationCount" style="display: none;">0</span></label>
-                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                    <div class="collapsible-body">
-                        <div class="multi-select" id="accreditationMultiSelect" style="margin-top:10px;">
-                            <div class="multi-select-trigger" id="accreditationTrigger">
-                                <span>Select accreditations...</span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </div>
-                            <div class="multi-select-dropdown" id="accreditationDropdown">
-                                <div class="multi-select-search"><input type="text" placeholder="Search accreditations..." id="accreditationSearch"></div>
-                                <div id="accreditationOptions"></div>
-                            </div>
+                <div class="filter-section">
+                    <label class="filter-label">Accreditations <span class="count" id="accreditationCount" style="display: none;">0</span></label>
+                    <div class="multi-select" id="accreditationMultiSelect">
+                        <div class="multi-select-trigger" id="accreditationTrigger">
+                            <span>Select accreditations...</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
-                        <div class="selected-tags" id="selectedAccreditations"></div>
+                        <div class="multi-select-dropdown" id="accreditationDropdown">
+                            <div class="multi-select-search"><input type="text" placeholder="Search accreditations..." id="accreditationSearch"></div>
+                            <div id="accreditationOptions"></div>
+                        </div>
                     </div>
+                    <div class="selected-tags" id="selectedAccreditations"></div>
                 </div>
                 <button class="btn btn-primary" id="searchBtn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
@@ -1083,22 +1002,6 @@
         let currentSort = 'relevance';
 
         // ============================================
-        // COLLAPSIBLE FILTER SECTIONS
-        // ============================================
-        function toggleFilterSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            section.classList.toggle('open');
-        }
-
-        // Auto-open sections that have active selections
-        function autoExpandActiveSections() {
-            if (selectedFilters.trainings.length > 0) document.getElementById('trainingSection')?.classList.add('open');
-            if (selectedFilters.hardware.length > 0) document.getElementById('hardwareSection')?.classList.add('open');
-            if (selectedFilters.software.length > 0) document.getElementById('softwareSection')?.classList.add('open');
-            if (selectedFilters.accreditations.length > 0) document.getElementById('accreditationSection')?.classList.add('open');
-        }
-
-        // ============================================
         // URL STATE MANAGEMENT
         // ============================================
         function saveStateToURL() {
@@ -1168,7 +1071,6 @@
                 updateSelectedTags(type, filterKey);
             });
 
-            autoExpandActiveSections();
             return true;
         }
 
@@ -1600,8 +1502,6 @@
             document.querySelectorAll('.filter-label .count').forEach(c => c.style.display = 'none');
             document.getElementById('activeFilters').innerHTML = '';
             document.getElementById('statsBar').innerHTML = '';
-            // Collapse all collapsible sections
-            document.querySelectorAll('.filter-section-collapsible').forEach(s => s.classList.remove('open'));
             jobCoordinates = null;
             allEmployees.forEach(emp => emp.distance = null);
             // Clear URL state
@@ -2007,9 +1907,6 @@
                 if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
             });
             updateSelectedTags('accreditation', 'accreditations');
-
-            // Auto-expand sections with selections
-            autoExpandActiveSections();
 
             // Run search
             performSearch();
