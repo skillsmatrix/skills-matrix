@@ -216,7 +216,7 @@
             .filter-panel h2 { font-size: 1.1rem; margin-bottom: 20px; }
             .filter-section { margin-bottom: 16px; }
             .results-panel { padding: 20px; border-radius: 12px; min-height: auto; }
-            .results-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+            .results-toolbar { flex-direction: column; gap: 12px; align-items: flex-start; }
             .employee-grid { grid-template-columns: 1fr; }
             .employee-card { padding: 16px; }
             .employee-skills { gap: 4px; }
@@ -503,12 +503,10 @@
         .btn-secondary { width: 100%; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); margin-top: 12px; }
         .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
         .results-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; min-height: 500px; }
-        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
-        .results-header h2 { font-size: 1.25rem; font-weight: 600; }
+        .results-toolbar h2 { font-size: 1.25rem; font-weight: 600; }
         .results-count { background: var(--bg-input); padding: 6px 14px; border-radius: 20px; font-size: 0.875rem; color: var(--text-secondary); }
         .results-count span { color: var(--accent-orange); font-weight: 600; }
         .employee-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
-        .employee-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; transition: all 0.2s ease; cursor: pointer; }
         .employee-card:hover { border-color: var(--accent-pink); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
         .employee-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
         .employee-role { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; }
@@ -536,7 +534,6 @@
         .loading p { margin-top: 16px; color: var(--text-secondary); }
         .active-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
         .active-filter-tag { padding: 6px 12px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.8rem; color: var(--text-secondary); }
-        .employee-card.near-match { opacity: 0.75; border-style: dashed; }
         .employee-card.near-match:hover { opacity: 1; }
         .match-indicator.partial { background: rgba(217, 119, 6, 0.1); color: var(--accent-orange); }
         .missing-indicator { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 12px; padding: 8px 10px; background: rgba(239, 68, 68, 0.08); border-radius: 6px; font-size: 0.75rem; color: #ef4444; font-weight: 500; flex-wrap: wrap; }
@@ -545,6 +542,230 @@
         .export-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; }
         .export-btn:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
         .export-btn svg { width: 16px; height: 16px; }
+
+        /* Collapsible filter sections */
+        .filter-section-collapsible {
+            margin-bottom: 8px;
+        }
+        .filter-section-collapsible .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 0;
+            user-select: none;
+        }
+        .filter-section-collapsible .collapsible-header:hover .filter-label {
+            color: var(--accent-pink);
+        }
+        .filter-section-collapsible .collapsible-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease, opacity 0.2s ease;
+            opacity: 0;
+        }
+        .filter-section-collapsible.open .collapsible-body {
+            max-height: 600px;
+            opacity: 1;
+        }
+        .collapse-chevron {
+            width: 18px;
+            height: 18px;
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+        .filter-section-collapsible.open .collapse-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Sticky filter panel */
+        @media (min-width: 1025px) {
+            .filter-panel {
+                position: sticky;
+                top: 24px;
+                max-height: calc(100vh - 48px);
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: var(--border-color) transparent;
+            }
+            .filter-panel::-webkit-scrollbar {
+                width: 6px;
+            }
+            .filter-panel::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .filter-panel::-webkit-scrollbar-thumb {
+                background: var(--border-color);
+                border-radius: 3px;
+            }
+            .filter-panel::-webkit-scrollbar-thumb:hover {
+                background: var(--text-muted);
+            }
+        }
+
+        /* Sort controls */
+        .results-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .results-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .results-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sort-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .sort-control select {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        /* Quick stats bar */
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .stat-chip.full {
+            background: rgba(5, 150, 105, 0.1);
+            border: 1px solid rgba(5, 150, 105, 0.3);
+            color: var(--accent-green);
+        }
+        .stat-chip.partial {
+            background: rgba(217, 119, 6, 0.1);
+            border: 1px solid rgba(217, 119, 6, 0.3);
+            color: var(--accent-orange);
+        }
+        .stat-chip.total {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        .stat-chip svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Modal match context */
+        .modal-match-banner {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .modal-match-banner.full {
+            background: rgba(5, 150, 105, 0.08);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            color: var(--accent-green);
+        }
+        .modal-match-banner.partial-match {
+            background: rgba(217, 119, 6, 0.08);
+            border: 1px solid rgba(217, 119, 6, 0.2);
+            color: var(--accent-orange);
+        }
+        .modal-match-banner svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .modal-match-details {
+            flex: 1;
+        }
+        .modal-match-details strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        .modal-match-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .modal-match-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .modal-match-tag.has {
+            background: rgba(5, 150, 105, 0.1);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            color: var(--accent-green);
+        }
+        .modal-match-tag.missing {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Improved card hierarchy */
+        .employee-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+        .employee-card .employee-skills {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        .employee-card.near-match {
+            opacity: 0.8;
+            border-style: dashed;
+        }
+
+        @media (max-width: 768px) {
+            .results-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .sort-control {
+                width: 100%;
+            }
+            .sort-control select {
+                flex: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -571,6 +792,7 @@
                 <button class="modal-tab" data-tab="software">Software</button>
             </div>
             <div class="modal-content">
+                <div id="modalMatchBanner"></div>
                 <div class="modal-tab-panel active" id="panel-info">
                     <div class="info-grid" id="modalInfoGrid"></div>
                 </div>
@@ -675,71 +897,91 @@
                     <input type="text" id="jobLocationInput" class="location-input" placeholder="Enter postcode or town (e.g., CB11, Reading)">
                 </div>
                 <div style="border-bottom: 2px dashed var(--border-color); margin: 24px 0;"></div>
-                <div class="filter-section">
-                    <label class="filter-label">Training / Competency <span class="count" id="trainingCount" style="display: none;">0</span></label>
-                    <div class="multi-select" id="trainingMultiSelect">
-                        <div class="multi-select-trigger" id="trainingTrigger">
-                            <span>Select trainings...</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </div>
-                        <div class="multi-select-dropdown" id="trainingDropdown">
-                            <div class="multi-select-search"><input type="text" placeholder="Search trainings..." id="trainingSearch"></div>
-                            <div id="trainingOptions"></div>
-                        </div>
+                <div class="filter-section-collapsible" id="trainingSection">
+                    <div class="collapsible-header" onclick="toggleFilterSection('trainingSection')">
+                        <label class="filter-label" style="margin-bottom:0;">Training / Competency <span class="count" id="trainingCount" style="display: none;">0</span></label>
+                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
-                    <div class="min-rating-row">
-                        <label>Minimum rating:</label>
-                        <select id="minTrainingRating">
-                            <option value="1">≥ 1/5</option>
-                            <option value="2">≥ 2/5</option>
-                            <option value="3" selected>≥ 3/5</option>
-                            <option value="4">≥ 4/5</option>
-                            <option value="5">5/5 only</option>
-                        </select>
+                    <div class="collapsible-body">
+                        <div class="multi-select" id="trainingMultiSelect" style="margin-top:10px;">
+                            <div class="multi-select-trigger" id="trainingTrigger">
+                                <span>Select trainings...</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                            <div class="multi-select-dropdown" id="trainingDropdown">
+                                <div class="multi-select-search"><input type="text" placeholder="Search trainings..." id="trainingSearch"></div>
+                                <div id="trainingOptions"></div>
+                            </div>
+                        </div>
+                        <div class="min-rating-row">
+                            <label>Minimum rating:</label>
+                            <select id="minTrainingRating">
+                                <option value="1">≥ 1/5</option>
+                                <option value="2">≥ 2/5</option>
+                                <option value="3" selected>≥ 3/5</option>
+                                <option value="4">≥ 4/5</option>
+                                <option value="5">5/5 only</option>
+                            </select>
+                        </div>
+                        <div class="selected-tags" id="selectedTrainings"></div>
                     </div>
-                    <div class="selected-tags" id="selectedTrainings"></div>
                 </div>
-                <div class="filter-section">
-                    <label class="filter-label">Hardware <span class="count" id="hardwareCount" style="display: none;">0</span></label>
-                    <div class="multi-select" id="hardwareMultiSelect">
-                        <div class="multi-select-trigger" id="hardwareTrigger">
-                            <span>Select hardware...</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </div>
-                        <div class="multi-select-dropdown" id="hardwareDropdown">
-                            <div class="multi-select-search"><input type="text" placeholder="Search hardware..." id="hardwareSearch"></div>
-                            <div id="hardwareOptions"></div>
-                        </div>
+                <div class="filter-section-collapsible" id="hardwareSection">
+                    <div class="collapsible-header" onclick="toggleFilterSection('hardwareSection')">
+                        <label class="filter-label" style="margin-bottom:0;">Hardware <span class="count" id="hardwareCount" style="display: none;">0</span></label>
+                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
-                    <div class="selected-tags" id="selectedHardware"></div>
+                    <div class="collapsible-body">
+                        <div class="multi-select" id="hardwareMultiSelect" style="margin-top:10px;">
+                            <div class="multi-select-trigger" id="hardwareTrigger">
+                                <span>Select hardware...</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                            <div class="multi-select-dropdown" id="hardwareDropdown">
+                                <div class="multi-select-search"><input type="text" placeholder="Search hardware..." id="hardwareSearch"></div>
+                                <div id="hardwareOptions"></div>
+                            </div>
+                        </div>
+                        <div class="selected-tags" id="selectedHardware"></div>
+                    </div>
                 </div>
-                <div class="filter-section">
-                    <label class="filter-label">Software <span class="count" id="softwareCount" style="display: none;">0</span></label>
-                    <div class="multi-select" id="softwareMultiSelect">
-                        <div class="multi-select-trigger" id="softwareTrigger">
-                            <span>Select software...</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </div>
-                        <div class="multi-select-dropdown" id="softwareDropdown">
-                            <div class="multi-select-search"><input type="text" placeholder="Search software..." id="softwareSearch"></div>
-                            <div id="softwareOptions"></div>
-                        </div>
+                <div class="filter-section-collapsible" id="softwareSection">
+                    <div class="collapsible-header" onclick="toggleFilterSection('softwareSection')">
+                        <label class="filter-label" style="margin-bottom:0;">Software <span class="count" id="softwareCount" style="display: none;">0</span></label>
+                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
-                    <div class="selected-tags" id="selectedSoftware"></div>
+                    <div class="collapsible-body">
+                        <div class="multi-select" id="softwareMultiSelect" style="margin-top:10px;">
+                            <div class="multi-select-trigger" id="softwareTrigger">
+                                <span>Select software...</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                            <div class="multi-select-dropdown" id="softwareDropdown">
+                                <div class="multi-select-search"><input type="text" placeholder="Search software..." id="softwareSearch"></div>
+                                <div id="softwareOptions"></div>
+                            </div>
+                        </div>
+                        <div class="selected-tags" id="selectedSoftware"></div>
+                    </div>
                 </div>
-                <div class="filter-section">
-                    <label class="filter-label">Accreditations <span class="count" id="accreditationCount" style="display: none;">0</span></label>
-                    <div class="multi-select" id="accreditationMultiSelect">
-                        <div class="multi-select-trigger" id="accreditationTrigger">
-                            <span>Select accreditations...</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </div>
-                        <div class="multi-select-dropdown" id="accreditationDropdown">
-                            <div class="multi-select-search"><input type="text" placeholder="Search accreditations..." id="accreditationSearch"></div>
-                            <div id="accreditationOptions"></div>
-                        </div>
+                <div class="filter-section-collapsible" id="accreditationSection">
+                    <div class="collapsible-header" onclick="toggleFilterSection('accreditationSection')">
+                        <label class="filter-label" style="margin-bottom:0;">Accreditations <span class="count" id="accreditationCount" style="display: none;">0</span></label>
+                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
-                    <div class="selected-tags" id="selectedAccreditations"></div>
+                    <div class="collapsible-body">
+                        <div class="multi-select" id="accreditationMultiSelect" style="margin-top:10px;">
+                            <div class="multi-select-trigger" id="accreditationTrigger">
+                                <span>Select accreditations...</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                            <div class="multi-select-dropdown" id="accreditationDropdown">
+                                <div class="multi-select-search"><input type="text" placeholder="Search accreditations..." id="accreditationSearch"></div>
+                                <div id="accreditationOptions"></div>
+                            </div>
+                        </div>
+                        <div class="selected-tags" id="selectedAccreditations"></div>
+                    </div>
                 </div>
                 <button class="btn btn-primary" id="searchBtn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
@@ -752,9 +994,22 @@
                 <button class="btn btn-secondary" id="clearBtn">Clear All Filters</button>
             </aside>
             <section class="results-panel">
-                <div class="results-header">
-                    <h2>Results</h2>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="results-toolbar">
+                    <div class="results-toolbar-left">
+                        <h2>Results</h2>
+                        <div class="results-count">Found <span id="resultCount">0</span> technicians</div>
+                    </div>
+                    <div class="results-toolbar-right">
+                        <div class="sort-control">
+                            <label>Sort:</label>
+                            <select id="sortSelect">
+                                <option value="relevance">Best match</option>
+                                <option value="name">Name (A-Z)</option>
+                                <option value="name-desc">Name (Z-A)</option>
+                                <option value="distance">Nearest first</option>
+                                <option value="department">Department</option>
+                            </select>
+                        </div>
                         <button class="export-btn" id="exportCsvBtn" style="display:none;" onclick="exportToCSV()">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             CSV
@@ -763,10 +1018,10 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             PDF
                         </button>
-                        <div class="results-count">Found <span id="resultCount">0</span> technicians</div>
                     </div>
                 </div>
                 <div class="active-filters" id="activeFilters"></div>
+                <div class="stats-bar" id="statsBar"></div>
                 <div id="resultsContainer">
                     <div class="empty-state">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
@@ -825,6 +1080,152 @@
         let jobCoordinates = null;
         let locationDebounceTimer = null;
         let lastSearchResults = [];
+        let currentSort = 'relevance';
+
+        // ============================================
+        // COLLAPSIBLE FILTER SECTIONS
+        // ============================================
+        function toggleFilterSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('open');
+        }
+
+        // Auto-open sections that have active selections
+        function autoExpandActiveSections() {
+            if (selectedFilters.trainings.length > 0) document.getElementById('trainingSection')?.classList.add('open');
+            if (selectedFilters.hardware.length > 0) document.getElementById('hardwareSection')?.classList.add('open');
+            if (selectedFilters.software.length > 0) document.getElementById('softwareSection')?.classList.add('open');
+            if (selectedFilters.accreditations.length > 0) document.getElementById('accreditationSection')?.classList.add('open');
+        }
+
+        // ============================================
+        // URL STATE MANAGEMENT
+        // ============================================
+        function saveStateToURL() {
+            const params = new URLSearchParams();
+            const ws = document.getElementById('workstreamSelect').value;
+            const jt = document.getElementById('jobTypeSelect').value;
+            const company = document.getElementById('companySelect').value;
+            const dept = selectedFilters.department;
+            const loc = document.getElementById('jobLocationInput').value.trim();
+            const rating = document.getElementById('minTrainingRating').value;
+
+            if (ws) params.set('ws', ws);
+            if (jt) params.set('jt', jt);
+            if (company) params.set('co', company);
+            if (dept) params.set('dept', dept);
+            if (loc) params.set('loc', loc);
+            if (rating && rating !== '3') params.set('mr', rating);
+            if (selectedFilters.trainings.length > 0) params.set('tr', selectedFilters.trainings.join('|'));
+            if (selectedFilters.hardware.length > 0) params.set('hw', selectedFilters.hardware.join('|'));
+            if (selectedFilters.software.length > 0) params.set('sw', selectedFilters.software.join('|'));
+            if (selectedFilters.accreditations.length > 0) params.set('ac', selectedFilters.accreditations.join('|'));
+            if (currentSort !== 'relevance') params.set('sort', currentSort);
+
+            const newURL = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+            window.history.replaceState(null, '', newURL);
+        }
+
+        function restoreStateFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.toString() === '') return false;
+
+            const ws = params.get('ws');
+            const jt = params.get('jt');
+            const company = params.get('co');
+            const dept = params.get('dept');
+            const loc = params.get('loc');
+            const rating = params.get('mr');
+            const sort = params.get('sort');
+
+            if (ws) {
+                document.getElementById('workstreamSelect').value = ws;
+                onWorkstreamChange();
+                if (jt) document.getElementById('jobTypeSelect').value = jt;
+            }
+            if (company) document.getElementById('companySelect').value = company;
+            if (dept) document.getElementById('departmentSelect').value = dept;
+            if (loc) document.getElementById('jobLocationInput').value = loc;
+            if (rating) document.getElementById('minTrainingRating').value = rating;
+            if (sort) {
+                currentSort = sort;
+                document.getElementById('sortSelect').value = sort;
+            }
+
+            selectedFilters.department = dept || '';
+            selectedFilters.trainings = params.get('tr') ? params.get('tr').split('|') : [];
+            selectedFilters.hardware = params.get('hw') ? params.get('hw').split('|') : [];
+            selectedFilters.software = params.get('sw') ? params.get('sw').split('|') : [];
+            selectedFilters.accreditations = params.get('ac') ? params.get('ac').split('|') : [];
+
+            // Check the corresponding checkboxes
+            ['trainings', 'hardware', 'software', 'accreditations'].forEach(filterKey => {
+                const type = filterKey === 'trainings' ? 'training' : filterKey === 'accreditations' ? 'accreditation' : filterKey;
+                selectedFilters[filterKey].forEach(value => {
+                    const option = Array.from(document.querySelectorAll(`#${type}Options .multi-select-option`)).find(el => el.dataset.value === value);
+                    if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
+                });
+                updateSelectedTags(type, filterKey);
+            });
+
+            autoExpandActiveSections();
+            return true;
+        }
+
+        // ============================================
+        // SORT LOGIC
+        // ============================================
+        function applySorting(results) {
+            const sorted = [...results];
+            switch (currentSort) {
+                case 'name':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    sorted.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case 'distance':
+                    sorted.sort((a, b) => {
+                        const da = a.distance ?? Infinity;
+                        const db = b.distance ?? Infinity;
+                        return da - db;
+                    });
+                    break;
+                case 'department':
+                    sorted.sort((a, b) => (a.department || '').localeCompare(b.department || '') || a.name.localeCompare(b.name));
+                    break;
+                case 'relevance':
+                default:
+                    // Default: best match first (fewest missing), then alphabetical
+                    sorted.sort((a, b) => (a.missing?.length || 0) - (b.missing?.length || 0) || a.name.localeCompare(b.name));
+                    break;
+            }
+            return sorted;
+        }
+
+        // ============================================
+        // STATS BAR
+        // ============================================
+        function updateStatsBar(results) {
+            const bar = document.getElementById('statsBar');
+            const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
+
+            if (totalFilters === 0 || results.length === 0) {
+                bar.innerHTML = '';
+                return;
+            }
+
+            const fullMatches = results.filter(r => (r.missing?.length || 0) === 0).length;
+            const nearMatches = results.filter(r => (r.missing?.length || 0) > 0).length;
+
+            let html = '';
+            html += `<span class="stat-chip full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>${fullMatches} full match${fullMatches !== 1 ? 'es' : ''}</span>`;
+            if (nearMatches > 0) {
+                html += `<span class="stat-chip partial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>${nearMatches} near-match${nearMatches !== 1 ? 'es' : ''}</span>`;
+            }
+            html += `<span class="stat-chip total">${results.length} total</span>`;
+            bar.innerHTML = html;
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
@@ -1100,6 +1501,15 @@
             document.getElementById('jobLocationInput').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') { clearTimeout(locationDebounceTimer); performSearch(); }
             });
+            document.getElementById('sortSelect').addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                if (lastSearchResults.length > 0) {
+                    const sorted = applySorting(lastSearchResults);
+                    lastSearchResults = sorted;
+                    document.getElementById('resultsContainer').innerHTML = `<div class="employee-grid">${sorted.map(emp => createEmployeeCard(emp)).join('')}</div>`;
+                    saveStateToURL();
+                }
+            });
             setupMultiSelect('training', 'trainings');
             setupMultiSelect('hardware', 'hardware');
             setupMultiSelect('software', 'software');
@@ -1174,8 +1584,8 @@
         }
 
         function clearAllFilters() {
-            sessionStorage.removeItem('skillsMatrixState');
             selectedFilters = { department: '', trainings: [], hardware: [], software: [], accreditations: [], jobLocation: '' };
+            currentSort = 'relevance';
             document.getElementById('departmentSelect').value = '';
             document.getElementById('jobLocationInput').value = '';
             document.getElementById('workstreamSelect').value = '';
@@ -1184,12 +1594,18 @@
             document.getElementById('jobTypeSelect').innerHTML = '<option value="">-- Select workstream first --</option>';
             document.getElementById('companySelect').value = '';
             document.getElementById('minTrainingRating').value = '3';
+            document.getElementById('sortSelect').value = 'relevance';
             document.querySelectorAll('.multi-select-option').forEach(option => { option.querySelector('input[type="checkbox"]').checked = false; option.classList.remove('selected'); });
             document.querySelectorAll('.selected-tags').forEach(c => c.innerHTML = '');
             document.querySelectorAll('.filter-label .count').forEach(c => c.style.display = 'none');
             document.getElementById('activeFilters').innerHTML = '';
+            document.getElementById('statsBar').innerHTML = '';
+            // Collapse all collapsible sections
+            document.querySelectorAll('.filter-section-collapsible').forEach(s => s.classList.remove('open'));
             jobCoordinates = null;
             allEmployees.forEach(emp => emp.distance = null);
+            // Clear URL state
+            window.history.replaceState(null, '', window.location.pathname);
             showEmptyState();
         }
 
@@ -1197,13 +1613,15 @@
             // Clear distances
             allEmployees.forEach(emp => emp.distance = null);
             jobCoordinates = null;
-            
+
             // Sort alphabetically
-            const results = [...allEmployees].sort((a, b) => a.name.localeCompare(b.name));
-            
+            const results = [...allEmployees].map(emp => ({ ...emp, missing: [], matchCount: 0 })).sort((a, b) => a.name.localeCompare(b.name));
+            lastSearchResults = results;
+
             // Clear active filters display
             document.getElementById('activeFilters').innerHTML = '<span class="active-filter-tag">Showing all employees</span>';
-            
+            document.getElementById('statsBar').innerHTML = '';
+
             // Display results
             document.getElementById('resultCount').textContent = results.length;
             document.getElementById('resultsContainer').innerHTML = `<div class="employee-grid">${results.map(emp => createEmployeeCard(emp)).join('')}</div>`;
@@ -1248,6 +1666,54 @@
             // Populate header
             document.getElementById('modalEmployeeName').textContent = employee.name;
             document.getElementById('modalEmployeeRole').textContent = employee.role || 'No role specified';
+
+            // Build match context banner
+            const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
+            const bannerEl = document.getElementById('modalMatchBanner');
+
+            if (totalFilters > 0) {
+                const minRating = parseInt(document.getElementById('minTrainingRating').value) || 1;
+                const missing = [];
+                const matched = [];
+
+                for (const t of selectedFilters.trainings) {
+                    const shortName = t.replace(/^\[T\d+\]\s*/, '');
+                    if (parseRating(employee.trainings[t]) >= minRating) {
+                        matched.push(shortName);
+                    } else {
+                        missing.push(shortName);
+                    }
+                }
+                for (const hw of selectedFilters.hardware) {
+                    if (employee.hardware.includes(hw)) matched.push(hw); else missing.push(hw);
+                }
+                for (const sw of selectedFilters.software) {
+                    if (employee.software.includes(sw)) matched.push(sw); else missing.push(sw);
+                }
+                for (const acc of selectedFilters.accreditations) {
+                    if (employee.accreditations.includes(acc)) matched.push(acc); else missing.push(acc);
+                }
+
+                const isPerfect = missing.length === 0;
+                const bannerClass = isPerfect ? 'full' : 'partial-match';
+                const icon = isPerfect
+                    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+
+                let bannerHTML = `<div class="modal-match-banner ${bannerClass}">${icon}<div class="modal-match-details">`;
+                bannerHTML += `<strong>${matched.length}/${totalFilters} requirements met</strong>`;
+
+                if (matched.length > 0) {
+                    bannerHTML += `<div class="modal-match-list">${matched.map(m => `<span class="modal-match-tag has">${m.substring(0, 30)}</span>`).join('')}</div>`;
+                }
+                if (missing.length > 0) {
+                    bannerHTML += `<div class="modal-match-list" style="margin-top:4px;">${missing.map(m => `<span class="modal-match-tag missing">${m.substring(0, 30)}</span>`).join('')}</div>`;
+                }
+                bannerHTML += `</div></div>`;
+                bannerEl.innerHTML = bannerHTML;
+            } else {
+                bannerEl.innerHTML = '';
+            }
 
             // Populate info tab
             document.getElementById('modalInfoGrid').innerHTML = `
@@ -1542,6 +2008,9 @@
             });
             updateSelectedTags('accreditation', 'accreditations');
 
+            // Auto-expand sections with selections
+            autoExpandActiveSections();
+
             // Run search
             performSearch();
         }
@@ -1681,8 +2150,8 @@
 
                 populateDepartments();
                 updateConnectionStatus(true);
-                // Restore previous search state or show empty
-                if (!restoreSearchState()) {
+                // Restore previous search state from URL or show empty
+                if (!restoreStateFromURL()) {
                     showEmptyState();
                 } else {
                     performSearch();
@@ -1756,9 +2225,6 @@
             if (totalFilters > 0) {
                 const maxMissing = Math.max(1, Math.ceil(totalFilters * 0.3));
                 results = results.filter(emp => emp.missing.length <= maxMissing);
-                results.sort((a, b) => a.missing.length - b.missing.length || a.name.localeCompare(b.name));
-            } else {
-                results.sort((a, b) => a.name.localeCompare(b.name));
             }
 
             const jobLocation = document.getElementById('jobLocationInput').value.trim();
@@ -1771,9 +2237,13 @@
                 jobCoordinates = null;
             }
 
+            // Apply user-selected sorting
+            results = applySorting(results);
+
             displayResults(results);
+            updateStatsBar(results);
             updateActiveFiltersDisplay();
-            saveSearchState();
+            saveStateToURL();
         }
 
         function displayResults(employees) {
@@ -1843,7 +2313,7 @@
         }
 
         function showLoading() { document.getElementById('resultsContainer').innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading employees...</p></div>`; }
-        function showEmptyState() { document.getElementById('resultCount').textContent = '0'; document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><h3>Search for technicians</h3><p>Use the filters on the left to find the right person for the job</p></div>`; }
+        function showEmptyState() { document.getElementById('resultCount').textContent = '0'; document.getElementById('statsBar').innerHTML = ''; document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><h3>Search for technicians</h3><p>Use the filters on the left to find the right person for the job</p></div>`; }
         function showError(message) { document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h3>Load Error</h3><p>${message}</p><p style="margin-top: 12px; font-size: 0.85rem;">Check your SharePoint connection and permissions.</p></div>`; }
         function updateConnectionStatus(connected, errorMsg = '') { document.getElementById('statusDot').className = 'status-dot ' + (connected ? 'connected' : 'error'); document.getElementById('statusText').textContent = connected ? `Loaded • ${allEmployees.length} employees` : `Load failed: ${errorMsg}`; }
 
@@ -1899,66 +2369,7 @@
             setTimeout(() => printWindow.print(), 250);
         }
 
-        // ============================================
-        // SESSION STATE PERSISTENCE
-        // ============================================
-        function saveSearchState() {
-            try {
-                const state = {
-                    department: selectedFilters.department,
-                    trainings: selectedFilters.trainings,
-                    hardware: selectedFilters.hardware,
-                    software: selectedFilters.software,
-                    accreditations: selectedFilters.accreditations,
-                    workstream: document.getElementById('workstreamSelect').value,
-                    jobType: document.getElementById('jobTypeSelect').value,
-                    company: document.getElementById('companySelect').value,
-                    jobLocation: document.getElementById('jobLocationInput').value,
-                    minRating: document.getElementById('minTrainingRating').value
-                };
-                sessionStorage.setItem('skillsMatrixState', JSON.stringify(state));
-            } catch (e) { /* sessionStorage not available */ }
-        }
-
-        function restoreSearchState() {
-            try {
-                const saved = sessionStorage.getItem('skillsMatrixState');
-                if (!saved) return false;
-                const state = JSON.parse(saved);
-
-                // Restore workstream and job type (triggers preset population)
-                if (state.workstream) {
-                    document.getElementById('workstreamSelect').value = state.workstream;
-                    onWorkstreamChange();
-                    if (state.jobType) {
-                        document.getElementById('jobTypeSelect').value = state.jobType;
-                    }
-                }
-                if (state.company) document.getElementById('companySelect').value = state.company;
-                if (state.department) document.getElementById('departmentSelect').value = state.department;
-                if (state.jobLocation) document.getElementById('jobLocationInput').value = state.jobLocation;
-                if (state.minRating) document.getElementById('minTrainingRating').value = state.minRating;
-
-                // Restore multi-select filters
-                selectedFilters.department = state.department || '';
-                selectedFilters.trainings = state.trainings || [];
-                selectedFilters.hardware = state.hardware || [];
-                selectedFilters.software = state.software || [];
-                selectedFilters.accreditations = state.accreditations || [];
-
-                // Check the corresponding checkboxes
-                ['trainings', 'hardware', 'software', 'accreditations'].forEach(filterKey => {
-                    const type = filterKey === 'trainings' ? 'training' : filterKey === 'accreditations' ? 'accreditation' : filterKey;
-                    selectedFilters[filterKey].forEach(value => {
-                        const option = Array.from(document.querySelectorAll(`#${type}Options .multi-select-option`)).find(el => el.dataset.value === value);
-                        if (option) { option.querySelector('input[type="checkbox"]').checked = true; option.classList.add('selected'); }
-                    });
-                    updateSelectedTags(type, filterKey);
-                });
-
-                return true;
-            } catch (e) { return false; }
-        }
+        // URL state management functions are defined at the top of the script
     </script>
 </body>
 </html>
