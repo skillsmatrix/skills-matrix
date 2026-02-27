@@ -863,9 +863,23 @@
         }
         .employee-grid.list-view .employee-card .match-bar { height: 4px; }
         .employee-grid.list-view .employee-card .match-bar-label { font-size: 0.7rem; min-width: 30px; }
-        .employee-grid.list-view .employee-card .match-indicator,
-        .employee-grid.list-view .employee-card .missing-indicator {
+        .employee-grid.list-view .employee-card .match-indicator {
             display: none;
+        }
+        .employee-grid.list-view .employee-card .missing-indicator {
+            margin-bottom: 0;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+        .employee-grid.list-view .employee-card .missing-indicator svg {
+            width: 12px;
+            height: 12px;
+        }
+        .employee-grid.list-view .employee-card .missing-tag {
+            font-size: 0.65rem;
+            padding: 1px 4px;
         }
         .employee-grid.list-view .employee-card .employee-name {
             min-width: 140px;
@@ -1374,13 +1388,21 @@
             const near = sorted.filter(r => (r.missing?.length || 0) > 0);
 
             if (hasLocation) {
-                // With location: sort each group by distance (nearest first)
+                // With location: full matches by distance, near matches grouped by match count then by distance
                 full.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
-                near.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+                near.sort((a, b) => {
+                    const countDiff = (b.matchCount || 0) - (a.matchCount || 0);
+                    if (countDiff !== 0) return countDiff;
+                    return (a.distance ?? Infinity) - (b.distance ?? Infinity);
+                });
             } else {
-                // Without location: sort each group A-Z
+                // Without location: full matches A-Z, near matches grouped by match count (best first) then A-Z
                 full.sort((a, b) => a.name.localeCompare(b.name));
-                near.sort((a, b) => a.name.localeCompare(b.name));
+                near.sort((a, b) => {
+                    const countDiff = (b.matchCount || 0) - (a.matchCount || 0);
+                    if (countDiff !== 0) return countDiff;
+                    return a.name.localeCompare(b.name);
+                });
             }
 
             return [...full, ...near];
@@ -1854,9 +1876,12 @@
             });
         }
 
-        function buildTabMatchBanner(matchedItems, missingItems, label) {
+        function buildTabMatchBanner(matchedItems, missingItems, label, extraInfo) {
             const total = matchedItems.length + missingItems.length;
-            if (total === 0) return '';
+            // Show a "no requirements" notice when there are no filters for this category
+            if (total === 0) {
+                return `<div class="modal-match-banner" style="margin-bottom:14px;background:var(--bg-input);border:1px solid var(--border-color);color:var(--text-muted);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;margin-top:1px;opacity:0.5;"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div class="modal-match-details"><strong>No ${label} requirements for this search</strong></div></div><div style="border-bottom:2px dashed var(--border-color);margin-bottom:14px;"></div>`;
+            }
             const isPerfect = missingItems.length === 0;
             const bannerClass = isPerfect ? 'full' : 'partial-match';
             const icon = isPerfect
@@ -1865,12 +1890,15 @@
             let html = `<div class="modal-match-banner ${bannerClass}" style="margin-bottom:14px;">${icon}<div class="modal-match-details">`;
             html += `<strong>${matchedItems.length}/${total} ${label} requirements met</strong>`;
             if (matchedItems.length > 0) {
-                html += `<div class="modal-match-list">${matchedItems.map(m => `<span class="modal-match-tag has">${m.substring(0, 30)}</span>`).join('')}</div>`;
+                const tags = extraInfo
+                    ? matchedItems.map((m, i) => `<span class="modal-match-tag has">${m.substring(0, 30)}${extraInfo[i] ? ' ' + extraInfo[i] : ''}</span>`).join('')
+                    : matchedItems.map(m => `<span class="modal-match-tag has">${m.substring(0, 30)}</span>`).join('');
+                html += `<div class="modal-match-list">${tags}</div>`;
             }
             if (missingItems.length > 0) {
                 html += `<div class="modal-match-list" style="margin-top:4px;">${missingItems.map(m => `<span class="modal-match-tag missing">${m.substring(0, 30)}</span>`).join('')}</div>`;
             }
-            html += `</div></div>`;
+            html += `</div></div><div style="border-bottom:2px dashed var(--border-color);margin-bottom:14px;"></div>`;
             return html;
         }
 
@@ -1914,10 +1942,20 @@
             const allMatched = [...trainingMatched, ...hardwareMatched, ...softwareMatched, ...accreditationMatched];
             const allMissing = [...trainingMissing, ...hardwareMissing, ...softwareMissing, ...accreditationMissing];
 
-            // Overall banner on info tab
+            // Overall banner on info tab only
             const bannerEl = document.getElementById('modalMatchBanner');
             if (totalFilters > 0) {
-                bannerEl.innerHTML = buildTabMatchBanner(allMatched, allMissing, 'overall');
+                // Include ratings for training items in the overall banner
+                const allMatchedExtra = [];
+                for (const t of selectedFilters.trainings) {
+                    const shortName = t.replace(/^\[T\d+\]\s*/, '');
+                    if (parseRating(employee.trainings[t]) >= minRating) allMatchedExtra.push(employee.trainings[t]);
+                }
+                // Pad with nulls for hardware/software/accreditation items
+                const hwPad = hardwareMatched.map(() => null);
+                const swPad = softwareMatched.map(() => null);
+                const accPad = accreditationMatched.map(() => null);
+                bannerEl.innerHTML = buildTabMatchBanner(allMatched, allMissing, 'overall', [...allMatchedExtra, ...hwPad, ...swPad, ...accPad]);
             } else {
                 bannerEl.innerHTML = '';
             }
@@ -1942,11 +1980,14 @@
                 </div>
             `;
 
-            // Populate training tab with per-tab banner
+            // Populate training tab with per-tab banner (include ratings)
             const trainings = Object.entries(employee.trainings || {}).filter(([k, v]) => v && v !== 'N/A');
             let trainingHTML = '';
-            if (selectedFilters.trainings.length > 0) {
-                trainingHTML += buildTabMatchBanner(trainingMatched, trainingMissing, 'training');
+            if (totalFilters > 0) {
+                const trainingMatchedRatings = selectedFilters.trainings
+                    .filter(t => parseRating(employee.trainings[t]) >= minRating)
+                    .map(t => employee.trainings[t]);
+                trainingHTML += buildTabMatchBanner(trainingMatched, trainingMissing, 'training', trainingMatchedRatings);
             }
             if (trainings.length > 0) {
                 trainingHTML += trainings.map(([name, rating]) => {
@@ -1962,7 +2003,7 @@
 
             // Populate accreditations tab with per-tab banner and ratings
             let accreditationHTML = '';
-            if (selectedFilters.accreditations.length > 0) {
+            if (totalFilters > 0) {
                 accreditationHTML += buildTabMatchBanner(accreditationMatched, accreditationMissing, 'accreditation');
             }
             if (employee.accreditations && employee.accreditations.length > 0) {
@@ -1984,7 +2025,7 @@
 
             // Populate hardware tab with per-tab banner
             let hardwareHTML = '';
-            if (selectedFilters.hardware.length > 0) {
+            if (totalFilters > 0) {
                 hardwareHTML += buildTabMatchBanner(hardwareMatched, hardwareMissing, 'hardware');
             }
             if (employee.hardware && employee.hardware.length > 0) {
@@ -2000,7 +2041,7 @@
 
             // Populate software tab with per-tab banner
             let softwareHTML = '';
-            if (selectedFilters.software.length > 0) {
+            if (totalFilters > 0) {
                 softwareHTML += buildTabMatchBanner(softwareMatched, softwareMissing, 'software');
             }
             if (employee.software && employee.software.length > 0) {
