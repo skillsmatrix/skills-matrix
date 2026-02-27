@@ -844,50 +844,62 @@
         }
         .view-toggle-btn svg { width: 16px; height: 16px; }
 
-        /* List view */
+        /* List view - compact rows */
         .employee-grid.list-view {
             grid-template-columns: 1fr;
-            gap: 8px;
+            gap: 4px;
         }
         .employee-grid.list-view .employee-card {
             flex-direction: row;
             align-items: center;
-            padding: 14px 20px;
-            gap: 16px;
+            padding: 10px 16px;
+            gap: 12px;
+            border-radius: 8px;
         }
         .employee-grid.list-view .employee-card .match-bar-container {
             margin-bottom: 0;
-            min-width: 100px;
-            max-width: 120px;
+            min-width: 80px;
+            max-width: 80px;
         }
+        .employee-grid.list-view .employee-card .match-bar { height: 4px; }
+        .employee-grid.list-view .employee-card .match-bar-label { font-size: 0.7rem; min-width: 30px; }
         .employee-grid.list-view .employee-card .match-indicator,
         .employee-grid.list-view .employee-card .missing-indicator {
-            margin-bottom: 0;
+            display: none;
         }
         .employee-grid.list-view .employee-card .employee-name {
-            min-width: 160px;
+            min-width: 140px;
+            max-width: 180px;
             margin-bottom: 0;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .employee-grid.list-view .employee-card .employee-role {
-            min-width: 120px;
-            margin-bottom: 0;
-            flex-shrink: 1;
+            display: none;
         }
         .employee-grid.list-view .employee-card .employee-meta {
             margin-bottom: 0;
-            flex-shrink: 1;
+            gap: 10px;
+        }
+        .employee-grid.list-view .employee-card .employee-meta .meta-item {
+            font-size: 0.75rem;
         }
         .employee-grid.list-view .employee-card .employee-skills {
-            margin-top: 0;
-            padding-top: 0;
-            border-top: none;
-            flex-shrink: 1;
+            display: none;
         }
         .employee-grid.list-view .employee-card .distance-badge {
             margin-bottom: 0;
+            padding: 2px 8px;
+            font-size: 0.7rem;
         }
         .employee-grid.list-view .employee-card .card-hover-extra {
             display: none;
+        }
+        .employee-grid.list-view .employee-card:hover {
+            transform: none;
+            box-shadow: none;
         }
 
         /* Name search */
@@ -1842,6 +1854,26 @@
             });
         }
 
+        function buildTabMatchBanner(matchedItems, missingItems, label) {
+            const total = matchedItems.length + missingItems.length;
+            if (total === 0) return '';
+            const isPerfect = missingItems.length === 0;
+            const bannerClass = isPerfect ? 'full' : 'partial-match';
+            const icon = isPerfect
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+            let html = `<div class="modal-match-banner ${bannerClass}" style="margin-bottom:14px;">${icon}<div class="modal-match-details">`;
+            html += `<strong>${matchedItems.length}/${total} ${label} requirements met</strong>`;
+            if (matchedItems.length > 0) {
+                html += `<div class="modal-match-list">${matchedItems.map(m => `<span class="modal-match-tag has">${m.substring(0, 30)}</span>`).join('')}</div>`;
+            }
+            if (missingItems.length > 0) {
+                html += `<div class="modal-match-list" style="margin-top:4px;">${missingItems.map(m => `<span class="modal-match-tag missing">${m.substring(0, 30)}</span>`).join('')}</div>`;
+            }
+            html += `</div></div>`;
+            return html;
+        }
+
         function openEmployeeModal(employeeId) {
             const employee = allEmployees.find(e => e.id === employeeId || e.id === String(employeeId));
             if (!employee) return;
@@ -1850,50 +1882,42 @@
             document.getElementById('modalEmployeeName').textContent = employee.name;
             document.getElementById('modalEmployeeRole').textContent = employee.role || 'No role specified';
 
-            // Build match context banner
+            // Build per-category match data
+            const minRating = parseInt(document.getElementById('minTrainingRating').value) || 1;
             const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
-            const bannerEl = document.getElementById('modalMatchBanner');
+
+            const trainingMatched = [], trainingMissing = [];
+            const hardwareMatched = [], hardwareMissing = [];
+            const softwareMatched = [], softwareMissing = [];
+            const accreditationMatched = [], accreditationMissing = [];
 
             if (totalFilters > 0) {
-                const minRating = parseInt(document.getElementById('minTrainingRating').value) || 1;
-                const missing = [];
-                const matched = [];
-
                 for (const t of selectedFilters.trainings) {
                     const shortName = t.replace(/^\[T\d+\]\s*/, '');
-                    if (parseRating(employee.trainings[t]) >= minRating) {
-                        matched.push(shortName);
-                    } else {
-                        missing.push(shortName);
-                    }
+                    if (parseRating(employee.trainings[t]) >= minRating) trainingMatched.push(shortName);
+                    else trainingMissing.push(shortName);
                 }
                 for (const hw of selectedFilters.hardware) {
-                    if (employee.hardware.includes(hw)) matched.push(hw); else missing.push(hw);
+                    if (employee.hardware.includes(hw)) hardwareMatched.push(hw);
+                    else hardwareMissing.push(hw);
                 }
                 for (const sw of selectedFilters.software) {
-                    if (employee.software.includes(sw)) matched.push(sw); else missing.push(sw);
+                    if (employee.software.includes(sw)) softwareMatched.push(sw);
+                    else softwareMissing.push(sw);
                 }
                 for (const acc of selectedFilters.accreditations) {
-                    if (employee.accreditations.includes(acc)) matched.push(acc); else missing.push(acc);
+                    if (employee.accreditations.includes(acc)) accreditationMatched.push(acc);
+                    else accreditationMissing.push(acc);
                 }
+            }
 
-                const isPerfect = missing.length === 0;
-                const bannerClass = isPerfect ? 'full' : 'partial-match';
-                const icon = isPerfect
-                    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>'
-                    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+            const allMatched = [...trainingMatched, ...hardwareMatched, ...softwareMatched, ...accreditationMatched];
+            const allMissing = [...trainingMissing, ...hardwareMissing, ...softwareMissing, ...accreditationMissing];
 
-                let bannerHTML = `<div class="modal-match-banner ${bannerClass}">${icon}<div class="modal-match-details">`;
-                bannerHTML += `<strong>${matched.length}/${totalFilters} requirements met</strong>`;
-
-                if (matched.length > 0) {
-                    bannerHTML += `<div class="modal-match-list">${matched.map(m => `<span class="modal-match-tag has">${m.substring(0, 30)}</span>`).join('')}</div>`;
-                }
-                if (missing.length > 0) {
-                    bannerHTML += `<div class="modal-match-list" style="margin-top:4px;">${missing.map(m => `<span class="modal-match-tag missing">${m.substring(0, 30)}</span>`).join('')}</div>`;
-                }
-                bannerHTML += `</div></div>`;
-                bannerEl.innerHTML = bannerHTML;
+            // Overall banner on info tab
+            const bannerEl = document.getElementById('modalMatchBanner');
+            if (totalFilters > 0) {
+                bannerEl.innerHTML = buildTabMatchBanner(allMatched, allMissing, 'overall');
             } else {
                 bannerEl.innerHTML = '';
             }
@@ -1918,43 +1942,77 @@
                 </div>
             `;
 
-            // Populate training tab
+            // Populate training tab with per-tab banner
             const trainings = Object.entries(employee.trainings || {}).filter(([k, v]) => v && v !== 'N/A');
+            let trainingHTML = '';
+            if (selectedFilters.trainings.length > 0) {
+                trainingHTML += buildTabMatchBanner(trainingMatched, trainingMissing, 'training');
+            }
             if (trainings.length > 0) {
-                document.getElementById('modalTrainingList').innerHTML = trainings.map(([name, rating]) => {
+                trainingHTML += trainings.map(([name, rating]) => {
                     const shortName = name.replace(/^\[T\d+\]\s*/, '');
-                    return `<div class="skill-list-item training">${shortName}<span class="rating">${rating}</span></div>`;
+                    const isRequired = selectedFilters.trainings.includes(name);
+                    const highlight = isRequired ? ' style="border-left:3px solid var(--accent-green);padding-left:11px;"' : '';
+                    return `<div class="skill-list-item training"${highlight}>${shortName}<span class="rating">${rating}</span></div>`;
                 }).join('');
             } else {
-                document.getElementById('modalTrainingList').innerHTML = '<div class="empty-tab">No training records</div>';
+                trainingHTML += '<div class="empty-tab">No training records</div>';
             }
+            document.getElementById('modalTrainingList').innerHTML = trainingHTML;
 
-            // Populate accreditations tab
+            // Populate accreditations tab with per-tab banner and ratings
+            let accreditationHTML = '';
+            if (selectedFilters.accreditations.length > 0) {
+                accreditationHTML += buildTabMatchBanner(accreditationMatched, accreditationMissing, 'accreditation');
+            }
             if (employee.accreditations && employee.accreditations.length > 0) {
-                document.getElementById('modalAccreditationsList').innerHTML = employee.accreditations.map(acc => 
-                    `<div class="skill-list-item accreditation">${acc}</div>`
-                ).join('');
+                accreditationHTML += employee.accreditations.map(acc => {
+                    // Cross-reference with trainings for a rating
+                    const trainingEntry = Object.entries(employee.trainings || {}).find(([name]) => {
+                        const shortName = name.replace(/^\[T\d+\]\s*/, '');
+                        return shortName === acc || name === acc;
+                    });
+                    const ratingDisplay = trainingEntry ? `<span class="rating" style="color:var(--accent-green);font-weight:600;margin-left:8px;">${trainingEntry[1]}</span>` : '<span class="rating" style="color:var(--accent-green);font-weight:600;margin-left:8px;">Held</span>';
+                    const isRequired = selectedFilters.accreditations.includes(acc);
+                    const highlight = isRequired ? ' style="border-left:3px solid #0891b2;padding-left:11px;"' : '';
+                    return `<div class="skill-list-item accreditation"${highlight}>${acc}${ratingDisplay}</div>`;
+                }).join('');
             } else {
-                document.getElementById('modalAccreditationsList').innerHTML = '<div class="empty-tab">No accreditations</div>';
+                accreditationHTML += '<div class="empty-tab">No accreditations</div>';
             }
+            document.getElementById('modalAccreditationsList').innerHTML = accreditationHTML;
 
-            // Populate hardware tab
+            // Populate hardware tab with per-tab banner
+            let hardwareHTML = '';
+            if (selectedFilters.hardware.length > 0) {
+                hardwareHTML += buildTabMatchBanner(hardwareMatched, hardwareMissing, 'hardware');
+            }
             if (employee.hardware && employee.hardware.length > 0) {
-                document.getElementById('modalHardwareList').innerHTML = employee.hardware.map(hw => 
-                    `<div class="skill-list-item hardware">${hw}</div>`
-                ).join('');
+                hardwareHTML += employee.hardware.map(hw => {
+                    const isRequired = selectedFilters.hardware.includes(hw);
+                    const highlight = isRequired ? ' style="border-left:3px solid var(--accent-orange);padding-left:11px;"' : '';
+                    return `<div class="skill-list-item hardware"${highlight}>${hw}</div>`;
+                }).join('');
             } else {
-                document.getElementById('modalHardwareList').innerHTML = '<div class="empty-tab">No hardware</div>';
+                hardwareHTML += '<div class="empty-tab">No hardware</div>';
             }
+            document.getElementById('modalHardwareList').innerHTML = hardwareHTML;
 
-            // Populate software tab
-            if (employee.software && employee.software.length > 0) {
-                document.getElementById('modalSoftwareList').innerHTML = employee.software.map(sw => 
-                    `<div class="skill-list-item software">${sw}</div>`
-                ).join('');
-            } else {
-                document.getElementById('modalSoftwareList').innerHTML = '<div class="empty-tab">No software</div>';
+            // Populate software tab with per-tab banner
+            let softwareHTML = '';
+            if (selectedFilters.software.length > 0) {
+                softwareHTML += buildTabMatchBanner(softwareMatched, softwareMissing, 'software');
             }
+            if (employee.software && employee.software.length > 0) {
+                softwareHTML += employee.software.map(sw => {
+                    const isRequired = selectedFilters.software.includes(sw);
+                    const highlight = isRequired ? ' style="border-left:3px solid var(--accent-purple);padding-left:11px;"' : '';
+                    return `<div class="skill-list-item software"${highlight}>${sw}</div>`;
+                }).join('');
+            } else {
+                softwareHTML += '<div class="empty-tab">No software</div>';
+            }
+            document.getElementById('modalSoftwareList').innerHTML = softwareHTML;
 
             // Reset to first tab
             document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
@@ -2475,18 +2533,22 @@
                 matchBarHtml = `<div class="match-bar-container"><div class="match-bar"><div class="match-bar-fill ${barClass}" style="width:${matchPct}%"></div></div><span class="match-bar-label ${barClass}">${matchPct}%</span></div>`;
             }
 
-            // Matched items with tag dots
-            const matchedTrainings = selectedFilters.trainings
-                .filter(t => !missing.some(m => m.value === t))
-                .map(t => {
-                    const rating = employee.trainings[t]; const ratingNum = parseRating(rating);
-                    const ratingClass = ratingNum >= 4 ? 'high' : ratingNum >= 3 ? 'medium' : 'low';
-                    const shortName = t.replace(/^\[T\d+\]\s*/, '').substring(0, 30);
-                    return `<span class="rating-badge ${ratingClass}"><span class="tag-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent-green);margin-right:4px;"></span>${shortName}: ${rating}</span>`;
-                }).join('');
-            const matchedHardware = selectedFilters.hardware.filter(h => !missing.some(m => m.value === h)).slice(0, 3).map(hw => `<span class="skill-tag hardware"><span class="tag-dot"></span>${hw}</span>`).join('');
-            const matchedSoftware = selectedFilters.software.filter(s => !missing.some(m => m.value === s)).slice(0, 3).map(sw => `<span class="skill-tag software"><span class="tag-dot"></span>${sw}</span>`).join('');
-            const matchedAccreditations = selectedFilters.accreditations.filter(a => !missing.some(m => m.value === a)).slice(0, 3).map(acc => `<span class="skill-tag accreditation"><span class="tag-dot"></span>${acc}</span>`).join('');
+            // Only show matched skill tags for near-matches (not perfect matches)
+            let skillTagsHtml = '';
+            if (!isPerfectMatch && totalFilters > 0) {
+                const matchedTrainings = selectedFilters.trainings
+                    .filter(t => !missing.some(m => m.value === t))
+                    .map(t => {
+                        const rating = employee.trainings[t]; const ratingNum = parseRating(rating);
+                        const ratingClass = ratingNum >= 4 ? 'high' : ratingNum >= 3 ? 'medium' : 'low';
+                        const shortName = t.replace(/^\[T\d+\]\s*/, '').substring(0, 30);
+                        return `<span class="rating-badge ${ratingClass}"><span class="tag-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent-green);margin-right:4px;"></span>${shortName}: ${rating}</span>`;
+                    }).join('');
+                const matchedHardware = selectedFilters.hardware.filter(h => !missing.some(m => m.value === h)).slice(0, 3).map(hw => `<span class="skill-tag hardware"><span class="tag-dot"></span>${hw}</span>`).join('');
+                const matchedSoftware = selectedFilters.software.filter(s => !missing.some(m => m.value === s)).slice(0, 3).map(sw => `<span class="skill-tag software"><span class="tag-dot"></span>${sw}</span>`).join('');
+                const matchedAccreditations = selectedFilters.accreditations.filter(a => !missing.some(m => m.value === a)).slice(0, 3).map(acc => `<span class="skill-tag accreditation"><span class="tag-dot"></span>${acc}</span>`).join('');
+                skillTagsHtml = matchedTrainings + matchedHardware + matchedSoftware + matchedAccreditations;
+            }
 
             // Missing items
             const missingHtml = missing.length > 0 ? `<div class="missing-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Missing: ${missing.map(m => `<span class="missing-tag">${m.value.replace(/^\[(T|H|S|A)\d+\]\s*/, '').substring(0, 25)}</span>`).join('')}</div>` : '';
@@ -2521,7 +2583,7 @@
                 ${employee.phone ? `<div class="hover-detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>${employee.phone}</div>` : ''}
             </div>`;
 
-            return `<div class="employee-card${missing.length > 0 ? ' near-match' : ''}" onclick="openEmployeeModal(${employee.id})">${distanceBadge}${matchBarHtml}${matchIndicator}${missingHtml}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div><div class="employee-skills">${matchedTrainings}${matchedHardware}${matchedSoftware}${matchedAccreditations}</div>${hoverExtra}</div>`;
+            return `<div class="employee-card${missing.length > 0 ? ' near-match' : ''}" onclick="openEmployeeModal(${employee.id})">${distanceBadge}${matchBarHtml}${matchIndicator}${missingHtml}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div>${skillTagsHtml ? `<div class="employee-skills">${skillTagsHtml}</div>` : ''}${hoverExtra}</div>`;
         }
 
         function updateActiveFiltersDisplay() {
