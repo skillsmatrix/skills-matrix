@@ -1025,21 +1025,28 @@
         .modal-copy-btn svg { width: 14px; height: 14px; }
         .modal-header-actions { display: flex; gap: 8px; align-items: center; }
 
-        /* Bulk select */
-        .bulk-select-checkbox {
+        /* Bulk select (Ctrl+click) */
+        .employee-card { position: relative; }
+        .employee-card.bulk-selected {
+            outline: 2px solid var(--accent-pink);
+            outline-offset: -2px;
+            background: rgba(233, 30, 140, 0.04);
+        }
+        .employee-card.bulk-selected::after {
+            content: '';
             position: absolute;
             top: 10px;
             right: 10px;
             width: 20px;
             height: 20px;
-            accent-color: var(--accent-pink);
-            cursor: pointer;
+            border-radius: 50%;
+            background: var(--accent-pink);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+            background-size: 14px;
+            background-position: center;
+            background-repeat: no-repeat;
             z-index: 5;
         }
-        .employee-card { position: relative; }
-        .employee-card .bulk-select-checkbox { opacity: 0; transition: opacity 0.15s ease; }
-        .employee-card:hover .bulk-select-checkbox,
-        .employee-card .bulk-select-checkbox:checked { opacity: 1; }
         .bulk-actions {
             display: none;
             align-items: center;
@@ -1124,6 +1131,72 @@
         .save-search-btn:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
         .save-search-btn svg { width: 12px; height: 12px; }
 
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            opacity: 0;
+            transform: translateY(12px) scale(0.96);
+            animation: toastIn 0.3s ease forwards;
+            max-width: 360px;
+        }
+        .toast.toast-out {
+            animation: toastOut 0.25s ease forwards;
+        }
+        .toast-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        .toast-icon.success { color: var(--accent-green); }
+        .toast-icon.info { color: var(--accent-pink); }
+        .toast-icon.warning { color: var(--accent-orange); }
+        .toast-bar {
+            position: absolute;
+            bottom: 0;
+            left: 12px;
+            right: 12px;
+            height: 3px;
+            border-radius: 0 0 10px 10px;
+            background: var(--accent-pink);
+            transform-origin: left;
+            animation: toastBar 3s linear forwards;
+        }
+        @keyframes toastIn {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(-8px) scale(0.96); }
+        }
+        @keyframes toastBar {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+        @media (max-width: 768px) {
+            .toast-container { bottom: 16px; right: 16px; left: 16px; }
+            .toast { max-width: 100%; }
+        }
+
         /* Tab badge */
         .modal-tab .tab-badge {
             display: inline-flex;
@@ -1155,9 +1228,393 @@
             padding: 8px 12px;
             font-size: 0.8rem;
         }
+
+        /* Page navigation tabs */
+        .page-nav {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 4px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .page-nav-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .page-nav-btn:hover { color: var(--text-primary); background: var(--bg-input); }
+        .page-nav-btn.active {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange));
+            color: white;
+            font-weight: 600;
+        }
+        .page-nav-btn svg { width: 16px; height: 16px; }
+        @media (max-width: 768px) {
+            .page-nav { max-width: 100%; }
+            .page-nav-btn { padding: 8px 10px; font-size: 0.8rem; gap: 4px; }
+            .page-nav-btn .nav-label { display: none; }
+        }
+
+        /* Page sections */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        /* ============================
+           SKILL GAP ANALYSIS STYLES
+           ============================ */
+        .gap-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 32px;
+        }
+        @media (max-width: 1024px) {
+            .gap-layout { grid-template-columns: 1fr; }
+        }
+        .gap-sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            height: fit-content;
+        }
+        .gap-sidebar h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .gap-sidebar h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--accent-purple), var(--accent-pink));
+            border-radius: 2px;
+        }
+        .gap-employee-search {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+        .gap-employee-search:focus { outline: none; border-color: var(--accent-pink); box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.1); }
+        .gap-employee-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .gap-employee-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+        .gap-employee-item:last-child { border-bottom: none; }
+        .gap-employee-item:hover { background: var(--bg-input); }
+        .gap-employee-item.selected { background: rgba(233, 30, 140, 0.08); color: var(--accent-pink); font-weight: 600; }
+        .gap-employee-item .emp-dept { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+
+        .gap-results {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            min-height: 400px;
+        }
+        .gap-results h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .gap-preset-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .gap-preset-chip {
+            padding: 6px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .gap-preset-chip:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
+        .gap-preset-chip.active { background: rgba(233, 30, 140, 0.08); border-color: var(--accent-pink); color: var(--accent-pink); font-weight: 600; }
+
+        .gap-category {
+            margin-bottom: 24px;
+        }
+        .gap-category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .gap-category-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        .gap-category-score {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+        }
+        .gap-category-score.perfect { background: rgba(5, 150, 105, 0.1); color: var(--accent-green); }
+        .gap-category-score.partial { background: rgba(217, 119, 6, 0.1); color: var(--accent-orange); }
+        .gap-category-score.low { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .gap-items { display: flex; flex-direction: column; gap: 6px; }
+        .gap-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        .gap-item-status {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .gap-item-status.has { background: rgba(5, 150, 105, 0.15); color: var(--accent-green); }
+        .gap-item-status.missing { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .gap-item-status svg { width: 14px; height: 14px; }
+        .gap-item-name { flex: 1; }
+        .gap-item-rating { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+
+        /* Overall gap score ring */
+        .gap-score-ring {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .gap-ring-visual {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+        .gap-ring-visual svg { width: 80px; height: 80px; transform: rotate(-90deg); }
+        .gap-ring-bg { stroke: var(--border-color); fill: none; stroke-width: 6; }
+        .gap-ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+        .gap-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .gap-score-details h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+        .gap-score-details p { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* ============================
+           DASHBOARD STYLES
+           ============================ */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .dash-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+        .dash-card h3 svg { width: 18px; height: 18px; opacity: 0.6; }
+        .dash-stat-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .dash-stat-box {
+            flex: 1;
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .dash-stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .dash-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        .dash-bar-chart { display: flex; flex-direction: column; gap: 10px; }
+        .dash-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dash-bar-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 140px;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .dash-bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .dash-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        .dash-bar-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            min-width: 30px;
+            text-align: right;
+        }
+        .dash-list { display: flex; flex-direction: column; gap: 8px; }
+        .dash-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        .dash-list-item .dash-list-name { color: var(--text-primary); }
+        .dash-list-item .dash-list-value { font-weight: 600; color: var(--accent-pink); }
+
+        .dash-full-width {
+            grid-column: 1 / -1;
+        }
+        .dash-dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .dash-dept-box {
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .dash-dept-box .dept-count {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-pink);
+        }
+        .dash-dept-box .dept-name {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Share modal */
+        .share-modal-content {
+            padding: 20px;
+        }
+        .share-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .share-option-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        .share-option-btn:hover { border-color: var(--accent-pink); transform: translateY(-1px); }
+        .share-option-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+        .share-option-btn .share-label { font-weight: 600; }
+        .share-option-btn .share-desc { font-size: 0.8rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Employee Modal -->
     <div class="modal-overlay" id="employeeModal">
         <div class="modal">
@@ -1167,6 +1624,10 @@
                     <p id="modalEmployeeRole">Role</p>
                 </div>
                 <div class="modal-header-actions">
+                    <button class="modal-copy-btn" id="modalShareBtn" title="Share this employee" onclick="openShareModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        Share
+                    </button>
                     <button class="modal-copy-btn" id="modalCopyBtn" title="Copy details to clipboard">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         Copy
@@ -1260,6 +1721,21 @@
                 <span id="statusText">Loading data...</span>
             </div>
         </header>
+        <nav class="page-nav">
+            <button class="page-nav-btn active" onclick="switchPage('search')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span class="nav-label">Search</span>
+            </button>
+            <button class="page-nav-btn" onclick="switchPage('gap')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                <span class="nav-label">Skill Gap</span>
+            </button>
+            <button class="page-nav-btn" onclick="switchPage('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                <span class="nav-label">Dashboard</span>
+            </button>
+        </nav>
+        <div class="page-section active" id="page-search">
         <main class="main-layout">
             <aside class="filter-panel">
                 <h2>Filter Technicians</h2>
@@ -1416,6 +1892,10 @@
                 <div class="stats-bar" id="statsBar"></div>
                 <div class="bulk-actions" id="bulkActions">
                     <span class="bulk-count"><span id="bulkCount">0</span> selected</span>
+                    <button class="bulk-btn" onclick="selectAllVisible()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        Select All
+                    </button>
                     <button class="bulk-btn" onclick="exportSelectedCSV()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         Export Selected CSV
@@ -1442,6 +1922,66 @@
                 </div>
             </section>
         </main>
+        </div><!-- end page-search -->
+
+        <!-- SKILL GAP ANALYSIS PAGE -->
+        <div class="page-section" id="page-gap">
+            <div class="gap-layout">
+                <aside class="gap-sidebar">
+                    <h2>Skill Gap Analysis</h2>
+                    <label class="filter-label" style="margin-bottom:8px;">Select Employee</label>
+                    <input type="text" class="gap-employee-search" id="gapEmployeeSearch" placeholder="Search by name...">
+                    <div class="gap-employee-list" id="gapEmployeeList"></div>
+                    <label class="filter-label" style="margin-bottom:8px;">Compare Against Job Type</label>
+                    <select id="gapWorkstreamSelect" style="margin-bottom:10px;">
+                        <option value="">-- Select workstream --</option>
+                    </select>
+                    <select id="gapJobTypeSelect" disabled>
+                        <option value="">-- Select workstream first --</option>
+                    </select>
+                </aside>
+                <div class="gap-results" id="gapResults">
+                    <div class="empty-state-enhanced">
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        </div>
+                        <h3>Skill Gap Analysis</h3>
+                        <p>Select an employee and a job type to see what skills they have and what they're missing</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD PAGE -->
+        <div class="page-section" id="page-dashboard">
+            <div id="dashboardContent">
+                <div class="empty-state-enhanced">
+                    <div class="empty-state-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    </div>
+                    <h3>Loading dashboard...</h3>
+                    <p>Crunching the numbers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHARE MODAL -->
+        <div class="modal-overlay" id="shareModal">
+            <div class="modal" style="max-width:440px;">
+                <div class="modal-header">
+                    <div class="modal-header-info">
+                        <h2>Share Employee</h2>
+                        <p id="shareEmployeeName">Employee Name</p>
+                    </div>
+                    <button class="modal-close" onclick="document.getElementById('shareModal').classList.remove('open');document.body.style.overflow='';">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="share-modal-content">
+                    <div class="share-options" id="shareOptions"></div>
+                </div>
+            </div>
+        </div>
     </div>
     </div>
     <script>
@@ -1495,6 +2035,26 @@
         let nameSearchFilter = '';
         let bulkSelectedIds = new Set();
         let savedSearches = JSON.parse(localStorage.getItem('skillsMatrixSavedSearches') || '[]');
+
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
+        function showToast(message, type = 'success', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            const icons = {
+                success: '<svg class="toast-icon success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+                info: '<svg class="toast-icon info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+                warning: '<svg class="toast-icon warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+            };
+            toast.innerHTML = `${icons[type] || icons.success}<span>${message}</span><div class="toast-bar" style="background:${type === 'warning' ? 'var(--accent-orange)' : type === 'info' ? 'var(--accent-pink)' : 'var(--accent-green)'};"></div>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-out');
+                setTimeout(() => toast.remove(), 250);
+            }, duration);
+        }
 
         // ============================================
         // URL STATE MANAGEMENT
@@ -2840,10 +3400,9 @@
                 ${employee.phone ? `<div class="hover-detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>${employee.phone}</div>` : ''}
             </div>`;
 
-            const isChecked = bulkSelectedIds.has(String(employee.id)) ? ' checked' : '';
-            const bulkCheckbox = `<input type="checkbox" class="bulk-select-checkbox"${isChecked} onclick="toggleBulkSelect(${employee.id}, this, event)">`;
+            const isSelected = bulkSelectedIds.has(String(employee.id)) ? ' bulk-selected' : '';
 
-            return `<div class="employee-card${missing.length > 0 ? ' near-match' : ''}" onclick="openEmployeeModal(${employee.id})">${bulkCheckbox}${distanceBadge}${matchBarHtml}${matchIndicator}${missingHtml}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div>${skillTagsHtml ? `<div class="employee-skills">${skillTagsHtml}</div>` : ''}${hoverExtra}</div>`;
+            return `<div class="employee-card${missing.length > 0 ? ' near-match' : ''}${isSelected}" data-employee-id="${employee.id}" onclick="handleCardClick(event, ${employee.id})">${distanceBadge}${matchBarHtml}${matchIndicator}${missingHtml}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div>${skillTagsHtml ? `<div class="employee-skills">${skillTagsHtml}</div>` : ''}${hoverExtra}</div>`;
         }
 
         function updateActiveFiltersDisplay() {
@@ -2894,9 +3453,31 @@
         function showError(message) { document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h3>Load Error</h3><p>${message}</p><p style="margin-top: 12px; font-size: 0.85rem;">Check your SharePoint connection and permissions.</p></div>`; }
         function updateConnectionStatus(connected, errorMsg = '') { document.getElementById('statusDot').className = 'status-dot ' + (connected ? 'connected' : 'error'); document.getElementById('statusText').textContent = connected ? `Loaded • ${allEmployees.length} employees` : `Load failed: ${errorMsg}`; }
 
+        function getSearchCriteriaSummary() {
+            const criteria = [];
+            const ws = document.getElementById('workstreamSelect').value;
+            const jt = document.getElementById('jobTypeSelect').value;
+            const company = document.getElementById('companySelect').value;
+            const minRating = document.getElementById('minTrainingRating').value;
+            const location = document.getElementById('jobLocationInput').value.trim();
+            if (ws) criteria.push({ label: 'Workstream', value: ws });
+            if (jt) criteria.push({ label: 'Job Type', value: jt });
+            if (company) criteria.push({ label: 'Company', value: company });
+            if (selectedFilters.department) criteria.push({ label: 'Department', value: selectedFilters.department });
+            if (location) criteria.push({ label: 'Location', value: location });
+            if (selectedFilters.trainings.length > 0) criteria.push({ label: 'Training', value: selectedFilters.trainings.map(t => t.replace(/^\[T\d+\]\s*/, '')).join(', '), detail: `Min rating: ${minRating}/5` });
+            if (selectedFilters.hardware.length > 0) criteria.push({ label: 'Hardware', value: selectedFilters.hardware.join(', ') });
+            if (selectedFilters.software.length > 0) criteria.push({ label: 'Software', value: selectedFilters.software.join(', ') });
+            if (selectedFilters.accreditations.length > 0) criteria.push({ label: 'Accreditations', value: selectedFilters.accreditations.join(', ') });
+            return criteria;
+        }
+
         function exportToCSV() {
             if (lastSearchResults.length === 0) return;
-            const minRating = document.getElementById('minTrainingRating').value;
+            const criteria = getSearchCriteriaSummary();
+            const criteriaLines = criteria.length > 0
+                ? ['SEARCH CRITERIA', ...criteria.map(c => `"${c.label}","${c.value}${c.detail ? ' (' + c.detail + ')' : ''}"`), '', `"Full Match = meets all ${selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length} requirements below"`, '']
+                : [];
             const headers = ['Name', 'Role', 'Department', 'Manager', 'Postcode', 'Distance (miles)', 'Match Status', 'Missing Items'];
             const rows = lastSearchResults.map(emp => {
                 const missing = (emp.missing || []).map(m => m.value).join('; ');
@@ -2904,7 +3485,7 @@
                 const distance = emp.distance !== null && emp.distance !== undefined && emp.distance !== Infinity ? Math.round(emp.distance) : '';
                 return [emp.name, emp.role, emp.department, emp.manager, emp.postcode, distance, matchStatus, missing].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
             });
-            const csv = [headers.join(','), ...rows].join('\n');
+            const csv = [...criteriaLines, headers.join(','), ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2912,6 +3493,23 @@
             a.download = `skills-matrix-export-${new Date().toISOString().slice(0, 10)}.csv`;
             a.click();
             URL.revokeObjectURL(url);
+            showToast('CSV exported');
+        }
+
+        function buildPDFCriteriaHTML(criteria, totalFilters, resultCount) {
+            if (criteria.length === 0) return '';
+            let html = '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin-bottom:16px;">';
+            html += '<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#475569;margin-bottom:8px;letter-spacing:0.5px;">Search Criteria</div>';
+            html += '<div style="display:flex;flex-wrap:wrap;gap:6px 16px;">';
+            criteria.forEach(c => {
+                html += `<div style="font-size:11px;"><span style="color:#64748b;font-weight:600;">${c.label}:</span> <span style="color:#1a2744;">${c.value}</span>${c.detail ? ` <span style="color:#64748b;">(${c.detail})</span>` : ''}</div>`;
+            });
+            html += '</div>';
+            if (totalFilters > 0) {
+                html += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:11px;color:#059669;font-weight:600;">Full Match = meets all ${totalFilters} requirements listed above</div>`;
+            }
+            html += '</div>';
+            return html;
         }
 
         function exportToPDF() {
@@ -2919,6 +3517,9 @@
             const minRating = document.getElementById('minTrainingRating').value;
             const workstream = document.getElementById('workstreamSelect').value || 'All';
             const jobType = document.getElementById('jobTypeSelect').value || 'All';
+            const criteria = getSearchCriteriaSummary();
+            const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
+            const criteriaHTML = buildPDFCriteriaHTML(criteria, totalFilters, lastSearchResults.length);
 
             const printWindow = window.open('', '_blank');
             const tableRows = lastSearchResults.map(emp => {
@@ -2940,10 +3541,12 @@
                 @media print{body{padding:0;}}</style></head>
                 <body><h1>Skills Matrix - ${workstream} / ${jobType}</h1>
                 <p>Exported ${new Date().toLocaleDateString()} | ${lastSearchResults.length} results | Min rating: ${minRating}/5</p>
+                ${criteriaHTML}
                 <table><thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Distance</th><th>Match</th><th>Missing</th></tr></thead>
                 <tbody>${tableRows}</tbody></table></body></html>`);
             printWindow.document.close();
             setTimeout(() => printWindow.print(), 250);
+            showToast('PDF export ready');
         }
 
         // ============================================
@@ -2969,6 +3572,7 @@
             ].filter(Boolean).join('\n');
 
             navigator.clipboard.writeText(text).then(() => {
+                showToast('Details copied to clipboard');
                 const btn = document.getElementById('modalCopyBtn');
                 btn.classList.add('copied');
                 btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
@@ -2980,14 +3584,42 @@
         }
 
         // ============================================
-        // BULK SELECT & EXPORT
+        // BULK SELECT & EXPORT (Ctrl+click)
         // ============================================
-        function toggleBulkSelect(employeeId, checkbox, event) {
-            event.stopPropagation();
-            if (checkbox.checked) {
-                bulkSelectedIds.add(String(employeeId));
+        function handleCardClick(event, employeeId) {
+            if (event.ctrlKey || event.metaKey) {
+                event.preventDefault();
+                const id = String(employeeId);
+                const card = event.currentTarget;
+                if (bulkSelectedIds.has(id)) {
+                    bulkSelectedIds.delete(id);
+                    card.classList.remove('bulk-selected');
+                } else {
+                    bulkSelectedIds.add(id);
+                    card.classList.add('bulk-selected');
+                }
+                updateBulkActionsBar();
             } else {
-                bulkSelectedIds.delete(String(employeeId));
+                openEmployeeModal(employeeId);
+            }
+        }
+
+        function selectAllVisible() {
+            const cards = document.querySelectorAll('.employee-card[data-employee-id]');
+            const allSelected = cards.length > 0 && [...cards].every(c => bulkSelectedIds.has(c.dataset.employeeId));
+            if (allSelected) {
+                // Deselect all
+                cards.forEach(c => {
+                    bulkSelectedIds.delete(c.dataset.employeeId);
+                    c.classList.remove('bulk-selected');
+                });
+                showToast('Selection cleared');
+            } else {
+                cards.forEach(c => {
+                    bulkSelectedIds.add(c.dataset.employeeId);
+                    c.classList.add('bulk-selected');
+                });
+                showToast(`${cards.length} employees selected`);
             }
             updateBulkActionsBar();
         }
@@ -3005,7 +3637,7 @@
 
         function clearBulkSelection() {
             bulkSelectedIds.clear();
-            document.querySelectorAll('.bulk-select-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.employee-card.bulk-selected').forEach(c => c.classList.remove('bulk-selected'));
             updateBulkActionsBar();
         }
 
@@ -3016,6 +3648,11 @@
         function exportSelectedCSV() {
             const selected = getSelectedEmployees();
             if (selected.length === 0) return;
+            const criteria = getSearchCriteriaSummary();
+            const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
+            const criteriaLines = criteria.length > 0
+                ? ['SEARCH CRITERIA', ...criteria.map(c => `"${c.label}","${c.value}${c.detail ? ' (' + c.detail + ')' : ''}"`), '', `"Full Match = meets all ${totalFilters} requirements below"`, '']
+                : [];
             const headers = ['Name', 'Role', 'Department', 'Manager', 'Postcode', 'Distance (miles)', 'Match Status', 'Missing Items'];
             const rows = selected.map(emp => {
                 const missing = (emp.missing || []).map(m => m.value).join('; ');
@@ -3023,12 +3660,13 @@
                 const distance = emp.distance !== null && emp.distance !== undefined && emp.distance !== Infinity ? Math.round(emp.distance) : '';
                 return [emp.name, emp.role, emp.department, emp.manager, emp.postcode, distance, matchStatus, missing].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
             });
-            const csv = [headers.join(','), ...rows].join('\n');
+            const csv = [...criteriaLines, headers.join(','), ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url;
             a.download = `skills-matrix-selected-${new Date().toISOString().slice(0, 10)}.csv`;
             a.click(); URL.revokeObjectURL(url);
+            showToast(`${selected.length} employees exported to CSV`);
         }
 
         function exportSelectedPDF() {
@@ -3037,6 +3675,9 @@
             const minRating = document.getElementById('minTrainingRating').value;
             const workstream = document.getElementById('workstreamSelect').value || 'All';
             const jobType = document.getElementById('jobTypeSelect').value || 'All';
+            const criteria = getSearchCriteriaSummary();
+            const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
+            const criteriaHTML = buildPDFCriteriaHTML(criteria, totalFilters, selected.length);
             const printWindow = window.open('', '_blank');
             const tableRows = selected.map(emp => {
                 const missing = (emp.missing || []).map(m => `<span style="color:#ef4444;font-size:11px;">${m.value.replace(/^\[(T|H|S|A)\d+\]\s*/, '')}</span>`).join(', ');
@@ -3056,10 +3697,12 @@
                 @media print{body{padding:0;}}</style></head>
                 <body><h1>Skills Matrix - ${workstream} / ${jobType} (Selected)</h1>
                 <p>Exported ${new Date().toLocaleDateString()} | ${selected.length} selected | Min rating: ${minRating}/5</p>
+                ${criteriaHTML}
                 <table><thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Distance</th><th>Match</th><th>Missing</th></tr></thead>
                 <tbody>${tableRows}</tbody></table></body></html>`);
             printWindow.document.close();
             setTimeout(() => printWindow.print(), 250);
+            showToast(`${selected.length} employees exported to PDF`);
         }
 
         // ============================================
@@ -3097,6 +3740,7 @@
             });
             localStorage.setItem('skillsMatrixSavedSearches', JSON.stringify(savedSearches));
             renderSavedSearches();
+            showToast(`Search "${name.trim()}" saved`);
         }
 
         function loadSavedSearch(index) {
@@ -3144,6 +3788,473 @@
             localStorage.setItem('skillsMatrixSavedSearches', JSON.stringify(savedSearches));
             renderSavedSearches();
         }
+
+        // ============================================
+        // PAGE NAVIGATION
+        // ============================================
+        function switchPage(page) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.page-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`page-${page}`).classList.add('active');
+            document.querySelectorAll('.page-nav-btn').forEach(b => {
+                if (b.textContent.toLowerCase().includes(page === 'gap' ? 'skill' : page)) b.classList.add('active');
+            });
+            if (page === 'gap') initGapAnalysis();
+            if (page === 'dashboard') renderDashboard();
+        }
+
+        // ============================================
+        // SKILL GAP ANALYSIS
+        // ============================================
+        let gapSelectedEmployee = null;
+        let gapSelectedPreset = null;
+
+        function initGapAnalysis() {
+            const list = document.getElementById('gapEmployeeList');
+            const search = document.getElementById('gapEmployeeSearch');
+            const wsSelect = document.getElementById('gapWorkstreamSelect');
+            const jtSelect = document.getElementById('gapJobTypeSelect');
+
+            // Populate employee list
+            renderGapEmployeeList('');
+
+            search.oninput = () => renderGapEmployeeList(search.value.toLowerCase());
+
+            // Populate workstream select
+            wsSelect.innerHTML = '<option value="">-- Select workstream --</option>';
+            const workstreams = [...new Set(allPresets.map(p => p.workstream).filter(w => w))].sort();
+            workstreams.forEach(ws => {
+                const opt = document.createElement('option');
+                opt.value = ws; opt.textContent = ws;
+                wsSelect.appendChild(opt);
+            });
+
+            wsSelect.onchange = () => {
+                const ws = wsSelect.value;
+                jtSelect.innerHTML = '<option value="">-- Select job type --</option>';
+                if (!ws) { jtSelect.disabled = true; return; }
+                const jobTypes = allPresets.filter(p => p.workstream === ws).map(p => p.jobType).filter(j => j).sort();
+                jobTypes.forEach(jt => {
+                    const opt = document.createElement('option');
+                    opt.value = jt; opt.textContent = jt;
+                    jtSelect.appendChild(opt);
+                });
+                jtSelect.disabled = false;
+            };
+
+            jtSelect.onchange = () => {
+                const ws = wsSelect.value;
+                const jt = jtSelect.value;
+                gapSelectedPreset = allPresets.find(p => p.workstream === ws && p.jobType === jt) || null;
+                renderGapResults();
+            };
+        }
+
+        function renderGapEmployeeList(filter) {
+            const list = document.getElementById('gapEmployeeList');
+            const filtered = allEmployees
+                .filter(e => !filter || e.name.toLowerCase().includes(filter))
+                .sort((a, b) => a.name.localeCompare(b.name));
+            list.innerHTML = filtered.slice(0, 50).map(e =>
+                `<div class="gap-employee-item${gapSelectedEmployee && gapSelectedEmployee.id === e.id ? ' selected' : ''}" onclick="selectGapEmployee('${e.id}')">
+                    ${e.name}<div class="emp-dept">${e.department || 'No department'}</div>
+                </div>`
+            ).join('') || '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.85rem;">No employees found</div>';
+        }
+
+        function selectGapEmployee(id) {
+            gapSelectedEmployee = allEmployees.find(e => String(e.id) === String(id));
+            renderGapEmployeeList(document.getElementById('gapEmployeeSearch').value.toLowerCase());
+            renderGapResults();
+        }
+
+        function renderGapResults() {
+            const container = document.getElementById('gapResults');
+            if (!gapSelectedEmployee) {
+                container.innerHTML = '<div class="empty-state-enhanced"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><h3>Skill Gap Analysis</h3><p>Select an employee and a job type to see what they have and what they\'re missing</p></div>';
+                return;
+            }
+
+            const emp = gapSelectedEmployee;
+            let html = `<h2>${emp.name} <span style="font-weight:400;color:var(--text-muted);font-size:0.9rem;">${emp.role || ''}</span></h2>`;
+
+            if (!gapSelectedPreset) {
+                // Show all presets as chips to quickly compare
+                html += '<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">Select a job type to compare, or click a preset below:</p>';
+                html += '<div class="gap-preset-row">';
+                allPresets.forEach(p => {
+                    html += `<button class="gap-preset-chip" onclick="quickGapPreset('${p.workstream}','${p.jobType}')">${p.workstream} - ${p.jobType}</button>`;
+                });
+                html += '</div>';
+
+                // Show current skills overview
+                html += buildEmployeeSkillsSummary(emp);
+                container.innerHTML = html;
+                return;
+            }
+
+            const preset = gapSelectedPreset;
+            const minRating = parseInt(preset.minRating) || 3;
+            html += `<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">Compared against: <strong>${preset.workstream} - ${preset.jobType}</strong> (min rating: ${minRating}/5)</p>`;
+
+            // Calculate gaps
+            let totalRequired = 0, totalMet = 0;
+            const categories = [];
+
+            // Training gaps
+            if (preset.training.length > 0) {
+                const items = preset.training.map(t => {
+                    totalRequired++;
+                    const rating = parseRating(emp.trainings[t]);
+                    const met = rating >= minRating;
+                    if (met) totalMet++;
+                    return { name: t.replace(/^\[T\d+\]\s*/, ''), has: met, rating: emp.trainings[t] || null };
+                });
+                categories.push({ title: 'Training / Competency', items, color: 'var(--accent-green)' });
+            }
+
+            // Hardware gaps
+            if (preset.hardware.length > 0) {
+                const items = preset.hardware.map(h => {
+                    totalRequired++;
+                    const has = emp.hardware.includes(h);
+                    if (has) totalMet++;
+                    return { name: h, has };
+                });
+                categories.push({ title: 'Hardware', items, color: 'var(--accent-orange)' });
+            }
+
+            // Software gaps
+            if (preset.software.length > 0) {
+                const items = preset.software.map(s => {
+                    totalRequired++;
+                    const has = emp.software.includes(s);
+                    if (has) totalMet++;
+                    return { name: s, has };
+                });
+                categories.push({ title: 'Software', items, color: 'var(--accent-purple)' });
+            }
+
+            // Accreditation gaps (include company-specific)
+            const allAccs = [...preset.accreditations];
+            const company = document.getElementById('companySelect').value;
+            if (company && preset.companyAccreditations[company]) {
+                preset.companyAccreditations[company].forEach(a => { if (!allAccs.includes(a)) allAccs.push(a); });
+            }
+            if (allAccs.length > 0) {
+                const items = allAccs.map(a => {
+                    totalRequired++;
+                    const has = emp.accreditations.includes(a);
+                    if (has) totalMet++;
+                    return { name: a, has };
+                });
+                categories.push({ title: 'Accreditations', items, color: '#0891b2' });
+            }
+
+            // Score ring
+            const pct = totalRequired > 0 ? Math.round((totalMet / totalRequired) * 100) : 0;
+            const circumference = 2 * Math.PI * 34;
+            const offset = circumference - (pct / 100) * circumference;
+            const ringColor = pct === 100 ? 'var(--accent-green)' : pct >= 70 ? 'var(--accent-orange)' : '#ef4444';
+            html += `<div class="gap-score-ring">
+                <div class="gap-ring-visual">
+                    <svg viewBox="0 0 80 80"><circle class="gap-ring-bg" cx="40" cy="40" r="34"/><circle class="gap-ring-fill" cx="40" cy="40" r="34" stroke="${ringColor}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/></svg>
+                    <div class="gap-ring-text" style="color:${ringColor};">${pct}%</div>
+                </div>
+                <div class="gap-score-details">
+                    <h3>${totalMet} / ${totalRequired} requirements met</h3>
+                    <p>${pct === 100 ? 'Fully qualified for this role' : `Missing ${totalRequired - totalMet} requirement${totalRequired - totalMet !== 1 ? 's' : ''}`}</p>
+                </div>
+            </div>`;
+
+            // Category breakdowns
+            categories.forEach(cat => {
+                const catMet = cat.items.filter(i => i.has).length;
+                const catTotal = cat.items.length;
+                const catPct = Math.round((catMet / catTotal) * 100);
+                const scoreClass = catPct === 100 ? 'perfect' : catPct >= 50 ? 'partial' : 'low';
+                html += `<div class="gap-category">
+                    <div class="gap-category-header">
+                        <span class="gap-category-title" style="color:${cat.color};">${cat.title}</span>
+                        <span class="gap-category-score ${scoreClass}">${catMet}/${catTotal}</span>
+                    </div>
+                    <div class="gap-items">`;
+                cat.items.forEach(item => {
+                    const statusClass = item.has ? 'has' : 'missing';
+                    const icon = item.has
+                        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+                        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+                    const ratingText = item.rating ? `<span class="gap-item-rating">${item.rating}</span>` : '';
+                    html += `<div class="gap-item"><div class="gap-item-status ${statusClass}">${icon}</div><span class="gap-item-name">${item.name}</span>${ratingText}</div>`;
+                });
+                html += '</div></div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        function quickGapPreset(ws, jt) {
+            document.getElementById('gapWorkstreamSelect').value = ws;
+            document.getElementById('gapWorkstreamSelect').onchange();
+            document.getElementById('gapJobTypeSelect').value = jt;
+            gapSelectedPreset = allPresets.find(p => p.workstream === ws && p.jobType === jt);
+            renderGapResults();
+        }
+
+        function buildEmployeeSkillsSummary(emp) {
+            let html = '';
+            const trainings = Object.entries(emp.trainings || {}).filter(([k, v]) => v && v !== 'N/A');
+            if (trainings.length > 0) {
+                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:var(--accent-green);">Training (${trainings.length})</span></div><div class="gap-items">`;
+                trainings.forEach(([name, rating]) => {
+                    html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${name.replace(/^\[T\d+\]\s*/, '')}</span><span class="gap-item-rating">${rating}</span></div>`;
+                });
+                html += '</div></div>';
+            }
+            if (emp.hardware.length > 0) {
+                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:var(--accent-orange);">Hardware (${emp.hardware.length})</span></div><div class="gap-items">`;
+                emp.hardware.forEach(h => { html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${h}</span></div>`; });
+                html += '</div></div>';
+            }
+            if (emp.software.length > 0) {
+                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:var(--accent-purple);">Software (${emp.software.length})</span></div><div class="gap-items">`;
+                emp.software.forEach(s => { html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${s}</span></div>`; });
+                html += '</div></div>';
+            }
+            if (emp.accreditations.length > 0) {
+                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:#0891b2;">Accreditations (${emp.accreditations.length})</span></div><div class="gap-items">`;
+                emp.accreditations.forEach(a => { html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${a}</span></div>`; });
+                html += '</div></div>';
+            }
+            return html;
+        }
+
+        // ============================================
+        // DASHBOARD
+        // ============================================
+        function renderDashboard() {
+            if (allEmployees.length === 0) return;
+            const container = document.getElementById('dashboardContent');
+
+            // Stats
+            const totalEmps = allEmployees.length;
+            const depts = {};
+            allEmployees.forEach(e => { const d = e.department || 'Unassigned'; depts[d] = (depts[d] || 0) + 1; });
+            const totalDepts = Object.keys(depts).length;
+
+            // Accreditation coverage
+            const accCoverage = {};
+            ACCREDITATION_OPTIONS.forEach(acc => {
+                accCoverage[acc] = allEmployees.filter(e => e.accreditations.includes(acc)).length;
+            });
+            const sortedAccs = Object.entries(accCoverage).sort((a, b) => b[1] - a[1]);
+
+            // Hardware coverage
+            const hwCoverage = {};
+            HARDWARE_OPTIONS.forEach(hw => {
+                hwCoverage[hw] = allEmployees.filter(e => e.hardware.includes(hw)).length;
+            });
+            const sortedHw = Object.entries(hwCoverage).sort((a, b) => b[1] - a[1]);
+
+            // Software coverage
+            const swCoverage = {};
+            SOFTWARE_OPTIONS.forEach(sw => {
+                swCoverage[sw] = allEmployees.filter(e => e.software.includes(sw)).length;
+            });
+            const sortedSw = Object.entries(swCoverage).sort((a, b) => b[1] - a[1]);
+
+            // Training coverage (average ratings)
+            const trainingStats = {};
+            TRAINING_COLUMNS.forEach(t => {
+                let count = 0, sum = 0;
+                allEmployees.forEach(e => {
+                    const r = parseRating(e.trainings[t]);
+                    if (r > 0) { count++; sum += r; }
+                });
+                trainingStats[t] = { count, avg: count > 0 ? (sum / count).toFixed(1) : 0 };
+            });
+            const sortedTraining = Object.entries(trainingStats).sort((a, b) => b[1].count - a[1].count);
+
+            // Lowest average ratings
+            const lowRatings = Object.entries(trainingStats)
+                .filter(([_, s]) => s.count > 0)
+                .sort((a, b) => a[1].avg - b[1].avg)
+                .slice(0, 5);
+
+            // Skills per person stats
+            const skillsPerPerson = allEmployees.map(e => {
+                const tCount = Object.keys(e.trainings || {}).filter(k => e.trainings[k] && e.trainings[k] !== 'N/A').length;
+                return tCount + e.hardware.length + e.software.length + e.accreditations.length;
+            });
+            const avgSkills = skillsPerPerson.length > 0 ? (skillsPerPerson.reduce((a, b) => a + b, 0) / skillsPerPerson.length).toFixed(1) : 0;
+
+            let html = '';
+
+            // Top stat boxes
+            html += `<div class="dash-stat-row">
+                <div class="dash-stat-box"><div class="dash-stat-number">${totalEmps}</div><div class="dash-stat-label">Employees</div></div>
+                <div class="dash-stat-box"><div class="dash-stat-number">${totalDepts}</div><div class="dash-stat-label">Departments</div></div>
+                <div class="dash-stat-box"><div class="dash-stat-number">${avgSkills}</div><div class="dash-stat-label">Avg Skills/Person</div></div>
+                <div class="dash-stat-box"><div class="dash-stat-number">${allPresets.length}</div><div class="dash-stat-label">Job Presets</div></div>
+            </div>`;
+
+            html += '<div class="dashboard-grid">';
+
+            // Department breakdown
+            html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Employees by Department</h3><div class="dash-dept-grid">';
+            Object.entries(depts).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
+                html += `<div class="dash-dept-box"><div class="dept-count">${count}</div><div class="dept-name" title="${name}">${name}</div></div>`;
+            });
+            html += '</div></div>';
+
+            // Accreditation coverage
+            if (sortedAccs.length > 0) {
+                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Accreditation Coverage</h3><div class="dash-bar-chart">';
+                sortedAccs.slice(0, 10).forEach(([name, count]) => {
+                    const pct = Math.round((count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:#0891b2;"></div></div><span class="dash-bar-count">${count}</span></div>`;
+                });
+                html += '</div></div>';
+            }
+
+            // Training coverage
+            if (sortedTraining.length > 0) {
+                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Training Coverage</h3><div class="dash-bar-chart">';
+                sortedTraining.slice(0, 10).forEach(([name, stats]) => {
+                    const shortName = name.replace(/^\[T\d+\]\s*/, '');
+                    const pct = Math.round((stats.count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${shortName}">${shortName}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-green);"></div></div><span class="dash-bar-count">${stats.count} (${stats.avg})</span></div>`;
+                });
+                html += '</div></div>';
+            }
+
+            // Hardware coverage
+            if (sortedHw.length > 0) {
+                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Hardware Coverage</h3><div class="dash-bar-chart">';
+                sortedHw.slice(0, 10).forEach(([name, count]) => {
+                    const pct = Math.round((count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-orange);"></div></div><span class="dash-bar-count">${count}</span></div>`;
+                });
+                html += '</div></div>';
+            }
+
+            // Software coverage
+            if (sortedSw.length > 0) {
+                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Software Coverage</h3><div class="dash-bar-chart">';
+                sortedSw.slice(0, 10).forEach(([name, count]) => {
+                    const pct = Math.round((count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-purple);"></div></div><span class="dash-bar-count">${count}</span></div>`;
+                });
+                html += '</div></div>';
+            }
+
+            // Lowest average training ratings
+            if (lowRatings.length > 0) {
+                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Lowest Avg Training Ratings</h3><div class="dash-list">';
+                lowRatings.forEach(([name, stats]) => {
+                    const shortName = name.replace(/^\[T\d+\]\s*/, '');
+                    html += `<div class="dash-list-item"><span class="dash-list-name">${shortName}</span><span class="dash-list-value">${stats.avg}/5 avg (${stats.count} people)</span></div>`;
+                });
+                html += '</div></div>';
+            }
+
+            // Hardest to fill skills (fewest people)
+            const rareAccs = sortedAccs.filter(([_, c]) => c > 0).reverse().slice(0, 5);
+            if (rareAccs.length > 0) {
+                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Rarest Accreditations</h3><div class="dash-list">';
+                rareAccs.forEach(([name, count]) => {
+                    html += `<div class="dash-list-item"><span class="dash-list-name">${name}</span><span class="dash-list-value">${count} employee${count !== 1 ? 's' : ''}</span></div>`;
+                });
+                html += '</div></div>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // SHARE TO TEAMS / EMAIL
+        // ============================================
+        let currentShareText = '';
+
+        function copyShareText() {
+            navigator.clipboard.writeText(currentShareText).then(() => {
+                showToast('Copied to clipboard');
+                document.getElementById('shareModal').classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        }
+
+        function openShareModal() {
+            const name = document.getElementById('modalEmployeeName').textContent;
+            const role = document.getElementById('modalEmployeeRole').textContent;
+            const infoGrid = document.getElementById('modalInfoGrid');
+            const items = infoGrid.querySelectorAll('.info-item-value');
+            const dept = items[0]?.textContent || '';
+            const manager = items[1]?.textContent || '';
+            const postcode = items[2]?.textContent || '';
+            const phone = items[3]?.textContent || '';
+
+            // Build shareable text
+            const lines = [name];
+            if (role !== 'No role specified') lines.push(role);
+            if (dept !== 'N/A') lines.push(`Department: ${dept}`);
+            if (manager !== 'N/A') lines.push(`Manager: ${manager}`);
+            if (postcode !== 'N/A') lines.push(`Postcode: ${postcode}`);
+            if (phone !== 'N/A') lines.push(`Phone: ${phone}`);
+
+            // Add match context if searching
+            const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
+            if (totalFilters > 0) {
+                const emp = allEmployees.find(e => e.name === name);
+                if (emp) {
+                    const minRating = parseInt(document.getElementById('minTrainingRating').value) || 1;
+                    let met = 0;
+                    selectedFilters.trainings.forEach(t => { if (parseRating(emp.trainings[t]) >= minRating) met++; });
+                    selectedFilters.hardware.forEach(h => { if (emp.hardware.includes(h)) met++; });
+                    selectedFilters.software.forEach(s => { if (emp.software.includes(s)) met++; });
+                    selectedFilters.accreditations.forEach(a => { if (emp.accreditations.includes(a)) met++; });
+                    lines.push('');
+                    lines.push(`Match: ${met}/${totalFilters} requirements met`);
+                }
+            }
+
+            const shareText = lines.join('\n');
+            currentShareText = shareText;
+            const shareTextEncoded = encodeURIComponent(shareText);
+            const subject = encodeURIComponent(`Skills Matrix - ${name}`);
+
+            document.getElementById('shareEmployeeName').textContent = name;
+
+            // Build share options
+            const teamsDeepLink = `https://teams.microsoft.com/l/chat/0/0?message=${shareTextEncoded}`;
+            const emailLink = `mailto:?subject=${subject}&body=${shareTextEncoded}`;
+
+            document.getElementById('shareOptions').innerHTML = `
+                <a class="share-option-btn" href="${teamsDeepLink}" target="_blank" onclick="showToast('Opening Teams...');setTimeout(()=>{document.getElementById('shareModal').classList.remove('open');document.body.style.overflow='';},500);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <div><div class="share-label">Share via Teams</div><div class="share-desc">Opens a new Teams chat with details pre-filled</div></div>
+                </a>
+                <a class="share-option-btn" href="${emailLink}" onclick="showToast('Opening email...');setTimeout(()=>{document.getElementById('shareModal').classList.remove('open');document.body.style.overflow='';},500);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <div><div class="share-label">Share via Email</div><div class="share-desc">Opens your email client with details pre-filled</div></div>
+                </a>
+                <button class="share-option-btn" id="shareCopyBtn" onclick="copyShareText()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <div><div class="share-label">Copy to Clipboard</div><div class="share-desc">Copy all details as text for pasting anywhere</div></div>
+                </button>
+            `;
+
+            document.getElementById('shareModal').classList.add('open');
+        }
+
+        // Close share modal on overlay click
+        document.getElementById('shareModal').addEventListener('click', (e) => {
+            if (e.target.id === 'shareModal') {
+                document.getElementById('shareModal').classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
 
         // URL state management functions are defined at the top of the script
     </script>
