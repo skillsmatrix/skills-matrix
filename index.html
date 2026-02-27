@@ -1949,20 +1949,28 @@
             max-width: 120px;
         }
         .admin-grid thead th:first-child {
-            z-index: 4;
+            left: 0;
+            z-index: 5;
             text-align: left;
             min-width: 180px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
         }
         .admin-grid thead th:nth-child(2) {
-            z-index: 4;
+            left: 180px;
+            z-index: 5;
             text-align: left;
             min-width: 100px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
         }
         .admin-grid tbody td {
             padding: 6px 10px;
             border-bottom: 1px solid var(--border-color);
             text-align: center;
             white-space: nowrap;
+            position: relative;
+            z-index: 0;
         }
         .admin-grid tbody td:first-child {
             position: sticky;
@@ -2054,6 +2062,43 @@
             background: var(--accent-orange);
             margin-left: 6px;
             animation: pulse 2s infinite;
+        }
+        .admin-view-toggle {
+            display: flex;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .admin-view-btn {
+            padding: 8px 20px;
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .admin-view-btn:hover { color: var(--text-primary); }
+        .admin-view-btn.active { background: var(--accent-pink); color: white; }
+        .admin-sub-panel { display: none; }
+        .admin-sub-panel.active { display: block; }
+        .admin-filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+        }
+        .admin-grid thead th small {
+            display: block;
+            font-size: 0.55rem;
+            opacity: 0.6;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -2421,44 +2466,25 @@
                 <div class="admin-header">
                     <h2>Administration</h2>
                     <div class="admin-tab-bar">
-                        <button class="admin-tab active" onclick="switchAdminTab('single')">Single Person</button>
-                        <button class="admin-tab" onclick="switchAdminTab('mass')">Mass Edit</button>
+                        <button class="admin-tab active" onclick="switchAdminTab('employees')">Employees</button>
+                        <button class="admin-tab" onclick="switchAdminTab('presets')">Presets</button>
                     </div>
                 </div>
-                <!-- Single Person Panel -->
-                <div class="admin-panel active" id="adminPanelSingle">
-                    <div class="admin-single-layout">
-                        <div class="admin-emp-picker">
-                            <input type="text" class="admin-emp-search" placeholder="Search employees..." id="adminEmpSearch">
-                            <div class="admin-emp-list" id="adminEmpList"></div>
+                <!-- EMPLOYEES PANEL -->
+                <div class="admin-panel active" id="adminPanelEmployees">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+                        <div class="admin-view-toggle" id="empViewToggle">
+                            <button class="admin-view-btn active" onclick="switchAdminView('single')">Single Person</button>
+                            <button class="admin-view-btn" onclick="switchAdminView('grid')">Grid View</button>
                         </div>
-                        <div id="adminEmpDetail">
-                            <div class="empty-state-enhanced">
-                                <div class="empty-state-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                        <circle cx="8.5" cy="7" r="4"/>
-                                    </svg>
-                                </div>
-                                <h3>Select an employee</h3>
-                                <p>Choose someone from the list to edit their skills</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Mass Edit Panel -->
-                <div class="admin-panel" id="adminPanelMass">
-                    <div class="admin-mass-toolbar">
-                        <div class="admin-cat-tabs">
-                            <button class="admin-cat-tab active" onclick="switchAdminCategory('hardware')">Hardware</button>
-                            <button class="admin-cat-tab" onclick="switchAdminCategory('software')">Software</button>
-                            <button class="admin-cat-tab" onclick="switchAdminCategory('accreditations')">Accreditations</button>
-                            <button class="admin-cat-tab" onclick="switchAdminCategory('trainings')">Trainings</button>
-                        </div>
-                        <div style="display:flex;gap:8px;margin-left:auto;">
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="admin-mass-btn" onclick="showAddNewEmployeeModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                                Add Employee
+                            </button>
                             <button class="admin-mass-btn" onclick="showAddNewItemModal()">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                Add New
+                                Add Skill
                             </button>
                             <button class="admin-mass-btn" onclick="exportAdminCSV()">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -2470,18 +2496,117 @@
                             </button>
                         </div>
                     </div>
-                    <div class="admin-grid-wrapper" id="adminGridWrapper">
-                        <div class="empty-state-enhanced" style="padding:40px;">
-                            <h3>Loading grid...</h3>
+                    <!-- Single Person View -->
+                    <div class="admin-sub-panel active" id="adminEmpSingleView">
+                        <div class="admin-single-layout">
+                            <div class="admin-emp-picker">
+                                <input type="text" class="admin-emp-search" placeholder="Search employees..." id="adminEmpSearch">
+                                <div class="admin-emp-list" id="adminEmpList"></div>
+                            </div>
+                            <div id="adminEmpDetail">
+                                <div class="empty-state-enhanced">
+                                    <div class="empty-state-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg>
+                                    </div>
+                                    <h3>Select an employee</h3>
+                                    <p>Choose someone from the list to edit their skills</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Grid View -->
+                    <div class="admin-sub-panel" id="adminEmpGridView">
+                        <div class="admin-mass-toolbar">
+                            <div class="admin-cat-tabs" id="adminEmpCatTabs">
+                                <button class="admin-cat-tab active" onclick="switchAdminCategory('all')">All</button>
+                                <button class="admin-cat-tab" onclick="switchAdminCategory('hardware')">Hardware</button>
+                                <button class="admin-cat-tab" onclick="switchAdminCategory('software')">Software</button>
+                                <button class="admin-cat-tab" onclick="switchAdminCategory('accreditations')">Accreditations</button>
+                                <button class="admin-cat-tab" onclick="switchAdminCategory('trainings')">Trainings</button>
+                            </div>
+                            <select id="adminDeptFilter" onchange="renderMassEditGrid()" class="admin-filter-select">
+                                <option value="">All Departments</option>
+                            </select>
+                            <button class="admin-mass-btn" onclick="selectAllCategory(true)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                                Select All
+                            </button>
+                            <button class="admin-mass-btn" onclick="selectAllCategory(false)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                                Deselect All
+                            </button>
+                        </div>
+                        <div class="admin-grid-wrapper" id="adminGridWrapper">
+                            <div class="empty-state-enhanced" style="padding:40px;"><h3>Loading grid...</h3></div>
                         </div>
                     </div>
                 </div>
-                <!-- Save bar (sticky bottom) -->
+                <!-- PRESETS PANEL -->
+                <div class="admin-panel" id="adminPanelPresets">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+                        <div class="admin-view-toggle" id="presetViewToggle">
+                            <button class="admin-view-btn active" onclick="switchPresetView('single')">Single Preset</button>
+                            <button class="admin-view-btn" onclick="switchPresetView('grid')">Grid View</button>
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="admin-mass-btn" onclick="showAddNewPresetModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Add Preset
+                            </button>
+                            <button class="admin-mass-btn" onclick="showAddNewItemModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Add Skill
+                            </button>
+                            <button class="admin-mass-btn" onclick="exportPresetCSV()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Export CSV
+                            </button>
+                            <button class="admin-mass-btn primary" onclick="savePresetChanges()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Single Preset View -->
+                    <div class="admin-sub-panel active" id="adminPresetSingleView">
+                        <div class="admin-single-layout">
+                            <div class="admin-emp-picker">
+                                <input type="text" class="admin-emp-search" placeholder="Search presets..." id="adminPresetSearch">
+                                <div class="admin-emp-list" id="adminPresetList"></div>
+                            </div>
+                            <div id="adminPresetDetail">
+                                <div class="empty-state-enhanced">
+                                    <div class="empty-state-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+                                    </div>
+                                    <h3>Select a preset</h3>
+                                    <p>Choose a job preset from the list to edit its requirements</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Preset Grid View -->
+                    <div class="admin-sub-panel" id="adminPresetGridView">
+                        <div class="admin-mass-toolbar">
+                            <div class="admin-cat-tabs" id="adminPresetCatTabs">
+                                <button class="admin-cat-tab active" onclick="switchPresetCategory('all')">All</button>
+                                <button class="admin-cat-tab" onclick="switchPresetCategory('hardware')">Hardware</button>
+                                <button class="admin-cat-tab" onclick="switchPresetCategory('software')">Software</button>
+                                <button class="admin-cat-tab" onclick="switchPresetCategory('accreditations')">Accreditations</button>
+                                <button class="admin-cat-tab" onclick="switchPresetCategory('trainings')">Trainings</button>
+                            </div>
+                        </div>
+                        <div class="admin-grid-wrapper" id="adminPresetGridWrapper">
+                            <div class="empty-state-enhanced" style="padding:40px;"><h3>Loading grid...</h3></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Save bar -->
                 <div class="admin-save-bar" id="adminSaveBar">
                     <span class="change-count" id="adminChangeCount">0 unsaved changes</span>
                     <div class="save-actions">
                         <button class="admin-mass-btn" onclick="discardAdminChanges()">Discard</button>
-                        <button class="admin-mass-btn primary" onclick="saveAdminChanges()">Save All</button>
+                        <button class="admin-mass-btn primary" onclick="saveAllChanges()">Save All</button>
                     </div>
                 </div>
             </div>
@@ -4941,10 +5066,15 @@
         // ============================================
         // ADMIN PAGE
         // ============================================
-        let adminCurrentTab = 'single';
-        let adminCurrentCategory = 'hardware';
+        let adminCurrentTab = 'employees';
+        let adminEmpView = 'single';
+        let adminPresetView = 'single';
+        let adminCurrentCategory = 'all';
+        let adminPresetCategory = 'all';
         let adminSelectedEmpId = null;
+        let adminSelectedPresetId = null;
         let adminPendingChanges = new Map();
+        let adminPresetPendingChanges = new Map();
         let adminInitialized = false;
 
         function initAdmin() {
@@ -4952,37 +5082,80 @@
                 document.getElementById('adminGridWrapper').addEventListener('change', handleMassGridChange);
                 document.getElementById('adminEmpDetail').addEventListener('click', handleAdminDetailClick);
                 document.getElementById('adminEmpDetail').addEventListener('change', handleAdminDetailChange);
+                document.getElementById('adminPresetGridWrapper').addEventListener('change', handlePresetGridChange);
+                document.getElementById('adminPresetDetail').addEventListener('click', handlePresetDetailClick);
+                document.getElementById('adminPresetDetail').addEventListener('change', handlePresetDetailChange);
                 adminInitialized = true;
             }
+            const deptFilter = document.getElementById('adminDeptFilter');
+            deptFilter.innerHTML = '<option value="">All Departments</option>';
+            [...new Set(allEmployees.map(e => e.department).filter(d => d))].sort().forEach(d => {
+                deptFilter.innerHTML += '<option value="' + d + '">' + d + '</option>';
+            });
             renderAdminEmpList('');
             document.getElementById('adminEmpSearch').oninput = (e) => renderAdminEmpList(e.target.value.toLowerCase());
-            if (adminCurrentTab === 'mass') renderMassEditGrid();
+            renderAdminPresetList('');
+            document.getElementById('adminPresetSearch').oninput = (e) => renderAdminPresetList(e.target.value.toLowerCase());
+            if (adminEmpView === 'grid') renderMassEditGrid();
         }
 
         function switchAdminTab(tab) {
             adminCurrentTab = tab;
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-            const tabs = document.querySelectorAll('.admin-tab');
-            tabs[tab === 'single' ? 0 : 1].classList.add('active');
-            document.getElementById(tab === 'single' ? 'adminPanelSingle' : 'adminPanelMass').classList.add('active');
-            if (tab === 'mass') renderMassEditGrid();
+            document.querySelectorAll('#page-admin .admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#page-admin .admin-panel').forEach(p => p.classList.remove('active'));
+            const tabBtns = document.querySelectorAll('#page-admin .admin-tab');
+            if (tab === 'employees') { tabBtns[0].classList.add('active'); document.getElementById('adminPanelEmployees').classList.add('active'); }
+            else { tabBtns[1].classList.add('active'); document.getElementById('adminPanelPresets').classList.add('active'); }
         }
 
+        function switchAdminView(view) {
+            adminEmpView = view;
+            document.querySelectorAll('#empViewToggle .admin-view-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#empViewToggle .admin-view-btn')[view === 'single' ? 0 : 1].classList.add('active');
+            document.querySelectorAll('#adminPanelEmployees > .admin-sub-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(view === 'single' ? 'adminEmpSingleView' : 'adminEmpGridView').classList.add('active');
+            if (view === 'grid') renderMassEditGrid();
+        }
+
+        function switchPresetView(view) {
+            adminPresetView = view;
+            document.querySelectorAll('#presetViewToggle .admin-view-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#presetViewToggle .admin-view-btn')[view === 'single' ? 0 : 1].classList.add('active');
+            document.querySelectorAll('#adminPanelPresets > .admin-sub-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(view === 'single' ? 'adminPresetSingleView' : 'adminPresetGridView').classList.add('active');
+            if (view === 'grid') renderPresetMassGrid();
+        }
+
+        function switchAdminCategory(cat) {
+            adminCurrentCategory = cat;
+            document.querySelectorAll('#adminEmpCatTabs .admin-cat-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#adminEmpCatTabs .admin-cat-tab').forEach(t => {
+                if (t.textContent.toLowerCase() === cat) t.classList.add('active');
+            });
+            renderMassEditGrid();
+        }
+
+        function switchPresetCategory(cat) {
+            adminPresetCategory = cat;
+            document.querySelectorAll('#adminPresetCatTabs .admin-cat-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#adminPresetCatTabs .admin-cat-tab').forEach(t => {
+                if (t.textContent.toLowerCase() === cat) t.classList.add('active');
+            });
+            renderPresetMassGrid();
+        }
+
+        // --- Employee List & Detail ---
         function renderAdminEmpList(filter) {
             const list = document.getElementById('adminEmpList');
             const filtered = allEmployees.filter(e =>
                 !filter || e.name.toLowerCase().includes(filter) || e.department.toLowerCase().includes(filter)
-            );
-            filtered.sort((a, b) => a.name.localeCompare(b.name));
+            ).sort((a, b) => a.name.localeCompare(b.name));
             list.innerHTML = filtered.map(e =>
                 '<div class="admin-emp-item' + (adminSelectedEmpId === e.id ? ' selected' : '') + '" data-emp-id="' + e.id + '">' +
-                    e.name +
-                    '<span class="admin-emp-dept">' + e.department + '</span>' +
+                    e.name + '<span class="admin-emp-dept">' + e.department + '</span>' +
                     (adminPendingChanges.has(e.id) ? '<span class="admin-unsaved-dot"></span>' : '') +
                 '</div>'
             ).join('');
-
             list.querySelectorAll('.admin-emp-item').forEach(item => {
                 item.onclick = () => selectAdminEmployee(item.dataset.empId);
             });
@@ -4998,100 +5171,57 @@
 
         function renderAdminEmployeeDetail(emp) {
             const detail = document.getElementById('adminEmpDetail');
+            const makeCheckGrid = (items, empValues, category) => items.map(item => {
+                const checked = empValues.includes(item);
+                const changed = isFieldChanged(emp.id, category, item);
+                return '<div class="admin-check-item' + (checked ? ' checked' : '') + (changed ? ' changed' : '') +
+                    '" data-category="' + category + '" data-value="' + item.replace(/"/g, '&quot;') + '">' +
+                    '<input type="checkbox"' + (checked ? ' checked' : '') + ' tabindex="-1"><span>' + item + '</span></div>';
+            }).join('');
 
-            const makeCheckGrid = (items, empValues, category) => {
-                return items.map(item => {
-                    const checked = empValues.includes(item);
-                    const changed = isFieldChanged(emp.id, category, item);
-                    return '<div class="admin-check-item' + (checked ? ' checked' : '') + (changed ? ' changed' : '') +
-                        '" data-category="' + category + '" data-value="' + item.replace(/"/g, '&quot;') + '">' +
-                        '<input type="checkbox"' + (checked ? ' checked' : '') + ' tabindex="-1">' +
-                        '<span>' + item + '</span></div>';
-                }).join('');
-            };
+            const makeTrainingList = () => TRAINING_COLUMNS.map(t => {
+                const rating = parseRating(emp.trainings[t]);
+                const changed = isFieldChanged(emp.id, 'trainings', t);
+                return '<div class="admin-training-item' + (changed ? ' changed' : '') + '">' +
+                    '<label>' + t + '</label>' +
+                    '<select data-training="' + t.replace(/"/g, '&quot;') + '">' +
+                    '<option value="0"' + (rating === 0 ? ' selected' : '') + '>N/A</option>' +
+                    '<option value="1"' + (rating === 1 ? ' selected' : '') + '>1/5</option>' +
+                    '<option value="2"' + (rating === 2 ? ' selected' : '') + '>2/5</option>' +
+                    '<option value="3"' + (rating === 3 ? ' selected' : '') + '>3/5</option>' +
+                    '<option value="4"' + (rating === 4 ? ' selected' : '') + '>4/5</option>' +
+                    '<option value="5"' + (rating === 5 ? ' selected' : '') + '>5/5</option></select></div>';
+            }).join('');
 
-            const makeTrainingList = () => {
-                return TRAINING_COLUMNS.map(t => {
-                    const rating = parseRating(emp.trainings[t]);
-                    const changed = isFieldChanged(emp.id, 'trainings', t);
-                    return '<div class="admin-training-item' + (changed ? ' changed' : '') + '">' +
-                        '<label>' + t + '</label>' +
-                        '<select data-training="' + t.replace(/"/g, '&quot;') + '">' +
-                        '<option value="0"' + (rating === 0 ? ' selected' : '') + '>N/A</option>' +
-                        '<option value="1"' + (rating === 1 ? ' selected' : '') + '>1/5</option>' +
-                        '<option value="2"' + (rating === 2 ? ' selected' : '') + '>2/5</option>' +
-                        '<option value="3"' + (rating === 3 ? ' selected' : '') + '>3/5</option>' +
-                        '<option value="4"' + (rating === 4 ? ' selected' : '') + '>4/5</option>' +
-                        '<option value="5"' + (rating === 5 ? ' selected' : '') + '>5/5</option>' +
-                        '</select></div>';
-                }).join('');
-            };
+            const sec = (icon, title, count, total, grid) =>
+                '<div class="admin-section"><div class="admin-section-title"><span style="display:flex;align-items:center;gap:8px;">' +
+                icon + title + '</span><span>' + count + '/' + total + '</span></div>' + grid + '</div>';
+
+            const hw = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg>';
+            const sw = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>';
+            const ac = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+            const tr = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>';
 
             detail.innerHTML =
-                '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">' +
-                    '<div>' +
-                        '<h2 style="margin:0;font-size:1.3rem;color:var(--text-primary);">' + emp.name + '</h2>' +
-                        '<p style="margin:4px 0 0;color:var(--text-muted);font-size:0.875rem;">' + emp.department + (emp.role ? ' &middot; ' + emp.role : '') + '</p>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="admin-section">' +
-                    '<div class="admin-section-title">' +
-                        '<span style="display:flex;align-items:center;gap:8px;">' +
-                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg>' +
-                            'Hardware' +
-                        '</span>' +
-                        '<span>' + emp.hardware.length + '/' + HARDWARE_OPTIONS.length + '</span>' +
-                    '</div>' +
-                    '<div class="admin-check-grid">' + makeCheckGrid(HARDWARE_OPTIONS, emp.hardware, 'hardware') + '</div>' +
-                '</div>' +
-                '<div class="admin-section">' +
-                    '<div class="admin-section-title">' +
-                        '<span style="display:flex;align-items:center;gap:8px;">' +
-                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>' +
-                            'Software' +
-                        '</span>' +
-                        '<span>' + emp.software.length + '/' + SOFTWARE_OPTIONS.length + '</span>' +
-                    '</div>' +
-                    '<div class="admin-check-grid">' + makeCheckGrid(SOFTWARE_OPTIONS, emp.software, 'software') + '</div>' +
-                '</div>' +
-                '<div class="admin-section">' +
-                    '<div class="admin-section-title">' +
-                        '<span style="display:flex;align-items:center;gap:8px;">' +
-                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' +
-                            'Accreditations' +
-                        '</span>' +
-                        '<span>' + emp.accreditations.length + '/' + ACCREDITATION_OPTIONS.length + '</span>' +
-                    '</div>' +
-                    '<div class="admin-check-grid">' + makeCheckGrid(ACCREDITATION_OPTIONS, emp.accreditations, 'accreditations') + '</div>' +
-                '</div>' +
-                '<div class="admin-section">' +
-                    '<div class="admin-section-title">' +
-                        '<span style="display:flex;align-items:center;gap:8px;">' +
-                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' +
-                            'Trainings' +
-                        '</span>' +
-                        '<span>' + Object.keys(emp.trainings).length + '/' + TRAINING_COLUMNS.length + '</span>' +
-                    '</div>' +
-                    '<div class="admin-check-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">' + makeTrainingList() + '</div>' +
-                '</div>';
+                '<div style="display:flex;align-items:center;margin-bottom:24px;"><div>' +
+                '<h2 style="margin:0;font-size:1.3rem;color:var(--text-primary);">' + emp.name + '</h2>' +
+                '<p style="margin:4px 0 0;color:var(--text-muted);font-size:0.875rem;">' + emp.department + (emp.role ? ' &middot; ' + emp.role : '') + '</p></div></div>' +
+                sec(hw, 'Hardware', emp.hardware.length, HARDWARE_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(HARDWARE_OPTIONS, emp.hardware, 'hardware') + '</div>') +
+                sec(sw, 'Software', emp.software.length, SOFTWARE_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(SOFTWARE_OPTIONS, emp.software, 'software') + '</div>') +
+                sec(ac, 'Accreditations', emp.accreditations.length, ACCREDITATION_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(ACCREDITATION_OPTIONS, emp.accreditations, 'accreditations') + '</div>') +
+                sec(tr, 'Trainings', Object.keys(emp.trainings).length, TRAINING_COLUMNS.length, '<div class="admin-check-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">' + makeTrainingList() + '</div>');
         }
 
-        // --- Admin Detail Event Delegation ---
+        // --- Employee Event Delegation ---
         function handleAdminDetailClick(e) {
             const item = e.target.closest('.admin-check-item');
             if (!item || !adminSelectedEmpId) return;
-            const category = item.dataset.category;
-            const value = item.dataset.value;
+            const category = item.dataset.category, value = item.dataset.value;
             if (!category || !value) return;
-
             const emp = allEmployees.find(em => em.id === adminSelectedEmpId);
             if (!emp) return;
-
-            const list = emp[category];
-            const idx = list.indexOf(value);
-            if (idx >= 0) list.splice(idx, 1);
-            else list.push(value);
-
+            const list = emp[category], idx = list.indexOf(value);
+            if (idx >= 0) list.splice(idx, 1); else list.push(value);
             recordChange(adminSelectedEmpId, category, value);
             renderAdminEmployeeDetail(emp);
             renderAdminEmpList(document.getElementById('adminEmpSearch').value.toLowerCase());
@@ -5101,46 +5231,118 @@
             if (e.target.tagName !== 'SELECT') return;
             const training = e.target.dataset.training;
             if (!training || !adminSelectedEmpId) return;
-
             const emp = allEmployees.find(em => em.id === adminSelectedEmpId);
             if (!emp) return;
-
             const rating = parseInt(e.target.value);
-            if (rating === 0) delete emp.trainings[training];
-            else emp.trainings[training] = rating + '/5';
-
+            if (rating === 0) delete emp.trainings[training]; else emp.trainings[training] = rating + '/5';
             recordChange(adminSelectedEmpId, 'trainings', training);
             renderAdminEmployeeDetail(emp);
             renderAdminEmpList(document.getElementById('adminEmpSearch').value.toLowerCase());
         }
 
-        // --- Mass Grid Event Delegation ---
+        // --- Employee Mass Grid ---
         function handleMassGridChange(e) {
             const cell = e.target.closest('td');
             if (!cell) return;
-            const empId = cell.dataset.emp;
-            const skill = cell.dataset.skill;
-            if (!empId || !skill) return;
-
+            const empId = cell.dataset.emp, skill = cell.dataset.skill, cat = cell.dataset.cat;
+            if (!empId || !skill || !cat) return;
             const emp = allEmployees.find(em => em.id === empId);
             if (!emp) return;
-
             if (e.target.type === 'checkbox') {
-                const cat = adminCurrentCategory;
-                const list = emp[cat];
-                const idx = list.indexOf(skill);
-                if (idx >= 0) list.splice(idx, 1);
-                else list.push(skill);
+                const list = emp[cat], idx = list.indexOf(skill);
+                if (idx >= 0) list.splice(idx, 1); else list.push(skill);
                 recordChange(empId, cat, skill);
             } else if (e.target.tagName === 'SELECT') {
                 const rating = parseInt(e.target.value);
-                if (rating === 0) delete emp.trainings[skill];
-                else emp.trainings[skill] = rating + '/5';
+                if (rating === 0) delete emp.trainings[skill]; else emp.trainings[skill] = rating + '/5';
                 recordChange(empId, 'trainings', skill);
             }
-
             cell.classList.add('cell-changed');
-            renderAdminEmpList(document.getElementById('adminEmpSearch')?.value?.toLowerCase() || '');
+        }
+
+        function buildItemsList(cat) {
+            let items = [];
+            if (cat === 'all') {
+                HARDWARE_OPTIONS.forEach(h => items.push({ name: h, cat: 'hardware', prefix: 'HW' }));
+                SOFTWARE_OPTIONS.forEach(s => items.push({ name: s, cat: 'software', prefix: 'SW' }));
+                ACCREDITATION_OPTIONS.forEach(a => items.push({ name: a, cat: 'accreditations', prefix: 'AC' }));
+                TRAINING_COLUMNS.forEach(t => items.push({ name: t, cat: 'trainings', prefix: 'TR' }));
+            } else if (cat === 'hardware') items = HARDWARE_OPTIONS.map(h => ({ name: h, cat: 'hardware', prefix: 'HW' }));
+            else if (cat === 'software') items = SOFTWARE_OPTIONS.map(s => ({ name: s, cat: 'software', prefix: 'SW' }));
+            else if (cat === 'accreditations') items = ACCREDITATION_OPTIONS.map(a => ({ name: a, cat: 'accreditations', prefix: 'AC' }));
+            else items = TRAINING_COLUMNS.map(t => ({ name: t, cat: 'trainings', prefix: 'TR' }));
+            return items;
+        }
+
+        function renderMassEditGrid() {
+            const wrapper = document.getElementById('adminGridWrapper');
+            const cat = adminCurrentCategory;
+            const deptVal = document.getElementById('adminDeptFilter').value;
+            const items = buildItemsList(cat);
+            let emps = [...allEmployees].sort((a, b) => a.name.localeCompare(b.name));
+            if (deptVal) emps = emps.filter(e => e.department === deptVal);
+
+            if (items.length === 0) {
+                wrapper.innerHTML = '<div class="empty-state-enhanced" style="padding:40px;"><h3>No items found</h3><p>Add items using "Add Skill"</p></div>';
+                return;
+            }
+
+            let html = '<table class="admin-grid"><thead><tr><th>Employee</th><th>Dept</th>';
+            items.forEach(item => {
+                const label = item.name.length > 25 ? item.name.substring(0, 23) + '...' : item.name;
+                html += '<th title="' + item.name.replace(/"/g, '&quot;') + '">' +
+                    (cat === 'all' ? '<small>' + item.prefix + '</small>' : '') + label + '</th>';
+            });
+            html += '</tr></thead><tbody>';
+
+            emps.forEach(emp => {
+                html += '<tr><td>' + emp.name + '</td><td>' + emp.department + '</td>';
+                items.forEach(item => {
+                    const esc = item.name.replace(/"/g, '&quot;');
+                    const changed = isFieldChanged(emp.id, item.cat, item.name);
+                    if (item.cat === 'trainings') {
+                        const r = parseRating(emp.trainings[item.name]);
+                        html += '<td class="' + (changed ? 'cell-changed' : '') + '" data-emp="' + emp.id + '" data-skill="' + esc + '" data-cat="trainings">' +
+                            '<select><option value="0"' + (r===0?' selected':'') + '>-</option>' +
+                            '<option value="1"' + (r===1?' selected':'') + '>1</option>' +
+                            '<option value="2"' + (r===2?' selected':'') + '>2</option>' +
+                            '<option value="3"' + (r===3?' selected':'') + '>3</option>' +
+                            '<option value="4"' + (r===4?' selected':'') + '>4</option>' +
+                            '<option value="5"' + (r===5?' selected':'') + '>5</option></select></td>';
+                    } else {
+                        const chk = emp[item.cat].includes(item.name);
+                        html += '<td class="' + (changed ? 'cell-changed' : '') + '" data-emp="' + emp.id + '" data-skill="' + esc + '" data-cat="' + item.cat + '">' +
+                            '<input type="checkbox"' + (chk ? ' checked' : '') + '></td>';
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            wrapper.innerHTML = html;
+        }
+
+        function selectAllCategory(checked) {
+            if (adminCurrentCategory === 'all') { showToast('Select a specific category first', 'info'); return; }
+            const cat = adminCurrentCategory;
+            const deptVal = document.getElementById('adminDeptFilter').value;
+            let emps = [...allEmployees];
+            if (deptVal) emps = emps.filter(e => e.department === deptVal);
+            const items = cat === 'hardware' ? HARDWARE_OPTIONS : cat === 'software' ? SOFTWARE_OPTIONS : cat === 'accreditations' ? ACCREDITATION_OPTIONS : TRAINING_COLUMNS;
+
+            emps.forEach(emp => {
+                items.forEach(item => {
+                    if (cat === 'trainings') {
+                        if (checked && parseRating(emp.trainings[item]) === 0) { emp.trainings[item] = '5/5'; recordChange(emp.id, 'trainings', item); }
+                        else if (!checked && emp.trainings[item]) { delete emp.trainings[item]; recordChange(emp.id, 'trainings', item); }
+                    } else {
+                        const list = emp[cat];
+                        if (checked && !list.includes(item)) { list.push(item); recordChange(emp.id, cat, item); }
+                        else if (!checked && list.includes(item)) { list.splice(list.indexOf(item), 1); recordChange(emp.id, cat, item); }
+                    }
+                });
+            });
+            renderMassEditGrid();
+            showToast((checked ? 'Selected' : 'Deselected') + ' all ' + cat + ' for ' + emps.length + ' employees', 'success');
         }
 
         // --- Change Tracking ---
@@ -5152,146 +5354,305 @@
 
         function recordChange(empId, category, item) {
             if (!adminPendingChanges.has(empId)) {
-                adminPendingChanges.set(empId, {
-                    hardware: new Set(), software: new Set(),
-                    accreditations: new Set(), trainings: new Set()
-                });
+                adminPendingChanges.set(empId, { hardware: new Set(), software: new Set(), accreditations: new Set(), trainings: new Set() });
             }
             adminPendingChanges.get(empId)[category].add(item);
             updateSaveBar();
         }
 
+        function recordPresetChange(presetId, field) {
+            if (!adminPresetPendingChanges.has(presetId)) adminPresetPendingChanges.set(presetId, new Set());
+            adminPresetPendingChanges.get(presetId).add(field);
+            updateSaveBar();
+        }
+
         function updateSaveBar() {
             const bar = document.getElementById('adminSaveBar');
-            const count = adminPendingChanges.size;
-            if (count > 0) {
+            const empCount = adminPendingChanges.size;
+            const preCount = adminPresetPendingChanges.size;
+            if (empCount + preCount > 0) {
                 bar.classList.add('visible');
-                let totalChanges = 0;
-                adminPendingChanges.forEach(changes => {
-                    Object.values(changes).forEach(s => totalChanges += s.size);
-                });
-                document.getElementById('adminChangeCount').textContent =
-                    totalChanges + ' unsaved change' + (totalChanges !== 1 ? 's' : '') +
-                    ' across ' + count + ' employee' + (count !== 1 ? 's' : '');
-            } else {
-                bar.classList.remove('visible');
-            }
+                let parts = [];
+                if (empCount > 0) { let n = 0; adminPendingChanges.forEach(c => Object.values(c).forEach(s => n += s.size)); parts.push(n + ' employee change' + (n !== 1 ? 's' : '')); }
+                if (preCount > 0) { let n = 0; adminPresetPendingChanges.forEach(c => n += c.size); parts.push(n + ' preset change' + (n !== 1 ? 's' : '')); }
+                document.getElementById('adminChangeCount').textContent = parts.join(', ');
+            } else { bar.classList.remove('visible'); }
         }
 
         function discardAdminChanges() {
             adminPendingChanges.clear();
+            adminPresetPendingChanges.clear();
             updateSaveBar();
-            showToast('Changes discarded. Reload the page to restore original data from SharePoint.', 'warning');
+            showToast('Changes discarded. Reload to restore original data.', 'warning');
         }
 
-        // --- Mass Edit Category Switching ---
-        function switchAdminCategory(cat) {
-            adminCurrentCategory = cat;
-            document.querySelectorAll('.admin-cat-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.admin-cat-tab').forEach(t => {
-                if (t.textContent.toLowerCase() === cat) t.classList.add('active');
+        // --- Preset List & Detail ---
+        function renderAdminPresetList(filter) {
+            const list = document.getElementById('adminPresetList');
+            const filtered = allPresets.filter(p =>
+                !filter || (p.workstream + ' ' + p.jobType).toLowerCase().includes(filter)
+            ).sort((a, b) => (a.workstream + a.jobType).localeCompare(b.workstream + b.jobType));
+            list.innerHTML = filtered.map(p =>
+                '<div class="admin-emp-item' + (adminSelectedPresetId === p.id ? ' selected' : '') + '" data-preset-id="' + p.id + '">' +
+                    p.jobType + '<span class="admin-emp-dept">' + p.workstream + '</span>' +
+                    (adminPresetPendingChanges.has(p.id) ? '<span class="admin-unsaved-dot"></span>' : '') +
+                '</div>'
+            ).join('');
+            list.querySelectorAll('.admin-emp-item').forEach(item => {
+                item.onclick = () => selectAdminPreset(item.dataset.presetId);
             });
-            renderMassEditGrid();
         }
 
-        // --- Mass Edit Grid Renderer ---
-        function renderMassEditGrid() {
-            const wrapper = document.getElementById('adminGridWrapper');
-            const cat = adminCurrentCategory;
+        function selectAdminPreset(presetId) {
+            adminSelectedPresetId = presetId;
+            const preset = allPresets.find(p => p.id === presetId);
+            if (!preset) return;
+            renderAdminPresetList(document.getElementById('adminPresetSearch').value.toLowerCase());
+            renderAdminPresetDetail(preset);
+        }
 
-            let items;
-            if (cat === 'hardware') items = [...HARDWARE_OPTIONS];
-            else if (cat === 'software') items = [...SOFTWARE_OPTIONS];
-            else if (cat === 'accreditations') items = [...ACCREDITATION_OPTIONS];
-            else items = [...TRAINING_COLUMNS];
+        function renderAdminPresetDetail(preset) {
+            const detail = document.getElementById('adminPresetDetail');
+            const makeCheckGrid = (items, vals, cat) => items.map(item => {
+                const checked = vals.includes(item);
+                return '<div class="admin-check-item' + (checked ? ' checked' : '') +
+                    '" data-category="' + cat + '" data-value="' + item.replace(/"/g, '&quot;') + '">' +
+                    '<input type="checkbox"' + (checked ? ' checked' : '') + ' tabindex="-1"><span>' + item + '</span></div>';
+            }).join('');
 
-            const emps = [...allEmployees].sort((a, b) => a.name.localeCompare(b.name));
+            let html =
+                '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;"><div>' +
+                '<h2 style="margin:0;font-size:1.3rem;color:var(--text-primary);">' + preset.jobType + '</h2>' +
+                '<p style="margin:4px 0 0;color:var(--text-muted);font-size:0.875rem;">' + preset.workstream + '</p></div>' +
+                '<div style="display:flex;align-items:center;gap:8px;">' +
+                '<label style="font-size:0.8rem;color:var(--text-secondary);font-weight:500;">Min Rating:</label>' +
+                '<select data-field="minRating" style="padding:6px 10px;border:1px solid var(--border-color);border-radius:6px;font-size:0.85rem;background:var(--bg-input);color:var(--text-primary);font-family:\'DM Sans\',sans-serif;">' +
+                '<option value="1"' + (preset.minRating == 1 ? ' selected' : '') + '>1/5</option>' +
+                '<option value="2"' + (preset.minRating == 2 ? ' selected' : '') + '>2/5</option>' +
+                '<option value="3"' + (preset.minRating == 3 ? ' selected' : '') + '>3/5</option>' +
+                '<option value="4"' + (preset.minRating == 4 ? ' selected' : '') + '>4/5</option>' +
+                '<option value="5"' + (preset.minRating == 5 ? ' selected' : '') + '>5/5</option></select></div></div>';
 
-            if (items.length === 0) {
-                wrapper.innerHTML = '<div class="empty-state-enhanced" style="padding:40px;"><h3>No ' + cat + ' items found</h3><p>Add new items using the "Add New" button</p></div>';
-                return;
-            }
+            const sec = (title, count, total, grid) =>
+                '<div class="admin-section"><div class="admin-section-title"><span>' + title + '</span><span>' + count + '/' + total + '</span></div>' + grid + '</div>';
 
-            let html = '<table class="admin-grid"><thead><tr><th>Employee</th><th>Dept</th>';
+            html += sec('Required Hardware', preset.hardware.length, HARDWARE_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(HARDWARE_OPTIONS, preset.hardware, 'hardware') + '</div>');
+            html += sec('Required Software', preset.software.length, SOFTWARE_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(SOFTWARE_OPTIONS, preset.software, 'software') + '</div>');
+            html += sec('Required Accreditations', preset.accreditations.length, ACCREDITATION_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(ACCREDITATION_OPTIONS, preset.accreditations, 'accreditations') + '</div>');
+            html += sec('Required Trainings', preset.training.length, TRAINING_COLUMNS.length, '<div class="admin-check-grid">' + makeCheckGrid(TRAINING_COLUMNS, preset.training, 'training') + '</div>');
+
+            detectedCompanies.forEach(c => {
+                const compAccs = preset.companyAccreditations[c.fieldName] || [];
+                html += sec(c.displayName + ' Accreditations', compAccs.length, ACCREDITATION_OPTIONS.length,
+                    '<div class="admin-check-grid">' + makeCheckGrid(ACCREDITATION_OPTIONS, compAccs, 'company_' + c.fieldName) + '</div>');
+            });
+
+            detail.innerHTML = html;
+        }
+
+        function handlePresetDetailClick(e) {
+            const item = e.target.closest('.admin-check-item');
+            if (!item || !adminSelectedPresetId) return;
+            const category = item.dataset.category, value = item.dataset.value;
+            if (!category || !value) return;
+            const preset = allPresets.find(p => p.id === adminSelectedPresetId);
+            if (!preset) return;
+            let list;
+            if (category.startsWith('company_')) {
+                const f = category.replace('company_', '');
+                if (!preset.companyAccreditations[f]) preset.companyAccreditations[f] = [];
+                list = preset.companyAccreditations[f];
+            } else { list = preset[category]; }
+            const idx = list.indexOf(value);
+            if (idx >= 0) list.splice(idx, 1); else list.push(value);
+            recordPresetChange(adminSelectedPresetId, category);
+            renderAdminPresetDetail(preset);
+            renderAdminPresetList(document.getElementById('adminPresetSearch').value.toLowerCase());
+        }
+
+        function handlePresetDetailChange(e) {
+            if (e.target.tagName !== 'SELECT' || !adminSelectedPresetId) return;
+            const field = e.target.dataset.field;
+            if (!field) return;
+            const preset = allPresets.find(p => p.id === adminSelectedPresetId);
+            if (!preset) return;
+            if (field === 'minRating') { preset.minRating = e.target.value; recordPresetChange(adminSelectedPresetId, 'minRating'); }
+            renderAdminPresetDetail(preset);
+        }
+
+        // --- Preset Grid ---
+        function renderPresetMassGrid() {
+            const wrapper = document.getElementById('adminPresetGridWrapper');
+            const items = buildItemsList(adminPresetCategory);
+            const presets = [...allPresets].sort((a, b) => (a.workstream + a.jobType).localeCompare(b.workstream + b.jobType));
+
+            if (items.length === 0) { wrapper.innerHTML = '<div class="empty-state-enhanced" style="padding:40px;"><h3>No items</h3></div>'; return; }
+
+            let html = '<table class="admin-grid"><thead><tr><th>Preset</th><th>Workstream</th>';
             items.forEach(item => {
-                const label = item.length > 25 ? item.substring(0, 23) + '...' : item;
-                html += '<th title="' + item.replace(/"/g, '&quot;') + '">' + label + '</th>';
+                const label = item.name.length > 25 ? item.name.substring(0, 23) + '...' : item.name;
+                html += '<th title="' + item.name.replace(/"/g, '&quot;') + '">' +
+                    (adminPresetCategory === 'all' ? '<small>' + item.prefix + '</small>' : '') + label + '</th>';
             });
             html += '</tr></thead><tbody>';
 
-            emps.forEach(emp => {
-                html += '<tr><td>' + emp.name + '</td><td>' + emp.department + '</td>';
+            presets.forEach(p => {
+                html += '<tr><td>' + p.jobType + '</td><td>' + p.workstream + '</td>';
                 items.forEach(item => {
-                    const escapedItem = item.replace(/"/g, '&quot;');
-                    if (cat === 'trainings') {
-                        const rating = parseRating(emp.trainings[item]);
-                        const changed = isFieldChanged(emp.id, 'trainings', item);
-                        html += '<td class="' + (changed ? 'cell-changed' : '') + '" data-emp="' + emp.id + '" data-skill="' + escapedItem + '">' +
-                            '<select>' +
-                            '<option value="0"' + (rating === 0 ? ' selected' : '') + '>-</option>' +
-                            '<option value="1"' + (rating === 1 ? ' selected' : '') + '>1</option>' +
-                            '<option value="2"' + (rating === 2 ? ' selected' : '') + '>2</option>' +
-                            '<option value="3"' + (rating === 3 ? ' selected' : '') + '>3</option>' +
-                            '<option value="4"' + (rating === 4 ? ' selected' : '') + '>4</option>' +
-                            '<option value="5"' + (rating === 5 ? ' selected' : '') + '>5</option>' +
-                            '</select></td>';
-                    } else {
-                        const checked = emp[cat].includes(item);
-                        const changed = isFieldChanged(emp.id, cat, item);
-                        html += '<td class="' + (changed ? 'cell-changed' : '') + '" data-emp="' + emp.id + '" data-skill="' + escapedItem + '">' +
-                            '<input type="checkbox"' + (checked ? ' checked' : '') + '></td>';
-                    }
+                    const esc = item.name.replace(/"/g, '&quot;');
+                    const list = item.cat === 'trainings' ? p.training : p[item.cat];
+                    const checked = list.includes(item.name);
+                    html += '<td data-preset="' + p.id + '" data-skill="' + esc + '" data-cat="' + item.cat + '">' +
+                        '<input type="checkbox"' + (checked ? ' checked' : '') + '></td>';
                 });
                 html += '</tr>';
             });
-
             html += '</tbody></table>';
             wrapper.innerHTML = html;
         }
 
-        // --- Add New Item Modal ---
+        function handlePresetGridChange(e) {
+            const cell = e.target.closest('td');
+            if (!cell) return;
+            const presetId = cell.dataset.preset, skill = cell.dataset.skill, cat = cell.dataset.cat;
+            if (!presetId || !skill || !cat) return;
+            const preset = allPresets.find(p => p.id === presetId);
+            if (!preset) return;
+            const list = cat === 'trainings' ? preset.training : preset[cat];
+            const idx = list.indexOf(skill);
+            if (idx >= 0) list.splice(idx, 1); else list.push(skill);
+            recordPresetChange(presetId, cat);
+            cell.classList.add('cell-changed');
+        }
+
+        // --- Add New Employee ---
+        function showAddNewEmployeeModal() {
+            const existing = document.getElementById('addNewEmpModal');
+            if (existing) existing.remove();
+            const depts = [...new Set(allEmployees.map(e => e.department).filter(d => d))].sort();
+            const deptOpts = depts.map(d => '<option value="' + d + '">' + d + '</option>').join('');
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay open'; modal.id = 'addNewEmpModal';
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+            const inp = 'style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-input);color:var(--text-primary);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;"';
+            const lbl = 'style="font-weight:600;font-size:0.8rem;color:var(--text-primary);display:block;margin-bottom:4px;"';
+            modal.innerHTML =
+                '<div class="modal" style="max-width:480px;"><div class="modal-header">' +
+                '<div class="modal-header-info"><h2>Add New Employee</h2><p>Create a new employee record</p></div>' +
+                '<button class="modal-close" onclick="document.getElementById(\'addNewEmpModal\').remove()">' +
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
+                '<div style="padding:24px;"><div style="display:grid;gap:12px;">' +
+                '<div><label ' + lbl + '>Name *</label><input type="text" id="newEmpName" placeholder="Full name" ' + inp + '></div>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+                '<div><label ' + lbl + '>Email</label><input type="email" id="newEmpEmail" placeholder="email@company.com" ' + inp + '></div>' +
+                '<div><label ' + lbl + '>Phone</label><input type="text" id="newEmpPhone" placeholder="Phone" ' + inp + '></div></div>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+                '<div><label ' + lbl + '>Department</label><select id="newEmpDept" ' + inp + '><option value="">Select...</option>' + deptOpts + '</select></div>' +
+                '<div><label ' + lbl + '>Role</label><input type="text" id="newEmpRole" placeholder="Job role" ' + inp + '></div></div>' +
+                '<div><label ' + lbl + '>Postcode</label><input type="text" id="newEmpPostcode" placeholder="Postcode" ' + inp + '></div>' +
+                '</div><button class="admin-mass-btn primary" style="width:100%;justify-content:center;padding:12px;margin-top:16px;" onclick="confirmAddNewEmployee()">Create Employee</button></div></div>';
+            document.body.appendChild(modal);
+        }
+
+        async function confirmAddNewEmployee() {
+            const name = document.getElementById('newEmpName').value.trim();
+            if (!name) { showToast('Please enter a name', 'warning'); return; }
+            try {
+                showToast('Creating employee...', 'info');
+                const writeToken = await getWriteAccessToken();
+                const siteId = await getSiteId(writeToken);
+                const body = { fields: { Title: name, Employee: name, Email: document.getElementById('newEmpEmail').value.trim(), Phone: document.getElementById('newEmpPhone').value.trim(), Department: document.getElementById('newEmpDept').value, Role: document.getElementById('newEmpRole').value.trim(), Postcode: document.getElementById('newEmpPostcode').value.trim() } };
+                const resp = await fetch('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/Employees/items', { method: 'POST', headers: { 'Authorization': 'Bearer ' + writeToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    allEmployees.push({ id: data.id, name: name, email: body.fields.Email, phone: body.fields.Phone, role: body.fields.Role, department: body.fields.Department, manager: '', postcode: body.fields.Postcode || 'N/A', hardware: [], software: [], accreditations: [], trainings: {} });
+                    document.getElementById('addNewEmpModal').remove();
+                    showToast('Employee "' + name + '" created', 'success');
+                    renderAdminEmpList('');
+                    if (adminEmpView === 'grid') renderMassEditGrid();
+                } else { showToast('Failed: ' + resp.status, 'warning'); }
+            } catch (e) { showToast(e.message, 'warning'); }
+        }
+
+        // --- Add New Preset ---
+        function showAddNewPresetModal() {
+            const existing = document.getElementById('addNewPresetModal');
+            if (existing) existing.remove();
+            const wsList = [...new Set(allPresets.map(p => p.workstream).filter(w => w))].sort();
+            const wsOpts = wsList.map(w => '<option value="' + w + '">' + w + '</option>').join('');
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay open'; modal.id = 'addNewPresetModal';
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+            const inp = 'style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-input);color:var(--text-primary);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;"';
+            const lbl = 'style="font-weight:600;font-size:0.8rem;color:var(--text-primary);display:block;margin-bottom:4px;"';
+            modal.innerHTML =
+                '<div class="modal" style="max-width:480px;"><div class="modal-header">' +
+                '<div class="modal-header-info"><h2>Add New Preset</h2><p>Create a new job type preset</p></div>' +
+                '<button class="modal-close" onclick="document.getElementById(\'addNewPresetModal\').remove()">' +
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
+                '<div style="padding:24px;"><div style="display:grid;gap:12px;">' +
+                '<div><label ' + lbl + '>Workstream *</label><div style="display:flex;gap:8px;">' +
+                '<select id="newPresetWS" ' + inp + '><option value="">Select existing...</option>' + wsOpts + '</select>' +
+                '<input type="text" id="newPresetWSCustom" placeholder="Or type new..." ' + inp + '></div></div>' +
+                '<div><label ' + lbl + '>Job Type *</label><input type="text" id="newPresetJT" placeholder="e.g. ABB Magmaster Verification" ' + inp + '></div>' +
+                '<div><label ' + lbl + '>Min Training Rating</label><select id="newPresetMinRating" ' + inp + '>' +
+                '<option value="3">3/5 (default)</option><option value="1">1/5</option><option value="2">2/5</option><option value="4">4/5</option><option value="5">5/5</option></select></div>' +
+                '</div><p style="font-size:0.8rem;color:var(--text-muted);margin:12px 0 0;">Configure required skills after creation.</p>' +
+                '<button class="admin-mass-btn primary" style="width:100%;justify-content:center;padding:12px;margin-top:12px;" onclick="confirmAddNewPreset()">Create Preset</button></div></div>';
+            document.body.appendChild(modal);
+        }
+
+        async function confirmAddNewPreset() {
+            const ws = document.getElementById('newPresetWSCustom').value.trim() || document.getElementById('newPresetWS').value;
+            const jt = document.getElementById('newPresetJT').value.trim();
+            const mr = document.getElementById('newPresetMinRating').value;
+            if (!ws) { showToast('Enter a workstream', 'warning'); return; }
+            if (!jt) { showToast('Enter a job type', 'warning'); return; }
+            try {
+                showToast('Creating preset...', 'info');
+                const writeToken = await getWriteAccessToken();
+                const siteId = await getSiteId(writeToken);
+                const body = { fields: { Title: jt, Workstream: ws, JobType: jt, MinRating: mr + '/5' } };
+                const resp = await fetch('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/Presets/items', { method: 'POST', headers: { 'Authorization': 'Bearer ' + writeToken, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const np = { id: data.id, workstream: ws, jobType: jt, hardware: [], software: [], accreditations: [], training: [], minRating: mr, companyAccreditations: {} };
+                    detectedCompanies.forEach(c => { np.companyAccreditations[c.fieldName] = []; });
+                    allPresets.push(np);
+                    document.getElementById('addNewPresetModal').remove();
+                    showToast('Preset "' + jt + '" created. Configure its requirements now.', 'success');
+                    renderAdminPresetList('');
+                    selectAdminPreset(data.id);
+                } else { showToast('Failed: ' + resp.status, 'warning'); }
+            } catch (e) { showToast(e.message, 'warning'); }
+        }
+
+        // --- Add New Skill Item ---
         function showAddNewItemModal() {
             const existing = document.getElementById('addNewItemModal');
             if (existing) existing.remove();
-
             const modal = document.createElement('div');
-            modal.className = 'modal-overlay open';
-            modal.id = 'addNewItemModal';
+            modal.className = 'modal-overlay open'; modal.id = 'addNewItemModal';
             modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-
+            const inp = 'style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-input);color:var(--text-primary);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;"';
             modal.innerHTML =
-                '<div class="modal" style="max-width:480px;">' +
-                    '<div class="modal-header">' +
-                        '<div class="modal-header-info"><h2>Add New Item</h2><p>Add a new skill, training, department, or company</p></div>' +
-                        '<button class="modal-close" onclick="document.getElementById(\'addNewItemModal\').remove()">' +
-                            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
-                        '</button>' +
-                    '</div>' +
-                    '<div style="padding:24px;">' +
-                        '<div style="margin-bottom:16px;">' +
-                            '<label style="font-weight:600;font-size:0.875rem;color:var(--text-primary);display:block;margin-bottom:6px;">Type</label>' +
-                            '<select id="addNewType" onchange="onAddNewTypeChange()" style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-input);color:var(--text-primary);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;">' +
-                                '<option value="hardware">Hardware</option>' +
-                                '<option value="software">Software</option>' +
-                                '<option value="accreditations">Accreditation</option>' +
-                                '<option value="trainings">Training</option>' +
-                                '<option value="department">Department</option>' +
-                                '<option value="company">Company</option>' +
-                            '</select>' +
-                        '</div>' +
-                        '<div style="margin-bottom:16px;">' +
-                            '<label style="font-weight:600;font-size:0.875rem;color:var(--text-primary);display:block;margin-bottom:6px;">Name</label>' +
-                            '<input type="text" id="addNewName" placeholder="Enter name..." style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-input);color:var(--text-primary);font-size:0.9rem;font-family:\'DM Sans\',sans-serif;box-sizing:border-box;">' +
-                        '</div>' +
-                        '<div id="addNewCompanyScope" style="display:none;margin-bottom:16px;">' +
-                            '<label style="font-weight:600;font-size:0.875rem;color:var(--text-primary);display:block;margin-bottom:6px;">Company Scope (optional)</label>' +
-                            '<p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 8px;">If this skill is for specific companies only, select them</p>' +
-                            '<div id="addNewCompanyChecks" style="display:flex;flex-wrap:wrap;gap:8px;"></div>' +
-                        '</div>' +
-                        '<button class="admin-mass-btn primary" style="width:100%;justify-content:center;padding:12px;" onclick="confirmAddNewItem()">Add Item</button>' +
-                    '</div>' +
-                '</div>';
-
+                '<div class="modal" style="max-width:480px;"><div class="modal-header">' +
+                '<div class="modal-header-info"><h2>Add New Item</h2><p>Add a skill, training, department, or company</p></div>' +
+                '<button class="modal-close" onclick="document.getElementById(\'addNewItemModal\').remove()">' +
+                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>' +
+                '<div style="padding:24px;">' +
+                '<div style="margin-bottom:16px;"><label style="font-weight:600;font-size:0.875rem;color:var(--text-primary);display:block;margin-bottom:6px;">Type</label>' +
+                '<select id="addNewType" onchange="onAddNewTypeChange()" ' + inp + '>' +
+                '<option value="hardware">Hardware</option><option value="software">Software</option>' +
+                '<option value="accreditations">Accreditation</option><option value="trainings">Training</option>' +
+                '<option value="department">Department</option><option value="company">Company</option></select></div>' +
+                '<div style="margin-bottom:16px;"><label style="font-weight:600;font-size:0.875rem;color:var(--text-primary);display:block;margin-bottom:6px;">Name</label>' +
+                '<input type="text" id="addNewName" placeholder="Enter name..." ' + inp + '></div>' +
+                '<div id="addNewCompanyScope" style="display:none;margin-bottom:16px;">' +
+                '<label style="font-weight:600;font-size:0.875rem;color:var(--text-primary);display:block;margin-bottom:6px;">Company Scope (optional)</label>' +
+                '<p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 8px;">For specific companies only</p>' +
+                '<div id="addNewCompanyChecks" style="display:flex;flex-wrap:wrap;gap:8px;"></div></div>' +
+                '<button class="admin-mass-btn primary" style="width:100%;justify-content:center;padding:12px;" onclick="confirmAddNewItem()">Add Item</button></div></div>';
             document.body.appendChild(modal);
             onAddNewTypeChange();
         }
@@ -5305,186 +5666,145 @@
                     '<label style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border-color);border-radius:6px;cursor:pointer;font-size:0.85rem;">' +
                     '<input type="checkbox" value="' + c.fieldName + '"> ' + c.displayName + '</label>'
                 ).join('');
-            } else {
-                scope.style.display = 'none';
-            }
+            } else { scope.style.display = 'none'; }
         }
 
         function confirmAddNewItem() {
             const type = document.getElementById('addNewType').value;
             const name = document.getElementById('addNewName').value.trim();
-
             if (!name) { showToast('Please enter a name', 'warning'); return; }
 
-            if (type === 'hardware') {
-                if (HARDWARE_OPTIONS.includes(name)) { showToast('This hardware already exists', 'warning'); return; }
-                HARDWARE_OPTIONS.push(name);
-                HARDWARE_OPTIONS.sort();
-                showToast('Hardware "' + name + '" added. No employees have access yet.', 'success');
-            } else if (type === 'software') {
-                if (SOFTWARE_OPTIONS.includes(name)) { showToast('This software already exists', 'warning'); return; }
-                SOFTWARE_OPTIONS.push(name);
-                SOFTWARE_OPTIONS.sort();
-                showToast('Software "' + name + '" added. No employees have access yet.', 'success');
-            } else if (type === 'accreditations') {
-                if (ACCREDITATION_OPTIONS.includes(name)) { showToast('This accreditation already exists', 'warning'); return; }
-                ACCREDITATION_OPTIONS.push(name);
-                ACCREDITATION_OPTIONS.sort();
-                showToast('Accreditation "' + name + '" added. No employees have access yet.', 'success');
-            } else if (type === 'trainings') {
-                if (TRAINING_COLUMNS.includes(name)) { showToast('This training already exists', 'warning'); return; }
-                TRAINING_COLUMNS.push(name);
-                TRAINING_COLUMNS.sort();
-                showToast('Training "' + name + '" added. No employees have a rating yet.', 'success');
+            const optMap = { hardware: HARDWARE_OPTIONS, software: SOFTWARE_OPTIONS, accreditations: ACCREDITATION_OPTIONS, trainings: TRAINING_COLUMNS };
+            if (optMap[type]) {
+                if (optMap[type].includes(name)) { showToast('Already exists', 'warning'); return; }
+                optMap[type].push(name); optMap[type].sort();
+                showToast(type.charAt(0).toUpperCase() + type.slice(1) + ' "' + name + '" added.', 'success');
             } else if (type === 'department') {
-                showToast('Department "' + name + '" noted. Assign it to employees as needed.', 'info');
+                showToast('Department "' + name + '" noted.', 'info');
             } else if (type === 'company') {
-                if (detectedCompanies.find(c => c.fieldName === name || c.displayName === name)) {
-                    showToast('This company already exists', 'warning'); return;
-                }
+                if (detectedCompanies.find(c => c.fieldName === name)) { showToast('Already exists', 'warning'); return; }
                 detectedCompanies.push({ fieldName: name, displayName: name });
                 showToast('Company "' + name + '" added.', 'success');
             }
-
             document.getElementById('addNewItemModal').remove();
-
-            if (adminCurrentTab === 'mass') renderMassEditGrid();
-            if (adminCurrentTab === 'single' && adminSelectedEmpId) {
-                const emp = allEmployees.find(em => em.id === adminSelectedEmpId);
-                if (emp) renderAdminEmployeeDetail(emp);
-            }
+            if (adminEmpView === 'grid') renderMassEditGrid();
+            if (adminPresetView === 'grid') renderPresetMassGrid();
+            if (adminSelectedEmpId) { const emp = allEmployees.find(em => em.id === adminSelectedEmpId); if (emp) renderAdminEmployeeDetail(emp); }
+            if (adminSelectedPresetId) { const p = allPresets.find(p => p.id === adminSelectedPresetId); if (p) renderAdminPresetDetail(p); }
         }
 
         // --- CSV Export ---
         function exportAdminCSV() {
-            const cat = adminCurrentCategory;
-            let items;
-            if (cat === 'hardware') items = HARDWARE_OPTIONS;
-            else if (cat === 'software') items = SOFTWARE_OPTIONS;
-            else if (cat === 'accreditations') items = ACCREDITATION_OPTIONS;
-            else items = TRAINING_COLUMNS;
-
-            const emps = [...allEmployees].sort((a, b) => a.name.localeCompare(b.name));
-
-            let csv = 'Employee,Department,' + items.map(i => '"' + i.replace(/"/g, '""') + '"').join(',') + '\n';
-
+            const items = buildItemsList(adminCurrentCategory);
+            const deptVal = document.getElementById('adminDeptFilter').value;
+            let emps = [...allEmployees].sort((a, b) => a.name.localeCompare(b.name));
+            if (deptVal) emps = emps.filter(e => e.department === deptVal);
+            let csv = 'Employee,Department,' + items.map(i => '"' + (adminCurrentCategory === 'all' ? i.prefix + ' ' : '') + i.name.replace(/"/g, '""') + '"').join(',') + '\n';
             emps.forEach(emp => {
                 let row = '"' + emp.name.replace(/"/g, '""') + '","' + emp.department.replace(/"/g, '""') + '"';
                 items.forEach(item => {
-                    if (cat === 'trainings') {
-                        const rating = parseRating(emp.trainings[item]);
-                        row += ',' + (rating > 0 ? rating + '/5' : '');
-                    } else {
-                        row += ',' + (emp[cat].includes(item) ? 'Yes' : '');
-                    }
+                    if (item.cat === 'trainings') { const r = parseRating(emp.trainings[item.name]); row += ',' + (r > 0 ? r + '/5' : ''); }
+                    else row += ',' + (emp[item.cat].includes(item.name) ? 'Yes' : '');
                 });
                 csv += row + '\n';
             });
-
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'skills-matrix-' + cat + '-' + new Date().toISOString().slice(0, 10) + '.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Exported ' + cat + ' grid to CSV', 'success');
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = 'skills-matrix-employees-' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click(); URL.revokeObjectURL(a.href);
+            showToast('Exported employee grid to CSV', 'success');
+        }
+
+        function exportPresetCSV() {
+            const items = buildItemsList(adminPresetCategory);
+            const presets = [...allPresets].sort((a, b) => (a.workstream + a.jobType).localeCompare(b.workstream + b.jobType));
+            let csv = 'Job Type,Workstream,' + items.map(i => '"' + (adminPresetCategory === 'all' ? i.prefix + ' ' : '') + i.name.replace(/"/g, '""') + '"').join(',') + '\n';
+            presets.forEach(p => {
+                let row = '"' + p.jobType.replace(/"/g, '""') + '","' + p.workstream.replace(/"/g, '""') + '"';
+                items.forEach(item => {
+                    const list = item.cat === 'trainings' ? p.training : p[item.cat];
+                    row += ',' + (list.includes(item.name) ? 'Yes' : '');
+                });
+                csv += row + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = 'skills-matrix-presets-' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click(); URL.revokeObjectURL(a.href);
+            showToast('Exported presets to CSV', 'success');
         }
 
         // --- SharePoint Write-back ---
         async function getWriteAccessToken() {
             const accounts = msalInstance.getAllAccounts();
             if (accounts.length === 0) throw new Error('Not signed in');
-
             try {
-                const response = await msalInstance.acquireTokenSilent({
-                    scopes: ['https://graph.microsoft.com/Sites.ReadWrite.All'],
-                    account: accounts[0]
-                });
-                return response.accessToken;
+                return (await msalInstance.acquireTokenSilent({ scopes: ['https://graph.microsoft.com/Sites.ReadWrite.All'], account: accounts[0] })).accessToken;
             } catch (e) {
                 try {
-                    const response = await msalInstance.acquireTokenPopup({
-                        scopes: ['https://graph.microsoft.com/Sites.ReadWrite.All'],
-                        account: accounts[0]
-                    });
-                    return response.accessToken;
-                } catch (e2) {
-                    throw new Error('Write permission denied. An admin may need to grant Sites.ReadWrite.All consent.');
-                }
+                    return (await msalInstance.acquireTokenPopup({ scopes: ['https://graph.microsoft.com/Sites.ReadWrite.All'], account: accounts[0] })).accessToken;
+                } catch (e2) { throw new Error('Write permission denied. An admin may need to grant Sites.ReadWrite.All consent.'); }
             }
         }
 
         async function saveAdminChanges() {
-            if (adminPendingChanges.size === 0) {
-                showToast('No changes to save', 'info');
-                return;
-            }
-
+            if (adminPendingChanges.size === 0) { showToast('No employee changes to save', 'info'); return; }
             try {
-                showToast('Requesting write permissions...', 'info');
+                showToast('Saving employee changes...', 'info');
                 const writeToken = await getWriteAccessToken();
                 const siteId = await getSiteId(writeToken);
-
-                let successCount = 0;
-                let errorCount = 0;
-
+                let ok = 0, fail = 0;
                 for (const [empId, changes] of adminPendingChanges) {
                     const emp = allEmployees.find(em => em.id === empId);
                     if (!emp) continue;
-
-                    const patchBody = {};
-
-                    if (changes.hardware.size > 0) patchBody.Hardware = emp.hardware;
-                    if (changes.software.size > 0) patchBody.Software = emp.software;
-                    if (changes.accreditations.size > 0) patchBody.Accreditations = emp.accreditations;
-
-                    if (changes.trainings.size > 0) {
-                        changes.trainings.forEach(training => {
-                            const fieldName = globalColumnMap[training] || training;
-                            patchBody[fieldName] = emp.trainings[training] || null;
-                        });
-                    }
-
+                    const patch = {};
+                    if (changes.hardware.size > 0) patch.Hardware = emp.hardware;
+                    if (changes.software.size > 0) patch.Software = emp.software;
+                    if (changes.accreditations.size > 0) patch.Accreditations = emp.accreditations;
+                    if (changes.trainings.size > 0) changes.trainings.forEach(t => { patch[globalColumnMap[t] || t] = emp.trainings[t] || null; });
                     try {
-                        const resp = await fetch(
-                            'https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/Employees/items/' + empId + '/fields',
-                            {
-                                method: 'PATCH',
-                                headers: {
-                                    'Authorization': 'Bearer ' + writeToken,
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(patchBody)
-                            }
-                        );
-
-                        if (resp.ok) {
-                            successCount++;
-                        } else {
-                            errorCount++;
-                            const errData = await resp.json().catch(() => ({}));
-                            console.error('Failed to update ' + emp.name + ':', errData);
-                        }
-                    } catch (err) {
-                        errorCount++;
-                        console.error('Failed to update ' + emp.name + ':', err);
-                    }
+                        const r = await fetch('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/Employees/items/' + empId + '/fields', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + writeToken, 'Content-Type': 'application/json' }, body: JSON.stringify(patch) });
+                        if (r.ok) ok++; else { fail++; console.error('Failed:', await r.json().catch(() => ({}))); }
+                    } catch (e) { fail++; }
                 }
-
-                if (errorCount === 0) {
-                    adminPendingChanges.clear();
-                    updateSaveBar();
-                    showToast('Saved changes for ' + successCount + ' employee' + (successCount !== 1 ? 's' : ''), 'success');
-                    if (adminCurrentTab === 'mass') renderMassEditGrid();
-                } else {
-                    showToast('Saved ' + successCount + ', failed ' + errorCount + '. Check console for details.', 'warning');
-                }
-            } catch (err) {
-                showToast(err.message, 'warning');
-                console.error('Save error:', err);
-            }
+                if (fail === 0) { adminPendingChanges.clear(); updateSaveBar(); showToast('Saved ' + ok + ' employees', 'success'); renderMassEditGrid(); }
+                else showToast('Saved ' + ok + ', failed ' + fail, 'warning');
+            } catch (e) { showToast(e.message, 'warning'); }
         }
+
+        async function savePresetChanges() {
+            if (adminPresetPendingChanges.size === 0) { showToast('No preset changes to save', 'info'); return; }
+            try {
+                showToast('Saving preset changes...', 'info');
+                const writeToken = await getWriteAccessToken();
+                const siteId = await getSiteId(writeToken);
+                let ok = 0, fail = 0;
+                for (const [presetId, changedFields] of adminPresetPendingChanges) {
+                    const p = allPresets.find(pr => pr.id === presetId);
+                    if (!p) continue;
+                    const patch = {};
+                    if (changedFields.has('hardware')) patch.Hardware = p.hardware;
+                    if (changedFields.has('software')) patch.Software = p.software;
+                    if (changedFields.has('accreditations')) patch.Accreditations = p.accreditations;
+                    if (changedFields.has('training') || changedFields.has('trainings')) patch.Trainings = p.training;
+                    if (changedFields.has('minRating')) patch.MinRating = p.minRating + '/5';
+                    detectedCompanies.forEach(c => { if (changedFields.has('company_' + c.fieldName)) patch[c.fieldName] = p.companyAccreditations[c.fieldName] || []; });
+                    try {
+                        const r = await fetch('https://graph.microsoft.com/v1.0/sites/' + siteId + '/lists/Presets/items/' + presetId + '/fields', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + writeToken, 'Content-Type': 'application/json' }, body: JSON.stringify(patch) });
+                        if (r.ok) ok++; else { fail++; console.error('Failed:', await r.json().catch(() => ({}))); }
+                    } catch (e) { fail++; }
+                }
+                if (fail === 0) { adminPresetPendingChanges.clear(); updateSaveBar(); showToast('Saved ' + ok + ' presets', 'success'); }
+                else showToast('Saved ' + ok + ', failed ' + fail, 'warning');
+            } catch (e) { showToast(e.message, 'warning'); }
+        }
+
+        async function saveAllChanges() {
+            if (adminPendingChanges.size === 0 && adminPresetPendingChanges.size === 0) { showToast('No changes to save', 'info'); return; }
+            if (adminPendingChanges.size > 0) await saveAdminChanges();
+            if (adminPresetPendingChanges.size > 0) await savePresetChanges();
+        }
+
     </script>
 </body>
 </html>
