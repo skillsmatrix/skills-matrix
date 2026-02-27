@@ -3989,7 +3989,10 @@
             preset.hardware.forEach(h => { totalRequired++; if (emp.hardware.includes(h)) totalMet++; });
             preset.software.forEach(s => { totalRequired++; if (emp.software.includes(s)) totalMet++; });
             const allAccs = [...preset.accreditations];
-            Object.values(preset.companyAccreditations || {}).forEach(arr => arr.forEach(a => { if (!allAccs.includes(a)) allAccs.push(a); }));
+            const company = document.getElementById('companySelect').value;
+            if (company && preset.companyAccreditations && preset.companyAccreditations[company]) {
+                preset.companyAccreditations[company].forEach(a => { if (!allAccs.includes(a)) allAccs.push(a); });
+            }
             allAccs.forEach(a => { totalRequired++; if (emp.accreditations.includes(a)) totalMet++; });
             return { met: totalMet, total: totalRequired };
         }
