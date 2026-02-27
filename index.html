@@ -1424,6 +1424,98 @@
         .gap-item-name { flex: 1; }
         .gap-item-rating { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
 
+        /* Gap preset overview cards */
+        .gap-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .gap-overview-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .gap-overview-card:hover { border-color: var(--accent-pink); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .gap-overview-card.perfect { border-left: 3px solid var(--accent-green); }
+        .gap-overview-card.good { border-left: 3px solid var(--accent-orange); }
+        .gap-overview-card.low { border-left: 3px solid #ef4444; }
+        .gap-overview-info { flex: 1; min-width: 0; }
+        .gap-overview-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .gap-overview-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .gap-overview-score {
+            font-size: 1rem;
+            font-weight: 700;
+            white-space: nowrap;
+            padding: 4px 12px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .gap-overview-score.perfect { color: var(--accent-green); background: rgba(5,150,105,0.1); }
+        .gap-overview-score.good { color: var(--accent-orange); background: rgba(217,119,6,0.1); }
+        .gap-overview-score.low { color: #ef4444; background: rgba(239,68,68,0.1); }
+
+        .gap-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 16px;
+        }
+        .gap-back-btn:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
+        .gap-back-btn svg { width: 16px; height: 16px; }
+
+        .gap-export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+        }
+        .gap-export-btn:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
+        .gap-export-btn svg { width: 16px; height: 16px; }
+
+        .gap-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
         /* Overall gap score ring */
         .gap-score-ring {
             display: flex;
@@ -1458,8 +1550,29 @@
            ============================ */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
+        }
+        @media (max-width: 1200px) {
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+        .dash-row-3-centered {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 75%;
+            margin: 0 auto;
+            width: 100%;
+        }
+        @media (max-width: 1200px) {
+            .dash-row-3-centered { max-width: 100%; grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .dash-row-3-centered { grid-template-columns: 1fr; }
         }
         .dash-card {
             background: var(--bg-card);
@@ -3868,40 +3981,114 @@
             renderGapResults();
         }
 
+        // Calculate an employee's score against a single preset
+        function calcGapScore(emp, preset) {
+            const minRating = parseInt(preset.minRating) || 3;
+            let totalRequired = 0, totalMet = 0;
+            preset.training.forEach(t => { totalRequired++; if (parseRating(emp.trainings[t]) >= minRating) totalMet++; });
+            preset.hardware.forEach(h => { totalRequired++; if (emp.hardware.includes(h)) totalMet++; });
+            preset.software.forEach(s => { totalRequired++; if (emp.software.includes(s)) totalMet++; });
+            const allAccs = [...preset.accreditations];
+            Object.values(preset.companyAccreditations || {}).forEach(arr => arr.forEach(a => { if (!allAccs.includes(a)) allAccs.push(a); }));
+            allAccs.forEach(a => { totalRequired++; if (emp.accreditations.includes(a)) totalMet++; });
+            return { met: totalMet, total: totalRequired };
+        }
+
         function renderGapResults() {
             const container = document.getElementById('gapResults');
             if (!gapSelectedEmployee) {
-                container.innerHTML = '<div class="empty-state-enhanced"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><h3>Skill Gap Analysis</h3><p>Select an employee and a job type to see what they have and what they\'re missing</p></div>';
+                container.innerHTML = '<div class="empty-state-enhanced"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><h3>Skill Gap Analysis</h3><p>Select an employee to see how they match against every job type</p></div>';
                 return;
             }
 
             const emp = gapSelectedEmployee;
-            let html = `<h2>${emp.name} <span style="font-weight:400;color:var(--text-muted);font-size:0.9rem;">${emp.role || ''}</span></h2>`;
 
-            if (!gapSelectedPreset) {
-                // Show all presets as chips to quickly compare
-                html += '<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">Select a job type to compare, or click a preset below:</p>';
-                html += '<div class="gap-preset-row">';
-                allPresets.forEach(p => {
-                    html += `<button class="gap-preset-chip" onclick="quickGapPreset('${p.workstream}','${p.jobType}')">${p.workstream} - ${p.jobType}</button>`;
-                });
-                html += '</div>';
-
-                // Show current skills overview
-                html += buildEmployeeSkillsSummary(emp);
-                container.innerHTML = html;
+            // If a preset is selected, show drill-down detail view
+            if (gapSelectedPreset) {
+                renderGapDetail(emp, gapSelectedPreset);
                 return;
             }
 
-            const preset = gapSelectedPreset;
+            // === OVERVIEW: show ALL presets with scores ===
+            let html = `<h2>${emp.name} <span style="font-weight:400;color:var(--text-muted);font-size:0.9rem;">${emp.role || ''}</span></h2>`;
+            html += '<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:16px;">Click any job type to see the full breakdown of what they have and what they\'re missing.</p>';
+
+            html += '<div class="gap-toolbar">';
+            html += `<button class="gap-export-btn" onclick="exportGapOverviewPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Export Overview PDF</button>`;
+            html += `<button class="gap-export-btn" onclick="exportGapOverviewCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Overview CSV</button>`;
+            html += '</div>';
+
+            // Group presets by workstream
+            const byWorkstream = {};
+            allPresets.forEach(p => {
+                if (!byWorkstream[p.workstream]) byWorkstream[p.workstream] = [];
+                byWorkstream[p.workstream].push(p);
+            });
+
+            for (const [ws, presets] of Object.entries(byWorkstream).sort((a, b) => a[0].localeCompare(b[0]))) {
+                html += `<h3 style="font-size:0.9rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border-color);">${ws}</h3>`;
+                html += '<div class="gap-overview-grid">';
+                presets.forEach(p => {
+                    const score = calcGapScore(emp, p);
+                    const scoreClass = score.total === 0 ? 'good' : score.met === score.total ? 'perfect' : score.met / score.total >= 0.7 ? 'good' : 'low';
+                    html += `<div class="gap-overview-card ${scoreClass}" onclick="gapDrillDown('${p.workstream.replace(/'/g, "\\'")}','${p.jobType.replace(/'/g, "\\'")}')">
+                        <div class="gap-overview-info">
+                            <div class="gap-overview-title">${p.jobType}</div>
+                            <div class="gap-overview-subtitle">${score.total} requirements</div>
+                        </div>
+                        <div class="gap-overview-score ${scoreClass}">${score.met}/${score.total}</div>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function gapDrillDown(ws, jt) {
+            gapSelectedPreset = allPresets.find(p => p.workstream === ws && p.jobType === jt);
+            document.getElementById('gapWorkstreamSelect').value = ws;
+            const wsSelect = document.getElementById('gapWorkstreamSelect');
+            // Populate job type dropdown
+            const jtSelect = document.getElementById('gapJobTypeSelect');
+            jtSelect.innerHTML = '<option value="">-- Select job type --</option>';
+            allPresets.filter(p => p.workstream === ws).map(p => p.jobType).filter(j => j).sort().forEach(j => {
+                const opt = document.createElement('option');
+                opt.value = j; opt.textContent = j;
+                jtSelect.appendChild(opt);
+            });
+            jtSelect.disabled = false;
+            jtSelect.value = jt;
+            renderGapResults();
+        }
+
+        function gapBackToOverview() {
+            gapSelectedPreset = null;
+            document.getElementById('gapWorkstreamSelect').value = '';
+            document.getElementById('gapJobTypeSelect').value = '';
+            document.getElementById('gapJobTypeSelect').disabled = true;
+            document.getElementById('gapJobTypeSelect').innerHTML = '<option value="">-- Select workstream first --</option>';
+            renderGapResults();
+        }
+
+        function renderGapDetail(emp, preset) {
+            const container = document.getElementById('gapResults');
             const minRating = parseInt(preset.minRating) || 3;
+
+            let html = '';
+            html += `<div class="gap-toolbar">`;
+            html += `<button class="gap-back-btn" onclick="gapBackToOverview()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back to overview</button>`;
+            html += `<button class="gap-export-btn" onclick="exportGapDetailPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Export PDF</button>`;
+            html += `<button class="gap-export-btn" onclick="exportGapDetailCSV()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>`;
+            html += `</div>`;
+
+            html += `<h2>${emp.name} <span style="font-weight:400;color:var(--text-muted);font-size:0.9rem;">${emp.role || ''}</span></h2>`;
             html += `<p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:20px;">Compared against: <strong>${preset.workstream} - ${preset.jobType}</strong> (min rating: ${minRating}/5)</p>`;
 
             // Calculate gaps
             let totalRequired = 0, totalMet = 0;
             const categories = [];
 
-            // Training gaps
             if (preset.training.length > 0) {
                 const items = preset.training.map(t => {
                     totalRequired++;
@@ -3912,30 +4099,20 @@
                 });
                 categories.push({ title: 'Training / Competency', items, color: 'var(--accent-green)' });
             }
-
-            // Hardware gaps
             if (preset.hardware.length > 0) {
                 const items = preset.hardware.map(h => {
-                    totalRequired++;
-                    const has = emp.hardware.includes(h);
-                    if (has) totalMet++;
+                    totalRequired++; const has = emp.hardware.includes(h); if (has) totalMet++;
                     return { name: h, has };
                 });
                 categories.push({ title: 'Hardware', items, color: 'var(--accent-orange)' });
             }
-
-            // Software gaps
             if (preset.software.length > 0) {
                 const items = preset.software.map(s => {
-                    totalRequired++;
-                    const has = emp.software.includes(s);
-                    if (has) totalMet++;
+                    totalRequired++; const has = emp.software.includes(s); if (has) totalMet++;
                     return { name: s, has };
                 });
                 categories.push({ title: 'Software', items, color: 'var(--accent-purple)' });
             }
-
-            // Accreditation gaps (include company-specific)
             const allAccs = [...preset.accreditations];
             const company = document.getElementById('companySelect').value;
             if (company && preset.companyAccreditations[company]) {
@@ -3943,9 +4120,7 @@
             }
             if (allAccs.length > 0) {
                 const items = allAccs.map(a => {
-                    totalRequired++;
-                    const has = emp.accreditations.includes(a);
-                    if (has) totalMet++;
+                    totalRequired++; const has = emp.accreditations.includes(a); if (has) totalMet++;
                     return { name: a, has };
                 });
                 categories.push({ title: 'Accreditations', items, color: '#0891b2' });
@@ -3994,39 +4169,123 @@
         }
 
         function quickGapPreset(ws, jt) {
-            document.getElementById('gapWorkstreamSelect').value = ws;
-            document.getElementById('gapWorkstreamSelect').onchange();
-            document.getElementById('gapJobTypeSelect').value = jt;
-            gapSelectedPreset = allPresets.find(p => p.workstream === ws && p.jobType === jt);
-            renderGapResults();
+            gapDrillDown(ws, jt);
         }
 
-        function buildEmployeeSkillsSummary(emp) {
-            let html = '';
-            const trainings = Object.entries(emp.trainings || {}).filter(([k, v]) => v && v !== 'N/A');
-            if (trainings.length > 0) {
-                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:var(--accent-green);">Training (${trainings.length})</span></div><div class="gap-items">`;
-                trainings.forEach(([name, rating]) => {
-                    html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${name.replace(/^\[T\d+\]\s*/, '')}</span><span class="gap-item-rating">${rating}</span></div>`;
-                });
-                html += '</div></div>';
-            }
-            if (emp.hardware.length > 0) {
-                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:var(--accent-orange);">Hardware (${emp.hardware.length})</span></div><div class="gap-items">`;
-                emp.hardware.forEach(h => { html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${h}</span></div>`; });
-                html += '</div></div>';
-            }
-            if (emp.software.length > 0) {
-                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:var(--accent-purple);">Software (${emp.software.length})</span></div><div class="gap-items">`;
-                emp.software.forEach(s => { html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${s}</span></div>`; });
-                html += '</div></div>';
-            }
-            if (emp.accreditations.length > 0) {
-                html += `<div class="gap-category"><div class="gap-category-header"><span class="gap-category-title" style="color:#0891b2;">Accreditations (${emp.accreditations.length})</span></div><div class="gap-items">`;
-                emp.accreditations.forEach(a => { html += `<div class="gap-item"><div class="gap-item-status has"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><span class="gap-item-name">${a}</span></div>`; });
-                html += '</div></div>';
-            }
-            return html;
+        // ============================================
+        // SKILL GAP EXPORTS
+        // ============================================
+        function exportGapOverviewCSV() {
+            if (!gapSelectedEmployee) return;
+            const emp = gapSelectedEmployee;
+            const rows = [['Workstream', 'Job Type', 'Met', 'Total', 'Percentage']];
+            allPresets.forEach(p => {
+                const score = calcGapScore(emp, p);
+                const pct = score.total > 0 ? Math.round((score.met / score.total) * 100) : 0;
+                rows.push([p.workstream, p.jobType, score.met, score.total, `${pct}%`].map(v => `"${String(v).replace(/"/g, '""')}"`));
+            });
+            const csv = rows.map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url;
+            a.download = `skill-gap-${emp.name.replace(/\s+/g, '-')}-overview-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+            showToast('Gap overview exported to CSV');
+        }
+
+        function exportGapOverviewPDF() {
+            if (!gapSelectedEmployee) return;
+            const emp = gapSelectedEmployee;
+            const printWindow = window.open('', '_blank');
+            let tableRows = '';
+            allPresets.forEach(p => {
+                const score = calcGapScore(emp, p);
+                const pct = score.total > 0 ? Math.round((score.met / score.total) * 100) : 0;
+                const color = pct === 100 ? '#059669' : pct >= 70 ? '#d97706' : '#ef4444';
+                tableRows += `<tr><td>${p.workstream}</td><td>${p.jobType}</td><td style="text-align:center;">${score.met}/${score.total}</td><td style="text-align:center;color:${color};font-weight:600;">${pct}%</td></tr>`;
+            });
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>Skill Gap Overview - ${emp.name}</title>
+                <style>body{font-family:Arial,sans-serif;padding:20px;color:#1a2744;}
+                h1{font-size:18px;margin-bottom:4px;}p{color:#666;font-size:13px;margin:2px 0 16px;}
+                table{width:100%;border-collapse:collapse;font-size:12px;}
+                th{background:#f1f5f9;text-align:left;padding:8px 10px;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;color:#475569;}
+                td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
+                tr:nth-child(even){background:#f8fafc;}
+                @media print{body{padding:0;}}</style></head>
+                <body><h1>Skill Gap Overview - ${emp.name}</h1>
+                <p>${emp.role || ''} | ${emp.department || ''} | Exported ${new Date().toLocaleDateString()}</p>
+                <table><thead><tr><th>Workstream</th><th>Job Type</th><th style="text-align:center;">Score</th><th style="text-align:center;">%</th></tr></thead>
+                <tbody>${tableRows}</tbody></table></body></html>`);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 250);
+            showToast('Gap overview PDF ready');
+        }
+
+        function exportGapDetailCSV() {
+            if (!gapSelectedEmployee || !gapSelectedPreset) return;
+            const emp = gapSelectedEmployee;
+            const preset = gapSelectedPreset;
+            const minRating = parseInt(preset.minRating) || 3;
+            const rows = [['Category', 'Requirement', 'Status', 'Rating']];
+            preset.training.forEach(t => {
+                const rating = parseRating(emp.trainings[t]);
+                rows.push(['Training', t.replace(/^\[T\d+\]\s*/, ''), rating >= minRating ? 'Met' : 'Missing', emp.trainings[t] || 'N/A'].map(v => `"${String(v).replace(/"/g, '""')}"`));
+            });
+            preset.hardware.forEach(h => { rows.push(['Hardware', h, emp.hardware.includes(h) ? 'Met' : 'Missing', ''].map(v => `"${String(v).replace(/"/g, '""')}"`)); });
+            preset.software.forEach(s => { rows.push(['Software', s, emp.software.includes(s) ? 'Met' : 'Missing', ''].map(v => `"${String(v).replace(/"/g, '""')}"`)); });
+            const allAccs = [...preset.accreditations];
+            const company = document.getElementById('companySelect').value;
+            if (company && preset.companyAccreditations[company]) preset.companyAccreditations[company].forEach(a => { if (!allAccs.includes(a)) allAccs.push(a); });
+            allAccs.forEach(a => { rows.push(['Accreditation', a, emp.accreditations.includes(a) ? 'Met' : 'Missing', ''].map(v => `"${String(v).replace(/"/g, '""')}"`)); });
+            const csv = rows.map(r => Array.isArray(r[0]) ? r.join(',') : r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url;
+            a.download = `skill-gap-${emp.name.replace(/\s+/g, '-')}-${preset.jobType.replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+            showToast('Gap detail exported to CSV');
+        }
+
+        function exportGapDetailPDF() {
+            if (!gapSelectedEmployee || !gapSelectedPreset) return;
+            const emp = gapSelectedEmployee;
+            const preset = gapSelectedPreset;
+            const minRating = parseInt(preset.minRating) || 3;
+            const score = calcGapScore(emp, preset);
+            const pct = score.total > 0 ? Math.round((score.met / score.total) * 100) : 0;
+            const printWindow = window.open('', '_blank');
+            let tableRows = '';
+            const addRow = (cat, name, met, rating) => {
+                const color = met ? '#059669' : '#ef4444';
+                tableRows += `<tr><td>${cat}</td><td>${name}</td><td style="color:${color};font-weight:600;">${met ? 'Met' : 'Missing'}</td><td>${rating || ''}</td></tr>`;
+            };
+            preset.training.forEach(t => { const r = parseRating(emp.trainings[t]); addRow('Training', t.replace(/^\[T\d+\]\s*/, ''), r >= minRating, emp.trainings[t] || ''); });
+            preset.hardware.forEach(h => addRow('Hardware', h, emp.hardware.includes(h), ''));
+            preset.software.forEach(s => addRow('Software', s, emp.software.includes(s), ''));
+            const allAccs = [...preset.accreditations];
+            const company = document.getElementById('companySelect').value;
+            if (company && preset.companyAccreditations[company]) preset.companyAccreditations[company].forEach(a => { if (!allAccs.includes(a)) allAccs.push(a); });
+            allAccs.forEach(a => addRow('Accreditation', a, emp.accreditations.includes(a), ''));
+            const scoreColor = pct === 100 ? '#059669' : pct >= 70 ? '#d97706' : '#ef4444';
+            printWindow.document.write(`<!DOCTYPE html><html><head><title>Skill Gap Detail - ${emp.name} vs ${preset.jobType}</title>
+                <style>body{font-family:Arial,sans-serif;padding:20px;color:#1a2744;}
+                h1{font-size:18px;margin-bottom:4px;}p{color:#666;font-size:13px;margin:2px 0 8px;}
+                .score{display:inline-block;padding:4px 14px;border-radius:8px;font-size:16px;font-weight:700;color:${scoreColor};background:${scoreColor}15;margin-bottom:16px;}
+                table{width:100%;border-collapse:collapse;font-size:12px;}
+                th{background:#f1f5f9;text-align:left;padding:8px 10px;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;color:#475569;}
+                td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
+                tr:nth-child(even){background:#f8fafc;}
+                @media print{body{padding:0;}}</style></head>
+                <body><h1>Skill Gap - ${emp.name}</h1>
+                <p>${emp.role || ''} | ${emp.department || ''}</p>
+                <p>Compared against: <strong>${preset.workstream} - ${preset.jobType}</strong> (min rating: ${minRating}/5)</p>
+                <div class="score">${score.met}/${score.total} (${pct}%)</div>
+                <table><thead><tr><th>Category</th><th>Requirement</th><th>Status</th><th>Rating</th></tr></thead>
+                <tbody>${tableRows}</tbody></table>
+                <p style="margin-top:16px;font-size:11px;color:#999;">Exported ${new Date().toLocaleDateString()}</p></body></html>`);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 250);
+            showToast('Gap detail PDF ready');
         }
 
         // ============================================
@@ -4088,9 +4347,12 @@
             });
             const avgSkills = skillsPerPerson.length > 0 ? (skillsPerPerson.reduce((a, b) => a + b, 0) / skillsPerPerson.length).toFixed(1) : 0;
 
+            // Rarest accreditations
+            const rareAccs = sortedAccs.filter(([_, c]) => c > 0).reverse().slice(0, 5);
+
             let html = '';
 
-            // Top stat boxes
+            // ===== ROW 1: 4 stat boxes =====
             html += `<div class="dash-stat-row">
                 <div class="dash-stat-box"><div class="dash-stat-number">${totalEmps}</div><div class="dash-stat-label">Employees</div></div>
                 <div class="dash-stat-box"><div class="dash-stat-number">${totalDepts}</div><div class="dash-stat-label">Departments</div></div>
@@ -4098,77 +4360,81 @@
                 <div class="dash-stat-box"><div class="dash-stat-number">${allPresets.length}</div><div class="dash-stat-label">Job Presets</div></div>
             </div>`;
 
+            // ===== ROW 2: 4 coverage bar charts =====
             html += '<div class="dashboard-grid">';
 
-            // Department breakdown
+            // Training coverage
+            html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Training Coverage</h3><div class="dash-bar-chart">';
+            if (sortedTraining.length > 0) {
+                sortedTraining.slice(0, 8).forEach(([name, stats]) => {
+                    const shortName = name.replace(/^\[T\d+\]\s*/, '');
+                    const pct = Math.round((stats.count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${shortName}">${shortName}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-green);"></div></div><span class="dash-bar-count">${stats.count}</span></div>`;
+                });
+            } else { html += '<div style="color:var(--text-muted);font-size:0.85rem;">No training data</div>'; }
+            html += '</div></div>';
+
+            // Accreditation coverage
+            html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Accreditation Coverage</h3><div class="dash-bar-chart">';
+            if (sortedAccs.length > 0) {
+                sortedAccs.slice(0, 8).forEach(([name, count]) => {
+                    const pct = Math.round((count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:#0891b2;"></div></div><span class="dash-bar-count">${count}</span></div>`;
+                });
+            } else { html += '<div style="color:var(--text-muted);font-size:0.85rem;">No accreditation data</div>'; }
+            html += '</div></div>';
+
+            // Hardware coverage
+            html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Hardware Coverage</h3><div class="dash-bar-chart">';
+            if (sortedHw.length > 0) {
+                sortedHw.slice(0, 8).forEach(([name, count]) => {
+                    const pct = Math.round((count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-orange);"></div></div><span class="dash-bar-count">${count}</span></div>`;
+                });
+            } else { html += '<div style="color:var(--text-muted);font-size:0.85rem;">No hardware data</div>'; }
+            html += '</div></div>';
+
+            // Software coverage
+            html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Software Coverage</h3><div class="dash-bar-chart">';
+            if (sortedSw.length > 0) {
+                sortedSw.slice(0, 8).forEach(([name, count]) => {
+                    const pct = Math.round((count / totalEmps) * 100);
+                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-purple);"></div></div><span class="dash-bar-count">${count}</span></div>`;
+                });
+            } else { html += '<div style="color:var(--text-muted);font-size:0.85rem;">No software data</div>'; }
+            html += '</div></div>';
+
+            // ===== ROW 3: 3 cards centered =====
+            html += '<div class="dash-row-3-centered">';
+
+            // Employees by Department
             html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Employees by Department</h3><div class="dash-dept-grid">';
             Object.entries(depts).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
                 html += `<div class="dash-dept-box"><div class="dept-count">${count}</div><div class="dept-name" title="${name}">${name}</div></div>`;
             });
             html += '</div></div>';
 
-            // Accreditation coverage
-            if (sortedAccs.length > 0) {
-                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Accreditation Coverage</h3><div class="dash-bar-chart">';
-                sortedAccs.slice(0, 10).forEach(([name, count]) => {
-                    const pct = Math.round((count / totalEmps) * 100);
-                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:#0891b2;"></div></div><span class="dash-bar-count">${count}</span></div>`;
-                });
-                html += '</div></div>';
-            }
-
-            // Training coverage
-            if (sortedTraining.length > 0) {
-                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Training Coverage</h3><div class="dash-bar-chart">';
-                sortedTraining.slice(0, 10).forEach(([name, stats]) => {
-                    const shortName = name.replace(/^\[T\d+\]\s*/, '');
-                    const pct = Math.round((stats.count / totalEmps) * 100);
-                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${shortName}">${shortName}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-green);"></div></div><span class="dash-bar-count">${stats.count} (${stats.avg})</span></div>`;
-                });
-                html += '</div></div>';
-            }
-
-            // Hardware coverage
-            if (sortedHw.length > 0) {
-                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Hardware Coverage</h3><div class="dash-bar-chart">';
-                sortedHw.slice(0, 10).forEach(([name, count]) => {
-                    const pct = Math.round((count / totalEmps) * 100);
-                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-orange);"></div></div><span class="dash-bar-count">${count}</span></div>`;
-                });
-                html += '</div></div>';
-            }
-
-            // Software coverage
-            if (sortedSw.length > 0) {
-                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Software Coverage</h3><div class="dash-bar-chart">';
-                sortedSw.slice(0, 10).forEach(([name, count]) => {
-                    const pct = Math.round((count / totalEmps) * 100);
-                    html += `<div class="dash-bar-row"><span class="dash-bar-label" title="${name}">${name}</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:var(--accent-purple);"></div></div><span class="dash-bar-count">${count}</span></div>`;
-                });
-                html += '</div></div>';
-            }
-
             // Lowest average training ratings
+            html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Lowest Avg Training Ratings</h3><div class="dash-list">';
             if (lowRatings.length > 0) {
-                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Lowest Avg Training Ratings</h3><div class="dash-list">';
                 lowRatings.forEach(([name, stats]) => {
                     const shortName = name.replace(/^\[T\d+\]\s*/, '');
-                    html += `<div class="dash-list-item"><span class="dash-list-name">${shortName}</span><span class="dash-list-value">${stats.avg}/5 avg (${stats.count} people)</span></div>`;
+                    html += `<div class="dash-list-item"><span class="dash-list-name">${shortName}</span><span class="dash-list-value">${stats.avg}/5 avg (${stats.count})</span></div>`;
                 });
-                html += '</div></div>';
-            }
+            } else { html += '<div style="color:var(--text-muted);font-size:0.85rem;padding:20px;text-align:center;">No training data yet</div>'; }
+            html += '</div></div>';
 
-            // Hardest to fill skills (fewest people)
-            const rareAccs = sortedAccs.filter(([_, c]) => c > 0).reverse().slice(0, 5);
+            // Rarest accreditations
+            html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Rarest Accreditations</h3><div class="dash-list">';
             if (rareAccs.length > 0) {
-                html += '<div class="dash-card"><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Rarest Accreditations</h3><div class="dash-list">';
                 rareAccs.forEach(([name, count]) => {
                     html += `<div class="dash-list-item"><span class="dash-list-name">${name}</span><span class="dash-list-value">${count} employee${count !== 1 ? 's' : ''}</span></div>`;
                 });
-                html += '</div></div>';
-            }
+            } else { html += '<div style="color:var(--text-muted);font-size:0.85rem;padding:20px;text-align:center;">No accreditation data yet</div>'; }
+            html += '</div></div>';
 
-            html += '</div>';
+            html += '</div>'; // close dash-row-3-centered
+            html += '</div>'; // close dashboard-grid
             container.innerHTML = html;
         }
 
