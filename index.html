@@ -29,16 +29,34 @@
         }
 
         [data-theme="dark"] {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #1e293b;
-            --bg-input: #334155;
+            --bg-primary: #0b1120;       /* deeper page base for more layer contrast */
+            --bg-secondary: #161f33;
+            --bg-card: #161f33;          /* cards read clearly above the page */
+            --bg-input: #0f1726;         /* inputs recessed below cards */
             --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: #334155;
-            --shadow-glow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --text-secondary: #b2bdce;   /* lifted for readability */
+            --text-muted: #8593a8;       /* lifted from #64748b (was below AA on dark) */
+            --border-color: #2c3a52;     /* distinct from card AND input -> edges show */
+            --shadow-glow: 0 8px 30px rgba(0, 0, 0, 0.5);
         }
+
+        /* Dark-mode state tints: the 0.08-0.1 alpha fills tuned for white are
+           nearly invisible on dark, so strengthen the interactive ones. */
+        [data-theme="dark"] .admin-emp-item:hover,
+        [data-theme="dark"] .gap-employee-item:hover,
+        [data-theme="dark"] .multi-select-option:hover { background: #202c42; }
+        [data-theme="dark"] .admin-emp-item.selected,
+        [data-theme="dark"] .gap-employee-item.selected,
+        [data-theme="dark"] .gap-preset-chip.active,
+        [data-theme="dark"] .multi-select-option.selected,
+        [data-theme="dark"] .modal-tab.active .tab-badge { background: rgba(233, 30, 140, 0.20); }
+        [data-theme="dark"] .admin-emp-item.selected,
+        [data-theme="dark"] .gap-employee-item.selected,
+        [data-theme="dark"] .gap-preset-chip.active { color: #ff85cb; }
+        [data-theme="dark"] .admin-check-item.checked { background: rgba(16, 185, 129, 0.20); border-color: rgba(16, 185, 129, 0.55); }
+        [data-theme="dark"] .gap-item-status.has { background: rgba(16, 185, 129, 0.22); }
+        [data-theme="dark"] input::placeholder,
+        [data-theme="dark"] textarea::placeholder { color: #6b7689; }
 
         /* Dark mode toggle */
         .theme-toggle {
@@ -676,9 +694,33 @@
             border-top: 1px solid var(--border-color);
         }
         .employee-card.near-match {
-            opacity: 0.8;
+            opacity: 0.88;
             border-style: dashed;
         }
+
+        /* Spruced card: name-first hierarchy + avatar anchor */
+        .card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .emp-avatar {
+            width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.95rem; letter-spacing: 0.02em;
+            color: #fff; background: linear-gradient(135deg, var(--accent-navy), #35487a);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
+        }
+        .emp-avatar.is-perfect { background: linear-gradient(135deg, var(--accent-green), #34d399); }
+        .emp-id { min-width: 0; flex: 1; }
+        .employee-card .employee-name { font-size: 1.12rem; font-weight: 700; margin-bottom: 2px; line-height: 1.25; }
+        .employee-card .employee-role { margin-bottom: 0; }
+        .employee-card .employee-meta { margin-bottom: 14px; }
+        .employee-card .match-bar-container { margin-bottom: 12px; }
+        /* Calmer status lines (drop the heavy tinted boxes) */
+        .employee-card .match-indicator { background: transparent; padding: 0; margin-bottom: 10px; font-weight: 600; }
+        .employee-card .missing-indicator { background: transparent; padding: 0; margin-bottom: 10px; color: var(--text-muted); }
+        /* List view tweaks for the new head */
+        .employee-grid.list-view .card-head { margin-bottom: 0; gap: 10px; flex: 0 0 auto; }
+        .employee-grid.list-view .emp-avatar { width: 34px; height: 34px; border-radius: 9px; font-size: 0.8rem; }
+        .employee-grid.list-view .employee-card .match-indicator,
+        .employee-grid.list-view .employee-card .missing-indicator { margin-bottom: 0; }
 
         /* Skeleton loader */
         @keyframes shimmer {
@@ -1807,7 +1849,8 @@
         .admin-emp-item:last-child { border-bottom: none; }
         .admin-emp-item:hover { background: var(--bg-input); }
         .admin-emp-item.selected { background: rgba(233, 30, 140, 0.08); color: var(--accent-pink); font-weight: 600; }
-        .admin-emp-item .admin-emp-dept { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
+        .admin-emp-item .admin-emp-name { display: block; }
+        .admin-emp-item .admin-emp-dept { display: block; margin-top: 3px; font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
 
         .admin-edit-form {
             display: flex;
@@ -2100,8 +2143,556 @@
             letter-spacing: 0.5px;
         }
     </style>
+    <style id="refresh-2026">
+        /* ============================================================
+           VISUAL REFRESH 2026 — refined tokens + component polish.
+           Loaded last so it wins by source order; no JS touched.
+           ============================================================ */
+        :root {
+            --bg-primary: #eef1f6;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #eff2f8;
+            --border-color: #e4e8f0;
+            --text-primary: #16203b;
+            --text-secondary: #4c5870;
+            --text-muted: #7a8499;
+            --shadow-sm: 0 1px 2px rgba(20,33,63,.06), 0 1px 3px rgba(20,33,63,.05);
+            --shadow-md: 0 10px 30px -10px rgba(20,33,63,.16);
+            --shadow-lg: 0 28px 70px -18px rgba(20,33,63,.28);
+            --shadow-glow: var(--shadow-md);
+            --brand: linear-gradient(135deg, var(--accent-pink), var(--accent-orange));
+            --ring: 0 0 0 4px rgba(233,30,140,.13);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #0a1020;
+            --bg-secondary: #131d31;
+            --bg-card: #131d31;
+            --bg-input: #1c2840;
+            --border-color: #263349;
+            --text-primary: #eef2f9;
+            --text-secondary: #9eb0ca;
+            --text-muted: #69788f;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+            --shadow-md: 0 12px 34px -12px rgba(0,0,0,.6);
+            --shadow-lg: 0 30px 70px -18px rgba(0,0,0,.7);
+            --shadow-glow: var(--shadow-md);
+        }
+
+        /* ---- Page backdrop: soft brand wash instead of flat grey ---- */
+        body {
+            background:
+                radial-gradient(1200px 620px at 88% -8%, rgba(233,30,140,.07), transparent 58%),
+                radial-gradient(1000px 520px at -5% 2%, rgba(247,148,29,.06), transparent 55%),
+                var(--bg-primary);
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+        [data-theme="dark"] body {
+            background:
+                radial-gradient(1200px 620px at 88% -8%, rgba(233,30,140,.14), transparent 58%),
+                radial-gradient(1000px 520px at -5% 2%, rgba(247,148,29,.09), transparent 55%),
+                var(--bg-primary);
+            background-attachment: fixed;
+        }
+
+        /* ---- Header ---- */
+        .header { margin-bottom: 40px; }
+        .header h1, .login-screen h1 { letter-spacing: .14em; }
+        .header h1 { font-size: 2.75rem; }
+        .header p { color: var(--text-secondary); font-size: 1.06rem; letter-spacing: .01em; }
+        .connection-status {
+            display: inline-flex; margin-top: 18px; padding: 6px 14px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 999px; box-shadow: var(--shadow-sm); color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ---- Floating pills: user info + theme toggle ---- */
+        .user-info, .theme-toggle {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 999px; box-shadow: var(--shadow-sm);
+            height: 46px; display: flex; align-items: center;
+            transition: box-shadow .18s ease, transform .18s ease;
+        }
+        .user-info { padding: 0 6px; gap: 10px; }
+        .user-info:hover, .theme-toggle:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+        .theme-toggle { top: 24px; right: 24px; padding: 0 16px; }
+        .user-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--brand); color: #fff; font-weight: 700; font-size: .8rem;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .logout-btn { border-radius: 50%; }
+
+        /* ---- Page nav: refined segmented control ---- */
+        .page-nav {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 6px; gap: 4px; box-shadow: var(--shadow-sm);
+        }
+        .page-nav-btn { border-radius: 11px; padding: 11px 18px; font-weight: 600; transition: all .18s ease; }
+        .page-nav-btn.active { background: var(--brand); box-shadow: 0 8px 18px -6px rgba(233,30,140,.5); }
+
+        /* ---- Surfaces ---- */
+        .filter-panel, .results-panel {
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+            border-color: var(--border-color);
+        }
+        .filter-panel h2, .results-toolbar h2 { letter-spacing: -.01em; font-weight: 700; }
+
+        /* ---- Inputs / selects / triggers ---- */
+        select, .multi-select-trigger, .location-input {
+            border-radius: 12px; transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+        }
+        select:focus, .multi-select-trigger.active, .location-input:focus { box-shadow: var(--ring); }
+        .multi-select-dropdown { border-radius: 12px; box-shadow: var(--shadow-md); }
+
+        /* ---- Buttons ---- */
+        .btn { border-radius: 12px; font-weight: 600; transition: transform .16s ease, box-shadow .16s ease, background .16s ease, color .16s ease, border-color .16s ease; }
+        .btn-primary { box-shadow: 0 10px 22px -8px rgba(233,30,140,.5); }
+        .btn-primary:hover { box-shadow: 0 16px 30px -8px rgba(233,30,140,.6); }
+
+        /* ---- Employee cards: crisp, elevated ---- */
+        .employee-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; box-shadow: var(--shadow-sm);
+            transition: transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s ease, border-color .2s ease;
+        }
+        .employee-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(233,30,140,.35); }
+        .employee-card.near-match { opacity: .94; border-style: solid; }
+        .emp-avatar { box-shadow: 0 4px 10px -3px rgba(20,33,63,.25), inset 0 1px 0 rgba(255,255,255,.16); }
+
+        /* ---- Stat chips on results toolbar ---- */
+        .stat-chip { border-radius: 999px; }
+
+        /* ---- Modal ---- */
+        .modal { border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+        .modal-overlay { background: rgba(11,17,32,.55); backdrop-filter: blur(3px); }
+        .modal-header { gap: 14px; align-items: center; }
+        .modal-header-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+        .modal-header-info { min-width: 0; }
+        .modal-header-info h2 { font-size: 1.4rem; line-height: 1.2; font-weight: 700; word-break: break-word; }
+        .modal-avatar {
+            width: 56px; height: 56px; border-radius: 16px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2rem; color: #fff; background: var(--brand);
+            box-shadow: 0 6px 14px -4px rgba(233,30,140,.45), inset 0 1px 0 rgba(255,255,255,.2);
+        }
+        .info-item { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; }
+
+        /* ---- Skill Gap overview cards ---- */
+        .gap-overview-card { background: var(--bg-card); border-radius: 12px; box-shadow: var(--shadow-sm); }
+        .gap-overview-card.perfect, .gap-overview-card.good, .gap-overview-card.low { border-left-width: 4px; }
+        .gap-overview-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-color); }
+
+        /* ---- Dashboard ---- */
+        .dash-card { border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+        .dash-stat-box {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
+            padding: 22px 16px; position: relative; overflow: hidden;
+        }
+        .dash-stat-box::before {
+            content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--brand);
+        }
+        .dash-stat-number { font-size: 2.2rem; }
+        .dash-bar-track, .dash-bar-fill { border-radius: 999px; }
+
+        /* ---- Refined scrollbars ---- */
+        * { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+        *::-webkit-scrollbar { width: 10px; height: 10px; }
+        *::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+        *::-webkit-scrollbar-thumb:hover { background: var(--text-muted); background-clip: padding-box; }
+
+        /* ---- Login screen ---- */
+        .login-btn { box-shadow: 0 14px 30px -10px rgba(233,30,140,.5); border-radius: 14px; }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 38px -10px rgba(233,30,140,.6); }
+        .login-btn, .test-login-btn { white-space: nowrap; }
+    .login-screen p { font-size: 1.08rem; }
+        /* Test / demo login: ghost secondary under the primary button */
+        .test-login-btn {
+            display: inline-flex; align-items: center; gap: 10px; margin-top: 16px;
+            padding: 12px 22px; background: var(--bg-card);
+            border: 1px solid var(--border-color); border-radius: 12px;
+            font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600;
+            color: var(--text-secondary); cursor: pointer; box-shadow: var(--shadow-sm);
+            transition: transform .16s ease, box-shadow .16s ease, color .16s ease, border-color .16s ease;
+        }
+        .test-login-btn svg { width: 18px; height: 18px; opacity: .8; }
+        .test-login-btn:hover {
+            transform: translateY(-1px); box-shadow: var(--shadow-md);
+            color: var(--accent-pink); border-color: rgba(233,30,140,.4);
+        }
+    </style>
+    <style id="rebuild-ds">
+    /* ============================================================
+       GROUND-UP REBUILD 2026 — app shell, home, ranking, compare, map.
+       Layered last; keeps every existing ID + all business logic.
+       ============================================================ */
+    :root {
+        --nav-w: 256px;
+        --ink: #16203b;
+        --sidebar-1: #141d33;
+        --sidebar-2: #1d2a49;
+    }
+
+    /* ---------- App shell ---------- */
+    .app-content.visible { display: block; }
+    .ds-sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0; width: var(--nav-w);
+        overflow-y: auto; overflow-x: hidden;
+        background: linear-gradient(185deg, var(--sidebar-2), var(--sidebar-1) 70%);
+        color: #fff; display: flex; flex-direction: column; gap: 6px;
+        padding: 22px 16px 18px; z-index: 60;
+        box-shadow: 18px 0 50px -30px rgba(10,16,32,.6);
+    }
+    .ds-brand { display: flex; align-items: center; gap: 12px; padding: 6px 8px 18px; }
+    .ds-brand-mark {
+        width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+        background: var(--brand); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 9px;
+        box-shadow: 0 8px 18px -6px rgba(233,30,140,.55);
+    }
+    .ds-brand-mark i { background: rgba(255,255,255,.92); border-radius: 2px; display: block; }
+    .ds-brand-mark i:nth-child(2), .ds-brand-mark i:nth-child(3) { background: rgba(255,255,255,.5); }
+    .ds-brand-name { font-family: 'Space Mono', monospace; font-weight: 700; font-size: .98rem; letter-spacing: .12em; line-height: 1.1; }
+    .ds-brand-sub { font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-top: 3px; }
+    .ds-nav { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
+    .ds-nav-label { font-size: .65rem; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.38); padding: 14px 12px 6px; }
+    .ds-sidebar .page-nav-btn {
+        display: flex; align-items: center; gap: 12px; width: 100%;
+        padding: 11px 12px; border-radius: 11px; border: none; cursor: pointer;
+        background: transparent; color: rgba(255,255,255,.72);
+        font-family: 'DM Sans', sans-serif; font-size: .93rem; font-weight: 600; text-align: left;
+        transition: background .16s ease, color .16s ease, transform .16s ease;
+        flex: none; justify-content: flex-start;
+    }
+    .ds-sidebar .page-nav-btn svg { width: 19px; height: 19px; flex-shrink: 0; opacity: .9; }
+    .ds-sidebar .page-nav-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .ds-sidebar .page-nav-btn.active {
+        background: var(--brand); color: #fff;
+        box-shadow: 0 10px 22px -8px rgba(233,30,140,.6);
+    }
+    .ds-side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 14px; }
+    .ds-side-foot .connection-status {
+        margin: 0; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+        color: rgba(255,255,255,.7); justify-content: flex-start; box-shadow: none; font-size: .78rem;
+    }
+    .ds-side-foot .theme-toggle {
+        position: static; height: 42px; width: 100%; justify-content: center;
+        background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.8);
+    }
+    .ds-side-foot .theme-toggle:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .ds-side-foot .user-info {
+        position: static; height: 50px; width: 100%; justify-content: flex-start;
+        background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: #fff; padding: 0 8px;
+    }
+    .ds-side-foot .user-info #userName { font-size: .85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ds-side-foot .logout-btn { margin-left: auto; color: rgba(255,255,255,.6); background: transparent; border: none; cursor: pointer; }
+    .ds-side-foot .logout-btn:hover { color: #fff; }
+
+    /* container becomes the main workspace */
+    .app-content .container { margin-left: max(var(--nav-w), calc((100vw - 1700px) / 2)); margin-right: auto; max-width: 1700px; padding: 30px clamp(24px, 3.5vw, 72px) 80px; }
+    .page-nav { display: none !important; }
+    .header { display: none; }
+
+    /* page top context bar (rendered per-section) */
+    .ds-pagehead { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 26px; flex-wrap: wrap; }
+    .ds-pagehead h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+    .ds-pagehead p { color: var(--text-muted); font-size: .98rem; margin-top: 5px; }
+    .ds-eyebrow { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; color: var(--accent-pink); margin-bottom: 8px; }
+
+    /* ---------- Home / overview ---------- */
+    .home-hero {
+        position: relative; overflow: hidden; border-radius: 24px; color: #fff;
+        background: linear-gradient(125deg, #1b2747 0%, #2a1a3e 55%, #7a1b4e 100%);
+        padding: 44px 44px 40px; margin-bottom: 24px;
+        box-shadow: var(--shadow-lg);
+    }
+    .home-hero::after {
+        content: ''; position: absolute; right: -120px; top: -120px; width: 460px; height: 460px; border-radius: 50%;
+        background: radial-gradient(circle at center, rgba(247,148,29,.5), rgba(233,30,140,.18) 45%, transparent 70%);
+        pointer-events: none;
+    }
+    .home-hero .ds-eyebrow { color: rgba(255,255,255,.7); }
+    .home-hero h1 { position: relative; font-size: 2.5rem; font-weight: 800; letter-spacing: -.025em; line-height: 1.05; max-width: 18ch; }
+    .home-hero p { position: relative; color: rgba(255,255,255,.78); font-size: 1.08rem; margin-top: 12px; max-width: 52ch; }
+    .home-hero-actions { position: relative; display: flex; gap: 12px; margin-top: 26px; flex-wrap: wrap; }
+    .home-cta {
+        display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 13px; cursor: pointer;
+        font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; border: none;
+        background: #fff; color: var(--ink); box-shadow: 0 14px 30px -12px rgba(0,0,0,.5); transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .home-cta svg { width: 19px; height: 19px; }
+    .home-cta:hover { transform: translateY(-2px); box-shadow: 0 20px 38px -12px rgba(0,0,0,.55); }
+    .home-cta.ghost { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.25); box-shadow: none; }
+    .home-cta.ghost:hover { background: rgba(255,255,255,.2); }
+
+    .home-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .home-kpi {
+        background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 20px 22px;
+        box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+    }
+    .home-kpi .k-ico { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .home-kpi .k-ico svg { width: 20px; height: 20px; }
+    .home-kpi .k-num { font-size: 2.1rem; font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+    .home-kpi .k-label { color: var(--text-muted); font-size: .85rem; margin-top: 6px; font-weight: 500; }
+    .k-pink { background: rgba(233,30,140,.12); color: var(--accent-pink); }
+    .k-orange { background: rgba(247,148,29,.14); color: #e07b00; }
+    .k-green { background: rgba(5,150,105,.12); color: var(--accent-green); }
+    .k-navy { background: rgba(26,39,68,.1); color: var(--accent-navy); }
+    [data-theme="dark"] .k-navy { background: rgba(255,255,255,.08); color: #b9c6e0; }
+
+    .home-cols { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 1100px) { .home-cols { grid-template-columns: 1fr; } .home-kpis { grid-template-columns: repeat(2, 1fr); } }
+    .home-panel { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm); }
+    .home-panel h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .home-panel .sub { color: var(--text-muted); font-size: .85rem; margin-bottom: 18px; }
+    .home-quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .home-quick {
+        text-align: left; display: flex; gap: 13px; align-items: center; padding: 15px; border-radius: 14px; cursor: pointer;
+        background: var(--bg-input); border: 1px solid var(--border-color); transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .home-quick:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: rgba(233,30,140,.35); }
+    .home-quick .q-ico { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--brand); color: #fff; }
+    .home-quick .q-ico svg { width: 20px; height: 20px; }
+    .home-quick .q-title { font-weight: 700; font-size: .95rem; color: var(--text-primary); }
+    .home-quick .q-desc { font-size: .8rem; color: var(--text-muted); margin-top: 2px; }
+    .home-recent { display: flex; flex-direction: column; gap: 8px; }
+    .home-recent-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--bg-input); border: 1px solid var(--border-color); cursor: pointer; transition: border-color .16s ease, transform .16s ease; }
+    .home-recent-item:hover { border-color: rgba(233,30,140,.4); transform: translateX(2px); }
+    .home-recent-item .r-name { font-weight: 600; font-size: .9rem; }
+    .home-recent-item .r-meta { font-size: .78rem; color: var(--text-muted); margin-left: auto; }
+    .home-empty { color: var(--text-muted); font-size: .88rem; padding: 18px; text-align: center; }
+
+    /* ---------- Search ranking ---------- */
+    .results-panel { border-radius: var(--radius-lg); }
+    .employee-card { position: relative; }
+    .rank-badge {
+        position: absolute; top: 14px; left: 14px; z-index: 3;
+        min-width: 26px; height: 26px; padding: 0 8px; border-radius: 999px;
+        display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        font-size: .78rem; font-weight: 800; color: #fff; background: var(--accent-navy);
+        box-shadow: 0 4px 10px -3px rgba(20,33,63,.4);
+    }
+    [data-theme="dark"] .rank-badge { background: #33425f; }
+    .employee-card.top-match {
+        border-color: transparent;
+        box-shadow: 0 0 0 2px var(--accent-pink), var(--shadow-md);
+    }
+    .employee-card.top-match .rank-badge { background: var(--brand); }
+    .top-ribbon {
+        display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+        margin: 0 0 12px; padding: 5px 12px; border-radius: 999px;
+        font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap;
+        color: #fff; background: var(--brand); box-shadow: 0 6px 14px -5px rgba(233,30,140,.55);
+    }
+    .top-ribbon svg { width: 13px; height: 13px; }
+    /* leave room for rank badge */
+    .employee-card .card-head { padding-left: 0; }
+    .employee-card.has-rank .card-head { margin-top: 6px; }
+
+    /* compare checkbox affordance on cards */
+    .card-compare {
+        position: absolute; top: 12px; right: 12px; z-index: 4; width: 30px; height: 30px;
+        border-radius: 9px; border: 1px solid var(--border-color); background: var(--bg-card);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted);
+        opacity: 0; transition: opacity .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+        box-shadow: var(--shadow-sm);
+    }
+    .employee-card:hover .card-compare, .card-compare.on { opacity: 1; }
+    .card-compare svg { width: 16px; height: 16px; }
+    .card-compare.on { background: var(--accent-pink); border-color: var(--accent-pink); color: #fff; }
+
+    /* view toggle: add map */
+    .view-toggle-btn.map-on { color: var(--accent-pink); }
+
+    /* ---------- Compare tray + modal ---------- */
+    .compare-tray {
+        position: fixed; left: calc(var(--nav-w) + 24px); right: 24px; bottom: 22px; z-index: 200;
+        background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
+        box-shadow: var(--shadow-lg); padding: 12px 16px; display: none; align-items: center; gap: 14px;
+    }
+    .compare-tray.show { display: flex; }
+    .compare-tray .ct-label { font-weight: 700; font-size: .9rem; }
+    .compare-tray .ct-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+    .ct-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; border-radius: 999px; background: var(--bg-input); border: 1px solid var(--border-color); font-size: .82rem; font-weight: 600; }
+    .ct-chip button { background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; padding: 2px; border-radius: 50%; }
+    .ct-chip button:hover { color: #ef4444; }
+    .compare-modal { max-width: 980px !important; width: 96% !important; }
+    .compare-grid { display: grid; gap: 0; overflow-x: auto; }
+    .compare-grid table { width: 100%; border-collapse: collapse; }
+    .compare-grid th, .compare-grid td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border-color); vertical-align: top; font-size: .9rem; }
+    .compare-grid thead th { position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
+    .compare-grid tbody th { font-weight: 600; color: var(--text-muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; width: 150px; }
+    .cmp-person { display: flex; align-items: center; gap: 11px; }
+    .cmp-av { width: 40px; height: 40px; border-radius: 11px; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+    .cmp-name { font-weight: 700; font-size: .98rem; color: var(--text-primary); }
+    .cmp-role { font-size: .78rem; color: var(--text-muted); }
+    .cmp-yes { color: var(--accent-green); font-weight: 700; }
+    .cmp-no { color: #ef4444; font-weight: 700; }
+    .cmp-score { font-size: 1.3rem; font-weight: 800; }
+    .cmp-tag { display: inline-block; margin: 2px 3px 2px 0; padding: 2px 8px; border-radius: 6px; font-size: .74rem; background: var(--bg-input); border: 1px solid var(--border-color); }
+
+    /* ---------- Map view ---------- */
+    #mapView { display: none; }
+    #mapView.show { display: block; }
+    #techMap { width: 100%; height: 560px; border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+    .map-hint { padding: 60px 24px; text-align: center; color: var(--text-muted); }
+    .map-hint svg { width: 60px; height: 60px; opacity: .4; margin-bottom: 14px; }
+    .leaflet-popup-content { font-family: 'DM Sans', sans-serif; }
+    .map-pin-pop b { font-size: .95rem; }
+    .map-pin-pop span { color: #64748b; font-size: .82rem; }
+
+    /* ---------- Responsive: sidebar -> top bar ---------- */
+    @media (max-width: 900px) {
+        .ds-sidebar {
+            position: static; width: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px;
+            padding: 12px 16px; box-shadow: var(--shadow-sm);
+        }
+        .ds-brand { padding: 0 12px 0 0; }
+        .ds-brand-sub { display: none; }
+        .ds-nav { flex-direction: row; flex-wrap: wrap; margin: 0; gap: 4px; }
+        .ds-nav-label { display: none; }
+        .ds-sidebar .page-nav-btn { width: auto; padding: 9px 12px; }
+        .ds-sidebar .page-nav-btn .nav-label { display: none; }
+        .ds-side-foot { flex-direction: row; margin: 0 0 0 auto; padding: 0; gap: 8px; align-items: center; }
+        .ds-side-foot .connection-status { display: none; }
+        .ds-side-foot .theme-toggle, .ds-side-foot .user-info { width: auto; }
+        .app-content .container { margin-left: 0; padding: 22px 18px 60px; }
+        .compare-tray { left: 16px; right: 16px; }
+        .home-hero { padding: 30px 24px; }
+        .home-hero h1 { font-size: 1.9rem; }
+        .home-kpis { grid-template-columns: repeat(2, 1fr); }
+    }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style id="rebuild-ds2">
+    /* expiry chips */
+    .exp-chip { display:inline-flex; align-items:center; gap:6px; margin-bottom:10px; padding:5px 11px; border-radius:999px; font-size:.76rem; font-weight:700; }
+    .exp-chip svg { width:13px; height:13px; }
+    .exp-chip.exp-red { background:rgba(239,68,68,.12); color:#dc2626; }
+    .exp-chip.exp-amber { background:rgba(217,119,6,.14); color:#b45309; }
+    [data-theme="dark"] .exp-chip.exp-red { color:#fca5a5; }
+    [data-theme="dark"] .exp-chip.exp-amber { color:#fcd34d; }
+    .match-explain { display:flex; flex-wrap:wrap; gap:6px 10px; margin-bottom:11px; font-size:.78rem; color:var(--text-muted); }
+    .match-explain b { color:var(--text-secondary); font-weight:700; }
+    .me-dot { display:inline-flex; align-items:center; gap:5px; }
+    .me-dot::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--accent-green); }
+    .me-dot.warn::before { background:var(--accent-orange); }
+    .me-dot.dist::before { background:var(--accent-pink); }
+
+    /* prioritise segmented control */
+    .prio-control { display:inline-flex; align-items:center; gap:8px; }
+    .prio-control .pl { font-size:.78rem; font-weight:600; color:var(--text-muted); }
+    .prio-seg { display:inline-flex; background:var(--bg-input); border:1px solid var(--border-color); border-radius:10px; padding:3px; gap:2px; }
+    .prio-seg button { border:none; background:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:.8rem; font-weight:600; color:var(--text-muted); padding:6px 12px; border-radius:8px; transition:all .15s ease; }
+    .prio-seg button.active { background:var(--bg-card); color:var(--accent-pink); box-shadow:var(--shadow-sm); }
+
+    /* command palette */
+    .cmdk-overlay { position:fixed; inset:0; background:rgba(11,17,32,.5); z-index:2000; display:none; align-items:flex-start; justify-content:center; padding-top:12vh; }
+    .cmdk-overlay.open { display:flex; }
+    .cmdk { width:min(640px,92vw); background:var(--bg-card); border:1px solid var(--border-color); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .cmdk-in { display:flex; align-items:center; gap:12px; padding:18px 20px; border-bottom:1px solid var(--border-color); }
+    .cmdk-in svg { width:20px; height:20px; color:var(--text-muted); flex-shrink:0; }
+    .cmdk-in input { flex:1; border:none; outline:none; background:none; font-family:'DM Sans',sans-serif; font-size:1.1rem; color:var(--text-primary); }
+    .cmdk-list { max-height:54vh; overflow-y:auto; padding:8px; }
+    .cmdk-group { font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); font-weight:700; padding:12px 12px 6px; }
+    .cmdk-item { display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:11px; cursor:pointer; }
+    .cmdk-item.sel, .cmdk-item:hover { background:var(--bg-input); }
+    .cmdk-item .ci-ic { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:var(--brand); color:#fff; flex-shrink:0; }
+    .cmdk-item .ci-ic.muted { background:var(--bg-input); color:var(--text-muted); border:1px solid var(--border-color); }
+    .cmdk-item .ci-ic svg { width:16px; height:16px; }
+    .cmdk-item .ci-t { font-weight:600; font-size:.92rem; }
+    .cmdk-item .ci-s { font-size:.78rem; color:var(--text-muted); }
+    .cmdk-empty { padding:30px; text-align:center; color:var(--text-muted); }
+    .cmdk-hint { display:flex; align-items:center; gap:7px; margin-top:10px; padding:7px 10px; border-radius:9px; cursor:pointer; color:rgba(255,255,255,.55); font-size:.74rem; font-weight:600; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); transition:all .15s ease; }
+    .cmdk-hint svg { width:14px; height:14px; flex-shrink:0; }
+    .cmdk-hint span { white-space:nowrap; }
+    .cmdk-hint:hover { background:rgba(255,255,255,.1); color:#fff; }
+    .cmdk-hint kbd { margin-left:auto; font-family:inherit; font-size:.68rem; background:rgba(255,255,255,.12); padding:1px 6px; border-radius:5px; }
+
+    /* ============ DASHBOARD REVAMP ============ */
+    .dboard { display:flex; flex-direction:column; gap:30px; }
+    .dboard-kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:16px; }
+    .dboard-kpi {
+        background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);
+        box-shadow:var(--shadow-sm); padding:22px 22px 20px; position:relative; overflow:hidden;
+    }
+    .dboard-kpi::before { content:''; position:absolute; inset:0 0 auto 0; height:3px; background:var(--brand); }
+    .dboard-kpi .k-n { font-size:2.4rem; font-weight:800; line-height:1; letter-spacing:-.02em; color:var(--text-primary); }
+    .dboard-kpi .k-l { font-size:.74rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; font-weight:700; margin-top:8px; }
+    .dboard-kpi .k-ic { position:absolute; top:18px; right:18px; width:30px; height:30px; opacity:.16; color:var(--accent-pink); }
+    .dboard-kpi .k-ic svg { width:100%; height:100%; }
+    .dboard-section { display:flex; flex-direction:column; gap:14px; }
+    .dboard-shead { display:flex; align-items:center; gap:10px; font-size:.76rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); }
+    .dboard-shead::after { content:''; flex:1; height:1px; background:var(--border-color); }
+    .dboard-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(310px,1fr)); gap:18px; align-items:start; }
+    .dboard-grid.cols-3 { grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); }
+    /* job readiness tiles */
+    .job-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:14px; }
+    .job-tile { background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; padding:16px; }
+    .job-tile .jt-name { font-weight:700; font-size:.94rem; color:var(--text-primary); }
+    .job-tile .jt-ws { font-size:.72rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin-top:2px; }
+    .job-tile .jt-bar { height:7px; border-radius:999px; background:var(--bg-card); overflow:hidden; margin:13px 0 9px; }
+    .job-tile .jt-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent-pink),var(--accent-orange)); }
+    .job-tile .jt-foot { font-size:.8rem; color:var(--text-secondary); }
+    .job-tile .jt-foot b { color:var(--text-primary); }
+    .job-tile .jt-pct { float:right; font-weight:700; }
+    .job-tile .jt-pct.full { color:var(--accent-green); } .job-tile .jt-pct.mid { color:var(--accent-orange); } .job-tile .jt-pct.low { color:#dc2626; }
+    .dash-empty { color:var(--text-muted); font-size:.85rem; padding:14px 0; }
+
+    /* map controls */
+    .map-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; padding:12px 16px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; }
+    .map-controls label { font-size:.82rem; font-weight:600; color:var(--text-secondary); }
+    .map-controls input[type="number"] { width:80px; padding:7px 10px; border-radius:9px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-primary); font-family:'DM Sans',sans-serif; }
+    .map-controls .mc-note { font-size:.8rem; color:var(--text-muted); margin-left:auto; }
+
+    /* dashboard extra widgets */
+    .dash-spof-tag { display:inline-block; margin:3px 4px 0 0; padding:3px 9px; border-radius:7px; font-size:.76rem; background:rgba(239,68,68,.1); color:#dc2626; border:1px solid rgba(239,68,68,.22); }
+    [data-theme="dark"] .dash-spof-tag { color:#fca5a5; }
+    .dash-exp-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--border-color); font-size:.86rem; }
+    .dash-exp-row > span:first-child { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dash-exp-row:last-child { border-bottom:none; }
+    .dash-exp-when { margin-left:auto; font-weight:700; font-size:.8rem; white-space:nowrap; flex-shrink:0; }
+    .dash-exp-when.red { color:#dc2626; } .dash-exp-when.amber { color:#b45309; }
+    [data-theme="dark"] .dash-exp-when.red { color:#fca5a5; } [data-theme="dark"] .dash-exp-when.amber { color:#fcd34d; }
+    .dash-wgrid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    @media (max-width:768px){ .dash-wgrid{grid-template-columns:1fr;} }
+    .dash-wjob { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border-color); font-size:.86rem; }
+    .dash-wjob:last-child { border-bottom:none; }
+    .dash-wjob .wj-n { font-weight:600; } .dash-wjob .wj-ws { color:var(--text-muted); font-size:.76rem; }
+    .dash-wjob .wj-v { margin-left:auto; font-weight:700; }
+
+    /* reverse-search mini form on home */
+    .rev-form { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+    .rev-form .rf-field { flex:1; min-width:140px; }
+    .rev-form label { display:block; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px; }
+    .rev-form select { padding:11px 14px; }
+    .rev-form button { white-space:nowrap; }
+    </style>
 </head>
 <body>
+    <template id="__bundler_thumbnail" data-bg-color="#16203b">
+        <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#e91e8c"/>
+                    <stop offset="1" stop-color="#f7941d"/>
+                </linearGradient>
+            </defs>
+            <g transform="translate(440,250)">
+                <rect x="0" y="0" width="150" height="150" rx="24" fill="url(#tg)"/>
+                <rect x="170" y="0" width="150" height="150" rx="24" fill="#26334e"/>
+                <rect x="0" y="170" width="150" height="150" rx="24" fill="#26334e"/>
+                <rect x="170" y="170" width="150" height="150" rx="24" fill="url(#tg)"/>
+            </g>
+        </svg>
+    </template>
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -2109,9 +2700,12 @@
     <div class="modal-overlay" id="employeeModal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-header-info">
-                    <h2 id="modalEmployeeName">Employee Name</h2>
-                    <p id="modalEmployeeRole">Role</p>
+                <div class="modal-header-left">
+                    <div class="modal-avatar" id="modalAvatar">?</div>
+                    <div class="modal-header-info">
+                        <h2 id="modalEmployeeName">Employee Name</h2>
+                        <p id="modalEmployeeRole">Role</p>
+                    </div>
                 </div>
                 <div class="modal-header-actions">
                     <button class="modal-copy-btn" id="modalShareBtn" title="Share this employee" onclick="openShareModal()">
@@ -2158,6 +2752,32 @@
         </div>
     </div>
 
+    <!-- Compare tray + modal -->
+    <div class="compare-tray" id="compareTray">
+        <span class="ct-label">Compare</span>
+        <div class="ct-chips" id="compareChips"></div>
+        <button class="btn btn-primary" style="width:auto;margin:0;padding:10px 20px;" onclick="openCompare()">Compare side by side</button>
+        <button class="btn btn-secondary" style="width:auto;margin:0;padding:10px 16px;" onclick="clearCompare()">Clear</button>
+    </div>
+    <div class="modal-overlay" id="compareModal">
+        <div class="modal compare-modal">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <div class="modal-header-info">
+                        <h2>Compare technicians</h2>
+                        <p>Side-by-side against your current requirements</p>
+                    </div>
+                </div>
+                <div class="modal-header-actions">
+                    <button class="modal-close" onclick="document.getElementById('compareModal').classList.remove('open');document.body.style.overflow='';">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-content"><div class="compare-grid" id="compareGridWrap"></div></div>
+        </div>
+    </div>
+
     <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <h1>SKILLS MATRIX</h1>
@@ -2174,6 +2794,39 @@
 
     <!-- Main App Content -->
     <div class="app-content" id="appContent">
+    <aside class="ds-sidebar">
+        <div class="ds-brand">
+            <div class="ds-brand-mark"><i></i><i></i><i></i><i></i></div>
+            <div>
+                <div class="ds-brand-name">SKILLS<br>MATRIX</div>
+                <div class="ds-brand-sub">M Group Services</div>
+            </div>
+        </div>
+        <div class="ds-nav-label">Workspace</div>
+        <nav class="ds-nav">
+            <button class="page-nav-btn active" onclick="switchPage('home')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="page-nav-btn" onclick="switchPage('search')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span class="nav-label">Search</span>
+            </button>
+            <button class="page-nav-btn" onclick="switchPage('gap')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                <span class="nav-label">Skill Gap</span>
+            </button>
+            <button class="page-nav-btn" onclick="switchPage('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="page-nav-btn" onclick="switchPage('admin')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span class="nav-label">Admin</span>
+            </button>
+        </nav>
+        <div class="ds-side-foot" id="dsSideFoot"></div>
+    </aside>
     <div class="container">
         <div class="user-info" id="userInfo">
             <div class="user-avatar" id="userAvatar">?</div>
@@ -2229,7 +2882,10 @@
                 <span class="nav-label">Admin</span>
             </button>
         </nav>
-        <div class="page-section active" id="page-search">
+        <div class="page-section active" id="page-home">
+            <div id="homeContent"></div>
+        </div>
+        <div class="page-section" id="page-search">
         <main class="main-layout">
             <aside class="filter-panel">
                 <h2>Filter Technicians</h2>
@@ -2826,7 +3482,7 @@
             bar.innerHTML = html;
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        const __bootApp = async () => {
             initTheme();
             
             // Handle redirect after login
@@ -2861,7 +3517,8 @@
             // Login button
             document.getElementById('loginBtn').addEventListener('click', login);
             document.getElementById('logoutBtn').addEventListener('click', logout);
-        });
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', __bootApp); else __bootApp();
 
         function showLogin() {
             document.getElementById('loginScreen').style.display = 'flex';
@@ -2887,6 +3544,71 @@
             renderSavedSearches();
             document.getElementById('statusText').textContent = 'Loading employees...';
             fetchEmployees();
+        }
+
+        // ============================================
+        // TEST LOGIN — bypass Microsoft auth with sample data
+        // (purely client-side demo; touches no real SharePoint data)
+        // ============================================
+        function testLogin() {
+            try {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContent').classList.add('visible');
+                document.getElementById('userName').textContent = 'Demo User';
+                document.getElementById('userAvatar').textContent = 'DU';
+
+                // Sample reference data
+                TRAINING_COLUMNS = ['[T01] Confined Space', '[T02] Working at Height', '[T03] First Aid', '[T04] Fibre Splicing', '[T05] Excavation', '[T06] Traffic Management'];
+                HARDWARE_OPTIONS = ['OTDR', 'Fusion Splicer', 'Cherry Picker', 'Cable Locator', 'Pressure Tester'];
+                SOFTWARE_OPTIONS = ['AutoCAD', 'GIS Mapper', 'QGIS', 'FieldFLO'];
+                ACCREDITATION_OPTIONS = ['NRSWA', 'CSCS Gold', 'SSSTS', 'IOSH', 'Streetworks Supervisor'];
+
+                const depts = ['Fibre Networks', 'Civils', 'Power', 'Water', 'Survey'];
+                const roles = ['Senior Field Technician', 'Fibre Engineer', 'Civils Operative', 'Network Surveyor', 'Cable Jointer', 'Lead Technician'];
+                const names = ['James Whitfield', 'Aisha Rahman', 'Tom Beckett', 'Priya Nair', 'Liam O\u2019Connor', 'Sophie Carter', 'Daniel Mensah', 'Grace Adeyemi', 'Owen Pritchard', 'Maya Lindqvist', 'Ben Ferris', 'Chloe Dawson'];
+                const postcodes = ['CB11 4AB', 'RG1 2QP', 'M2 5BQ', 'LS1 4DY', 'BS1 6QF'];
+                allEmployees = names.map((n, i) => ({
+                    id: i + 1,
+                    name: n,
+                    email: n.toLowerCase().replace(/[^a-z]/g, '.') + '@example.com',
+                    phone: '07700 9000' + (10 + i),
+                    role: roles[i % roles.length],
+                    department: depts[i % depts.length],
+                    manager: names[(i + 3) % names.length],
+                    postcode: postcodes[i % postcodes.length],
+                    hardware: HARDWARE_OPTIONS.slice(0, (i % 4) + 1),
+                    software: SOFTWARE_OPTIONS.slice(0, (i % 3) + 1),
+                    accreditations: ACCREDITATION_OPTIONS.slice(0, (i % 3) + 1),
+                    trainings: Object.fromEntries(TRAINING_COLUMNS.slice(0, (i % 5) + 1).map((t, j) => [t, ((j % 5) + 1) + '/5'])),
+                    expiries: (function(){ var o = {}; ACCREDITATION_OPTIONS.slice(0, (i % 3) + 1).forEach(function(a, j){ var off = [-12, 21, 78, 240, 430][(i + j) % 5]; o[a] = new Date(Date.now() + off * 86400000).toISOString().slice(0, 10); }); return o; })()
+                }));
+
+                allPresets = [
+                    { id: '1', workstream: 'Fibre Networks', jobType: 'Splicing Job', hardware: ['OTDR', 'Fusion Splicer'], software: ['FieldFLO'], accreditations: ['NRSWA'], training: ['[T04] Fibre Splicing', '[T01] Confined Space'], minRating: '3', companyAccreditations: {} },
+                    { id: '2', workstream: 'Fibre Networks', jobType: 'Survey', hardware: ['Cable Locator'], software: ['GIS Mapper', 'QGIS'], accreditations: ['CSCS Gold'], training: ['[T02] Working at Height'], minRating: '3', companyAccreditations: {} },
+                    { id: '3', workstream: 'Civils', jobType: 'Excavation', hardware: ['Cherry Picker'], software: ['AutoCAD'], accreditations: ['SSSTS', 'NRSWA'], training: ['[T05] Excavation', '[T06] Traffic Management'], minRating: '4', companyAccreditations: {} },
+                    { id: '4', workstream: 'Power', jobType: 'Jointing', hardware: ['Pressure Tester'], software: [], accreditations: ['IOSH'], training: ['[T03] First Aid'], minRating: '3', companyAccreditations: {} }
+                ];
+                detectedCompanies = [];
+
+                initModal();
+                populateWorkstreams();
+                populateCompanies();
+                initMultiSelects();
+                attachEventListeners();
+                renderSavedSearches();
+                populateDepartments();
+                updateConnectionStatus(true);
+                document.getElementById('statusText').textContent = 'Demo mode \u2014 sample data';
+                if (!restoreStateFromURL()) {
+                    showEmptyState();
+                } else {
+                    performSearch();
+                }
+            } catch (e) {
+                console.error('Test login error:', e);
+                showToast('Could not start demo mode', 'warning');
+            }
         }
 
         async function login() {
@@ -3310,6 +4032,8 @@
             // Populate header
             document.getElementById('modalEmployeeName').textContent = employee.name;
             document.getElementById('modalEmployeeRole').textContent = employee.role || 'No role specified';
+            const _av = document.getElementById('modalAvatar');
+            if (_av) _av.textContent = (employee.name || '?').trim().split(/\s+/).map(n => n[0]).join('').substring(0, 2).toUpperCase() || '?';
 
             // Build per-category match data
             const minRating = parseInt(document.getElementById('minTrainingRating').value) || 1;
@@ -3988,6 +4712,7 @@
             const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
             const missing = employee.missing || [];
             const isPerfectMatch = totalFilters > 0 && missing.length === 0;
+            const initials = (employee.name || '?').trim().split(/\s+/).map(n => n[0]).join('').substring(0, 2).toUpperCase() || '?';
 
             // Match quality bar
             let matchBarHtml = '';
@@ -4048,8 +4773,15 @@
             </div>`;
 
             const isSelected = bulkSelectedIds.has(String(employee.id)) ? ' bulk-selected' : '';
+            const _hasRank = totalFilters > 0 && typeof index === 'number';
+            const _isTop = _hasRank && index === 0 && (employee.matchCount || 0) > 0;
+            const rankBadge = (_hasRank && index < 3 && !_isTop) ? `<span class="rank-badge">#${index + 1}</span>` : '';
+            const topRibbon = _isTop ? `<div class="top-ribbon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.6 6.6L21 9.3l-5 4.2 1.6 6.5L12 16.8 6.4 20l1.6-6.5-5-4.2 6.4-.7z"/></svg>Top match</div>` : '';
+            const cmpBtn = `<button class="card-compare${isSelected ? ' on' : ''}" title="Add to compare" onclick="toggleCompareCard(event, ${employee.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg></button>`;
+            const expWarn = (typeof window.__certExpiryChip === 'function') ? window.__certExpiryChip(employee) : '';
+            const explain = (totalFilters > 0 && typeof window.__matchExplain === 'function') ? window.__matchExplain(employee, totalFilters) : '';
 
-            return `<div class="employee-card${missing.length > 0 ? ' near-match' : ''}${isSelected}" data-employee-id="${employee.id}" onclick="handleCardClick(event, ${employee.id})">${distanceBadge}${matchBarHtml}${matchIndicator}${missingHtml}<div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div>${skillTagsHtml ? `<div class="employee-skills">${skillTagsHtml}</div>` : ''}${hoverExtra}</div>`;
+            return `<div class="employee-card${missing.length > 0 ? ' near-match' : ''}${isSelected}${_isTop ? ' top-match' : ''}${_hasRank ? ' has-rank' : ''}" data-employee-id="${employee.id}" onclick="handleCardClick(event, ${employee.id})">${distanceBadge}${rankBadge}${cmpBtn}${topRibbon}<div class="card-head"><div class="emp-avatar${isPerfectMatch ? ' is-perfect' : ''}">${initials}</div><div class="emp-id"><div class="employee-name">${employee.name}</div><div class="employee-role">${employee.role || 'No role specified'}</div></div></div><div class="employee-meta"><div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${employee.department || 'No dept'}</div>${employee.manager ? `<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>${employee.manager}</div>` : ''}<div class="meta-item"><svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${employee.postcode || 'N/A'}</div></div>${matchBarHtml}${explain}${matchIndicator}${missingHtml}${expWarn}${skillTagsHtml ? `<div class="employee-skills">${skillTagsHtml}</div>` : ''}${hoverExtra}</div>`;
         }
 
         function updateActiveFiltersDisplay() {
@@ -5074,6 +5806,9 @@
         let adminSelectedPresetId = null;
         let adminPendingChanges = new Map();
         let adminPresetPendingChanges = new Map();
+        // IDs arrive as strings from the DOM (data-*) but objects hold numeric IDs
+        // from demo data; normalise every comparison through this helper.
+        const sameId = (a, b) => String(a) === String(b);
         let adminInitialized = false;
 
         function initAdmin() {
@@ -5150,9 +5885,9 @@
                 !filter || e.name.toLowerCase().includes(filter) || e.department.toLowerCase().includes(filter)
             ).sort((a, b) => a.name.localeCompare(b.name));
             list.innerHTML = filtered.map(e =>
-                '<div class="admin-emp-item' + (adminSelectedEmpId === e.id ? ' selected' : '') + '" data-emp-id="' + e.id + '">' +
-                    e.name + '<span class="admin-emp-dept">' + e.department + '</span>' +
-                    (adminPendingChanges.has(e.id) ? '<span class="admin-unsaved-dot"></span>' : '') +
+                '<div class="admin-emp-item' + (sameId(adminSelectedEmpId, e.id) ? ' selected' : '') + '" data-emp-id="' + e.id + '">' +
+                    '<span class="admin-emp-name">' + e.name + '</span><span class="admin-emp-dept">' + e.department + '</span>' +
+                    (adminPendingChanges.has(String(e.id)) ? '<span class="admin-unsaved-dot"></span>' : '') +
                 '</div>'
             ).join('');
             list.querySelectorAll('.admin-emp-item').forEach(item => {
@@ -5161,8 +5896,8 @@
         }
 
         function selectAdminEmployee(empId) {
-            adminSelectedEmpId = empId;
-            const emp = allEmployees.find(e => e.id === empId);
+            adminSelectedEmpId = String(empId);
+            const emp = allEmployees.find(e => sameId(e.id, empId));
             if (!emp) return;
             renderAdminEmpList(document.getElementById('adminEmpSearch').value.toLowerCase());
             renderAdminEmployeeDetail(emp);
@@ -5193,7 +5928,7 @@
             }).join('');
 
             const sec = (icon, title, count, total, grid) =>
-                '<div class="admin-section"><div class="admin-section-title"><span style="display:flex;align-items:center;gap:8px;">' +
+                '<div class="admin-section" style="margin-bottom:16px;"><div class="admin-section-title"><span style="display:flex;align-items:center;gap:8px;">' +
                 icon + title + '</span><span>' + count + '/' + total + '</span></div>' + grid + '</div>';
 
             const hw = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/></svg>';
@@ -5217,7 +5952,7 @@
             if (!item || !adminSelectedEmpId) return;
             const category = item.dataset.category, value = item.dataset.value;
             if (!category || !value) return;
-            const emp = allEmployees.find(em => em.id === adminSelectedEmpId);
+            const emp = allEmployees.find(em => sameId(em.id, adminSelectedEmpId));
             if (!emp) return;
             const list = emp[category], idx = list.indexOf(value);
             if (idx >= 0) list.splice(idx, 1); else list.push(value);
@@ -5230,7 +5965,7 @@
             if (e.target.tagName !== 'SELECT') return;
             const training = e.target.dataset.training;
             if (!training || !adminSelectedEmpId) return;
-            const emp = allEmployees.find(em => em.id === adminSelectedEmpId);
+            const emp = allEmployees.find(em => sameId(em.id, adminSelectedEmpId));
             if (!emp) return;
             const rating = parseInt(e.target.value);
             if (rating === 0) delete emp.trainings[training]; else emp.trainings[training] = rating + '/5';
@@ -5245,7 +5980,7 @@
             if (!cell) return;
             const empId = cell.dataset.emp, skill = cell.dataset.skill, cat = cell.dataset.cat;
             if (!empId || !skill || !cat) return;
-            const emp = allEmployees.find(em => em.id === empId);
+            const emp = allEmployees.find(em => sameId(em.id, empId));
             if (!emp) return;
             if (e.target.type === 'checkbox') {
                 const list = emp[cat], idx = list.indexOf(skill);
@@ -5346,12 +6081,14 @@
 
         // --- Change Tracking ---
         function isFieldChanged(empId, category, item) {
+            empId = String(empId);
             if (!adminPendingChanges.has(empId)) return false;
             const changes = adminPendingChanges.get(empId);
             return changes[category] && changes[category].has(item);
         }
 
         function recordChange(empId, category, item) {
+            empId = String(empId);
             if (!adminPendingChanges.has(empId)) {
                 adminPendingChanges.set(empId, { hardware: new Set(), software: new Set(), accreditations: new Set(), trainings: new Set() });
             }
@@ -5360,6 +6097,7 @@
         }
 
         function recordPresetChange(presetId, field) {
+            presetId = String(presetId);
             if (!adminPresetPendingChanges.has(presetId)) adminPresetPendingChanges.set(presetId, new Set());
             adminPresetPendingChanges.get(presetId).add(field);
             updateSaveBar();
@@ -5392,9 +6130,9 @@
                 !filter || (p.workstream + ' ' + p.jobType).toLowerCase().includes(filter)
             ).sort((a, b) => (a.workstream + a.jobType).localeCompare(b.workstream + b.jobType));
             list.innerHTML = filtered.map(p =>
-                '<div class="admin-emp-item' + (adminSelectedPresetId === p.id ? ' selected' : '') + '" data-preset-id="' + p.id + '">' +
-                    p.jobType + '<span class="admin-emp-dept">' + p.workstream + '</span>' +
-                    (adminPresetPendingChanges.has(p.id) ? '<span class="admin-unsaved-dot"></span>' : '') +
+                '<div class="admin-emp-item' + (sameId(adminSelectedPresetId, p.id) ? ' selected' : '') + '" data-preset-id="' + p.id + '">' +
+                    '<span class="admin-emp-name">' + p.jobType + '</span><span class="admin-emp-dept">' + p.workstream + '</span>' +
+                    (adminPresetPendingChanges.has(String(p.id)) ? '<span class="admin-unsaved-dot"></span>' : '') +
                 '</div>'
             ).join('');
             list.querySelectorAll('.admin-emp-item').forEach(item => {
@@ -5403,8 +6141,8 @@
         }
 
         function selectAdminPreset(presetId) {
-            adminSelectedPresetId = presetId;
-            const preset = allPresets.find(p => p.id === presetId);
+            adminSelectedPresetId = String(presetId);
+            const preset = allPresets.find(p => sameId(p.id, presetId));
             if (!preset) return;
             renderAdminPresetList(document.getElementById('adminPresetSearch').value.toLowerCase());
             renderAdminPresetDetail(preset);
@@ -5433,7 +6171,7 @@
                 '<option value="5"' + (preset.minRating == 5 ? ' selected' : '') + '>5/5</option></select></div></div>';
 
             const sec = (title, count, total, grid) =>
-                '<div class="admin-section"><div class="admin-section-title"><span>' + title + '</span><span>' + count + '/' + total + '</span></div>' + grid + '</div>';
+                '<div class="admin-section" style="margin-bottom:16px;"><div class="admin-section-title"><span>' + title + '</span><span>' + count + '/' + total + '</span></div>' + grid + '</div>';
 
             html += sec('Required Hardware', preset.hardware.length, HARDWARE_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(HARDWARE_OPTIONS, preset.hardware, 'hardware') + '</div>');
             html += sec('Required Software', preset.software.length, SOFTWARE_OPTIONS.length, '<div class="admin-check-grid">' + makeCheckGrid(SOFTWARE_OPTIONS, preset.software, 'software') + '</div>');
@@ -5454,7 +6192,7 @@
             if (!item || !adminSelectedPresetId) return;
             const category = item.dataset.category, value = item.dataset.value;
             if (!category || !value) return;
-            const preset = allPresets.find(p => p.id === adminSelectedPresetId);
+            const preset = allPresets.find(p => sameId(p.id, adminSelectedPresetId));
             if (!preset) return;
             let list;
             if (category.startsWith('company_')) {
@@ -5473,7 +6211,7 @@
             if (e.target.tagName !== 'SELECT' || !adminSelectedPresetId) return;
             const field = e.target.dataset.field;
             if (!field) return;
-            const preset = allPresets.find(p => p.id === adminSelectedPresetId);
+            const preset = allPresets.find(p => sameId(p.id, adminSelectedPresetId));
             if (!preset) return;
             if (field === 'minRating') { preset.minRating = e.target.value; recordPresetChange(adminSelectedPresetId, 'minRating'); }
             renderAdminPresetDetail(preset);
@@ -5515,7 +6253,7 @@
             if (!cell) return;
             const presetId = cell.dataset.preset, skill = cell.dataset.skill, cat = cell.dataset.cat;
             if (!presetId || !skill || !cat) return;
-            const preset = allPresets.find(p => p.id === presetId);
+            const preset = allPresets.find(p => sameId(p.id, presetId));
             if (!preset) return;
             const list = cat === 'trainings' ? preset.training : preset[cat];
             const idx = list.indexOf(skill);
@@ -5688,8 +6426,8 @@
             document.getElementById('addNewItemModal').remove();
             if (adminEmpView === 'grid') renderMassEditGrid();
             if (adminPresetView === 'grid') renderPresetMassGrid();
-            if (adminSelectedEmpId) { const emp = allEmployees.find(em => em.id === adminSelectedEmpId); if (emp) renderAdminEmployeeDetail(emp); }
-            if (adminSelectedPresetId) { const p = allPresets.find(p => p.id === adminSelectedPresetId); if (p) renderAdminPresetDetail(p); }
+            if (adminSelectedEmpId) { const emp = allEmployees.find(em => sameId(em.id, adminSelectedEmpId)); if (emp) renderAdminEmployeeDetail(emp); }
+            if (adminSelectedPresetId) { const p = allPresets.find(p => sameId(p.id, adminSelectedPresetId)); if (p) renderAdminPresetDetail(p); }
         }
 
         // --- CSV Export ---
@@ -5754,7 +6492,7 @@
                 const siteId = await getSiteId(writeToken);
                 let ok = 0, fail = 0;
                 for (const [empId, changes] of adminPendingChanges) {
-                    const emp = allEmployees.find(em => em.id === empId);
+                    const emp = allEmployees.find(em => sameId(em.id, empId));
                     if (!emp) continue;
                     const patch = {};
                     if (changes.hardware.size > 0) patch.Hardware = emp.hardware;
@@ -5779,7 +6517,7 @@
                 const siteId = await getSiteId(writeToken);
                 let ok = 0, fail = 0;
                 for (const [presetId, changedFields] of adminPresetPendingChanges) {
-                    const p = allPresets.find(pr => pr.id === presetId);
+                    const p = allPresets.find(pr => sameId(pr.id, presetId));
                     if (!p) continue;
                     const patch = {};
                     if (changedFields.has('hardware')) patch.Hardware = p.hardware;
@@ -5805,5 +6543,424 @@
         }
 
     </script>
+<script>
+/* ====== Rebuild wiring: shell chrome, Home, Compare ====== */
+(function(){
+  function moveChrome(){
+    var foot=document.getElementById('dsSideFoot'); if(!foot) return;
+    ['.connection-status','#themeToggle','#userInfo'].forEach(function(sel){
+      var el=document.querySelector(sel); if(el && el.parentNode!==foot) foot.appendChild(el);
+    });
+  }
+  function ico(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p+'</svg>';}
+
+  window.renderHome=function(){
+    var el=document.getElementById('homeContent'); if(!el) return;
+    var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[]; var presets=(typeof allPresets!=='undefined'&&allPresets)?allPresets:[];
+    var depts=[...new Set(emps.map(function(e){return e.department;}).filter(Boolean))];
+    var trk=(typeof TRAINING_COLUMNS!=='undefined'&&TRAINING_COLUMNS)?TRAINING_COLUMNS.length:0;
+    var saved=(typeof savedSearches!=='undefined'&&savedSearches)?savedSearches:[];
+    var kpis=[
+      {n:emps.length,l:'Technicians',c:'k-pink',i:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'},
+      {n:depts.length,l:'Departments',c:'k-orange',i:'<path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/>'},
+      {n:presets.length,l:'Job presets',c:'k-green',i:'<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>'},
+      {n:trk,l:'Competencies tracked',c:'k-navy',i:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'}
+    ];
+    var quick=[
+      {t:'Find technicians',d:'Match people to a job + location',i:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',p:'search'},
+      {t:'Skill gaps',d:'See who needs training',i:'<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>',p:'gap'},
+      {t:'Workforce insights',d:'Coverage & reporting',i:'<rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>',p:'dashboard'},
+      {t:'Manage data',d:'Edit people & presets',i:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',p:'admin'}
+    ];
+    var h='';
+    h+='<section class="home-hero"><div class="ds-eyebrow">M Group Services</div>';
+    h+='<h1>Find the right technician for the job, fast.</h1>';
+    h+='<p>Match people to jobs by skills, kit, accreditations and location \u2014 then compare your shortlist side by side.</p>';
+    h+='<div class="home-hero-actions"><button class="home-cta" onclick="switchPage(\'search\')">'+ico('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>')+'Find technicians</button>';
+    h+='<button class="home-cta ghost" onclick="switchPage(\'dashboard\')">'+ico('<rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/>')+'View insights</button></div></section>';
+    h+='<div class="home-kpis">';
+    kpis.forEach(function(k){ h+='<div class="home-kpi"><div class="k-ico '+k.c+'">'+ico(k.i)+'</div><div class="k-num">'+k.n+'</div><div class="k-label">'+k.l+'</div></div>'; });
+    h+='</div>';
+    h+='<div class="home-cols"><div class="home-panel"><h3>Jump back in</h3><div class="sub">The four things this tool does</div><div class="home-quick-grid">';
+    quick.forEach(function(q){ h+='<button class="home-quick" onclick="switchPage(\''+q.p+'\')"><span class="q-ico">'+ico(q.i)+'</span><span><span class="q-title">'+q.t+'</span><span class="q-desc">'+q.d+'</span></span></button>'; });
+    h+='</div></div>';
+    h+='<div class="home-panel"><h3>Saved searches</h3><div class="sub">Your quick filters</div><div class="home-recent">';
+    if(saved.length){ saved.slice(0,6).forEach(function(s,i){ h+='<div class="home-recent-item" onclick="switchPage(\'search\'); if(window.loadSavedSearch)loadSavedSearch('+i+')"><span class="r-name">'+(s.name||('Search '+(i+1)))+'</span><span class="r-meta">open</span></div>'; }); }
+    else { h+='<div class="home-empty">No saved searches yet. Run a search and hit \u201cSave search\u201d.</div>'; }
+    h+='</div></div></div>';
+    el.innerHTML=h;
+  };
+
+  /* ---- Compare (uses existing bulk selection) ---- */
+  window.openCompare=function(){
+    var sel = (typeof getSelectedEmployees==='function') ? getSelectedEmployees() : [];
+    if(!sel || sel.length<2){ if(typeof showToast==='function') showToast('Select 2+ technicians (Ctrl/Cmd-click cards) to compare','info'); return; }
+    sel=sel.slice(0,4);
+    var sf=(typeof selectedFilters!=='undefined'&&selectedFilters)?selectedFilters:{trainings:[],hardware:[],software:[],accreditations:[]};
+    var minR=parseInt((document.getElementById('minTrainingRating')||{}).value)||1;
+    var enrich=function(e){ var lsr=(typeof lastSearchResults!=='undefined'&&lastSearchResults)?lastSearchResults:[]; var m=lsr.find(function(r){return String(r.id)===String(e.id);}); return m||e; };
+    function av(n){return (n||'?').trim().split(/\s+/).map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();}
+    function yn(b){return b?'<span class="cmp-yes">\u2713</span>':'<span class="cmp-no">\u2717</span>';}
+    var people=sel.map(enrich);
+    var totalF=(sf.trainings.length+sf.hardware.length+sf.software.length+sf.accreditations.length);
+    var h='<table><thead><tr><th></th>';
+    people.forEach(function(p){ h+='<th><div class="cmp-person"><div class="cmp-av">'+av(p.name)+'</div><div><div class="cmp-name">'+p.name+'</div><div class="cmp-role">'+(p.role||'')+'</div></div></div></th>'; });
+    h+='</tr></thead><tbody>';
+    if(totalF){ h+='<tr><th>Match score</th>'; people.forEach(function(p){ var pct=Math.round(((p.matchCount||0)/totalF)*100); h+='<td><span class="cmp-score">'+pct+'%</span></td>'; }); h+='</tr>'; }
+    h+='<tr><th>Department</th>'; people.forEach(function(p){ h+='<td>'+(p.department||'\u2014')+'</td>'; }); h+='</tr>';
+    h+='<tr><th>Manager</th>'; people.forEach(function(p){ h+='<td>'+(p.manager||'\u2014')+'</td>'; }); h+='</tr>';
+    h+='<tr><th>Postcode</th>'; people.forEach(function(p){ h+='<td>'+(p.postcode||'\u2014')+'</td>'; }); h+='</tr>';
+    if(people.some(function(p){return p.distance!=null && p.distance!==Infinity;})){ h+='<tr><th>Distance</th>'; people.forEach(function(p){ h+='<td>'+(p.distance!=null&&p.distance!==Infinity?('~'+Math.round(p.distance)+' mi'):'\u2014')+'</td>'; }); h+='</tr>'; }
+    sf.trainings.forEach(function(t){ var nm=t.replace(/^\[T\d+\]\s*/,''); h+='<tr><th>'+nm+'</th>'; people.forEach(function(p){ var r=(p.trainings||{})[t]; var ok=(typeof parseRating==='function'?parseRating(r):0)>=minR; h+='<td>'+yn(ok)+(r?' <span style="color:var(--text-muted);font-size:.8rem">'+r+'</span>':'')+'</td>'; }); h+='</tr>'; });
+    sf.hardware.forEach(function(x){ h+='<tr><th>'+x+'</th>'; people.forEach(function(p){ h+='<td>'+yn((p.hardware||[]).includes(x))+'</td>'; }); h+='</tr>'; });
+    sf.software.forEach(function(x){ h+='<tr><th>'+x+'</th>'; people.forEach(function(p){ h+='<td>'+yn((p.software||[]).includes(x))+'</td>'; }); h+='</tr>'; });
+    sf.accreditations.forEach(function(x){ h+='<tr><th>'+x+'</th>'; people.forEach(function(p){ h+='<td>'+yn((p.accreditations||[]).includes(x))+'</td>'; }); h+='</tr>'; });
+    if(!totalF){
+      h+='<tr><th>Trainings</th>'; people.forEach(function(p){ h+='<td>'+Object.keys(p.trainings||{}).map(function(k){return '<span class="cmp-tag">'+k.replace(/^\[T\d+\]\s*/,'')+'</span>';}).join('')||'\u2014'+'</td>'; }); h+='</tr>';
+      h+='<tr><th>Accreditations</th>'; people.forEach(function(p){ h+='<td>'+((p.accreditations||[]).map(function(k){return '<span class="cmp-tag">'+k+'</span>';}).join('')||'\u2014')+'</td>'; }); h+='</tr>';
+    }
+    h+='</tbody></table>';
+    document.getElementById('compareGridWrap').innerHTML=h;
+    var m=document.getElementById('compareModal'); m.classList.add('open'); document.body.style.overflow='hidden';
+  };
+  window.toggleCompareCard=function(ev,id){ ev.stopPropagation(); ev.preventDefault(); if(typeof bulkSelectedIds==='undefined')return; var sid=String(id); var btn=ev.currentTarget; var card=btn.closest('.employee-card'); if(bulkSelectedIds.has(sid)){bulkSelectedIds.delete(sid); if(card)card.classList.remove('bulk-selected'); btn.classList.remove('on');} else {bulkSelectedIds.add(sid); if(card)card.classList.add('bulk-selected'); btn.classList.add('on');} if(typeof updateBulkActionsBar==='function')updateBulkActionsBar(); injectCompareBtn(); };
+  window.clearCompare=function(){ if(typeof bulkSelectedIds!=='undefined'&&bulkSelectedIds&&bulkSelectedIds.clear)bulkSelectedIds.clear(); if(typeof updateBulkActionsBar==='function')updateBulkActionsBar(); document.querySelectorAll('.employee-card.bulk-selected').forEach(function(c){c.classList.remove('bulk-selected');}); document.querySelectorAll('.card-compare.on').forEach(function(c){c.classList.remove('on');}); };
+
+  function injectCompareBtn(){
+    var ba=document.getElementById('bulkActions'); if(!ba||document.getElementById('compareBtnInj'))return;
+    var b=document.createElement('button'); b.className='bulk-btn'; b.id='compareBtnInj';
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg> Compare';
+    b.onclick=window.openCompare; ba.insertBefore(b, ba.children[1]||null);
+  }
+
+  /* ---- Map view (Leaflet) ---- */
+  function setupMap(){
+    var vt=document.querySelector('.view-toggle'); var rc=document.getElementById('resultsContainer');
+    if(!vt||!rc||document.getElementById('mapViewBtn'))return;
+    var mv=document.createElement('div'); mv.id='mapView'; mv.innerHTML='<div id="techMap"></div>';
+    rc.parentNode.insertBefore(mv, rc.nextSibling);
+    var b=document.createElement('button'); b.className='view-toggle-btn'; b.id='mapViewBtn'; b.title='Map view';
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>';
+    b.onclick=function(){ showMap(true); };
+    vt.appendChild(b);
+    ['gridViewBtn','listViewBtn'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('click', function(){ showMap(false); }); });
+  }
+  function showMap(on){
+    var mv=document.getElementById('mapView'), rc=document.getElementById('resultsContainer'); if(!mv||!rc)return;
+    var mb=document.getElementById('mapViewBtn');
+    if(on){ document.querySelectorAll('.view-toggle-btn').forEach(function(x){x.classList.remove('active');}); if(mb)mb.classList.add('active'); mv.classList.add('show'); rc.style.display='none'; window.renderMap(); }
+    else { mv.classList.remove('show'); rc.style.display=''; if(mb)mb.classList.remove('active'); }
+  }
+  window.renderMap=async function(){
+    var mv=document.getElementById('mapView'); if(!mv)return;
+    if(typeof L==='undefined'){ mv.innerHTML='<div class="map-hint">'+ico('<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>')+'<div>Map could not load (network blocked). Everything else works.</div></div>'; return; }
+    if(!document.getElementById('techMap')) mv.innerHTML='<div id="techMap"></div>';
+    var host=document.getElementById('techMap');
+    var emps=(typeof lastSearchResults!=='undefined'&&lastSearchResults.length)?lastSearchResults:((typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[]);
+    if(window.__techMap){ try{window.__techMap.remove();}catch(e){} window.__techMap=null; host.innerHTML=''; }
+    var map=L.map(host).setView([54.2,-2.5],5); window.__techMap=map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'\u00a9 OpenStreetMap'}).addTo(map);
+    var pts=[];
+    if(typeof jobCoordinates!=='undefined'&&jobCoordinates){ L.marker([jobCoordinates.lat,jobCoordinates.lng]).addTo(map).bindPopup('<div class="map-pin-pop"><b>Job location</b></div>'); pts.push([jobCoordinates.lat,jobCoordinates.lng]); }
+    var tasks=emps.filter(function(e){return e.postcode&&e.postcode!=='N/A';}).slice(0,60).map(async function(e){
+      try{ var c=(typeof getCoordinatesFromLocation==='function')?await getCoordinatesFromLocation(e.postcode):null;
+        if(c){ var d=(e.distance!=null&&e.distance!==Infinity)?(' \u00b7 ~'+Math.round(e.distance)+' mi away'):'';
+          L.circleMarker([c.lat,c.lng],{radius:8,color:'#fff',weight:2,fillColor:'#e91e8c',fillOpacity:.9}).addTo(map)
+            .bindPopup('<div class="map-pin-pop"><b>'+e.name+'</b><br><span>'+(e.role||'')+' \u00b7 '+e.postcode+d+'</span></div>'); pts.push([c.lat,c.lng]); } }catch(err){}
+    });
+    await Promise.all(tasks);
+    if(pts.length){ try{ map.fitBounds(pts,{padding:[40,40],maxZoom:11}); }catch(e){} }
+    setTimeout(function(){ try{map.invalidateSize();}catch(e){} },180);
+  };
+
+  /* ---- wrap nav + login to render Home ---- */
+  function wrap(name, after){ var o=window[name]; if(typeof o!=='function')return; window[name]=function(){ var r=o.apply(this,arguments); try{after.apply(this,arguments);}catch(e){console.error(e);} return r; }; }
+  function start(){
+    moveChrome(); injectCompareBtn(); setupMap();
+    wrap('switchPage', function(p){ if(p==='home') window.renderHome(); });
+    wrap('testLogin', function(){ injectCompareBtn(); window.renderHome(); });
+    wrap('showApp', function(){ injectCompareBtn(); });
+    var oFetch=window.fetchEmployees;
+    if(typeof oFetch==='function'){ window.fetchEmployees=function(){ var r=oFetch.apply(this,arguments); Promise.resolve(r).then(function(){ window.renderHome(); injectCompareBtn(); }); return r; }; }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
+<script>
+/* ====== Feature module: expiry, scoring, ⌘K, crews, reverse-search, dashboard depth, map radius, caching ====== */
+(function(){
+  function ico(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'+p+'</svg>';}
+  function days(dStr){ var d=new Date(dStr); if(isNaN(d))return null; return Math.round((d-Date.now())/86400000); }
+  function empExpiries(e){
+    var out=[];
+    if(e && e.expiries && typeof e.expiries==='object'){ Object.keys(e.expiries).forEach(function(k){ if(e.expiries[k]) out.push({name:k,date:e.expiries[k]}); }); }
+    (e&&e.accreditations||[]).forEach(function(a){ var m=String(a).match(/(\d{4}-\d{2}-\d{2})/); if(m && !out.some(function(o){return o.name===a;})) out.push({name:String(a).replace(/\s*\(?exp[:\s].*$/i,'').trim(),date:m[1]}); });
+    return out;
+  }
+  function initials(n){ return (n||'?').trim().split(/\s+/).map(function(w){return w[0];}).join('').substring(0,2).toUpperCase(); }
+
+  /* 1. CERT EXPIRY chip */
+  window.__certExpiryChip=function(e){
+    var ex=empExpiries(e).map(function(o){return {name:o.name,d:days(o.date)};}).filter(function(o){return o.d!==null;});
+    if(!ex.length)return ''; ex.sort(function(a,b){return a.d-b.d;}); var s=ex[0];
+    if(s.d<0) return '<div class="exp-chip exp-red">'+ico('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>')+s.name+' expired</div>';
+    if(s.d<=60) return '<div class="exp-chip exp-amber">'+ico('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>')+s.name+' expires in '+s.d+'d</div>';
+    return '';
+  };
+
+  /* 2. MATCH EXPLAIN */
+  window.__matchExplain=function(e,totalF){
+    if(!totalF)return ''; var met=(e.matchCount||0), miss=(e.missing||[]).length;
+    var parts='<span class="me-dot"><b>'+met+'/'+totalF+'</b>&nbsp;requirements</span>';
+    if(miss>0) parts+='<span class="me-dot warn">'+miss+' near-miss</span>';
+    if(e.distance!=null&&e.distance!==Infinity) parts+='<span class="me-dot dist">~'+Math.round(e.distance)+' mi</span>';
+    return '<div class="match-explain">'+parts+'</div>';
+  };
+
+  /* 3. PRIORITISE weighting */
+  window.__matchWeight='balanced';
+  var oDisplay=window.displayResults;
+  if(typeof oDisplay==='function'){
+    window.displayResults=function(emps){
+      try{ if(Array.isArray(emps)&&window.__matchWeight!=='balanced'){ emps=emps.slice();
+        if(window.__matchWeight==='skills') emps.sort(function(a,b){return (b.matchCount||0)-(a.matchCount||0);});
+        else if(window.__matchWeight==='nearest') emps.sort(function(a,b){return (a.distance==null?Infinity:a.distance)-(b.distance==null?Infinity:b.distance);});
+      } }catch(e){}
+      return oDisplay.call(this,emps);
+    };
+  }
+  function injectPrio(){
+    var tb=document.querySelector('.results-toolbar-right'); if(!tb||document.getElementById('prioCtl'))return;
+    var w=document.createElement('div'); w.className='prio-control'; w.id='prioCtl';
+    w.innerHTML='<span class="pl">Prioritise</span><div class="prio-seg">'+['balanced|Balanced','skills|Best skills','nearest|Nearest'].map(function(o){var p=o.split('|');return '<button data-w="'+p[0]+'"'+(p[0]==='balanced'?' class="active"':'')+'>'+p[1]+'</button>';}).join('')+'</div>';
+    tb.insertBefore(w, tb.firstChild);
+    w.querySelectorAll('button').forEach(function(b){ b.onclick=function(){ window.__matchWeight=b.dataset.w; w.querySelectorAll('button').forEach(function(x){x.classList.remove('active');}); b.classList.add('active'); if(typeof lastSearchResults!=='undefined'&&lastSearchResults.length) window.displayResults(lastSearchResults); }; });
+  }
+
+  /* 4. COMMAND PALETTE */
+  var cmdkSel=0, cmdkItems=[];
+  function buildCmdk(){
+    if(document.getElementById('cmdkOverlay'))return;
+    var o=document.createElement('div'); o.className='cmdk-overlay'; o.id='cmdkOverlay';
+    o.innerHTML='<div class="cmdk"><div class="cmdk-in">'+ico('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>')+'<input id="cmdkInput" placeholder="Search people, job types, screens\u2026" /></div><div class="cmdk-list" id="cmdkList"></div></div>';
+    document.body.appendChild(o);
+    o.addEventListener('click',function(e){ if(e.target===o) closeCmdk(); });
+    var inp=document.getElementById('cmdkInput');
+    inp.addEventListener('input',function(){ cmdkSel=0; renderCmdk(this.value); });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'){e.preventDefault();cmdkSel=Math.min(cmdkSel+1,cmdkItems.length-1);hi();}
+      else if(e.key==='ArrowUp'){e.preventDefault();cmdkSel=Math.max(cmdkSel-1,0);hi();}
+      else if(e.key==='Enter'){e.preventDefault();if(cmdkItems[cmdkSel])cmdkItems[cmdkSel].act();}
+      else if(e.key==='Escape'){closeCmdk();}
+    });
+  }
+  function hi(){ document.querySelectorAll('#cmdkList .cmdk-item').forEach(function(el,i){el.classList.toggle('sel',i===cmdkSel); if(i===cmdkSel)el.scrollIntoView({block:'nearest'});}); }
+  function renderCmdk(q){
+    q=(q||'').toLowerCase().trim(); var list=document.getElementById('cmdkList'); cmdkItems=[];
+    var screens=[['home','Home'],['search','Find technicians'],['gap','Skill gap'],['dashboard','Dashboard'],['admin','Admin']];
+    var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
+    var presets=(typeof allPresets!=='undefined'&&allPresets)?allPresets:[];
+    var html='';
+    var sM=screens.filter(function(s){return !q||s[1].toLowerCase().includes(q);});
+    if(sM.length){ html+='<div class="cmdk-group">Go to</div>'; sM.forEach(function(s){ var idx=cmdkItems.length; cmdkItems.push({act:function(){switchPage(s[0]);closeCmdk();}}); html+='<div class="cmdk-item" data-i="'+idx+'"><span class="ci-ic muted">'+ico('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>')+'</span><span class="ci-t">'+s[1]+'</span></div>'; }); }
+    var pM=emps.filter(function(e){return q&&((e.name||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q)||(e.department||'').toLowerCase().includes(q));}).slice(0,8);
+    if(pM.length){ html+='<div class="cmdk-group">People</div>'; pM.forEach(function(e){ var idx=cmdkItems.length; cmdkItems.push({act:function(){closeCmdk(); if(typeof openEmployeeModal==='function')openEmployeeModal(e.id);}}); html+='<div class="cmdk-item" data-i="'+idx+'"><span class="ci-ic">'+initials(e.name)+'</span><span><span class="ci-t">'+e.name+'</span><br><span class="ci-s">'+(e.role||'')+' \u00b7 '+(e.department||'')+'</span></span></div>'; }); }
+    var jM=presets.filter(function(p){return q&&((p.jobType||'').toLowerCase().includes(q)||(p.workstream||'').toLowerCase().includes(q));}).slice(0,6);
+    if(jM.length){ html+='<div class="cmdk-group">Match everyone to a job</div>'; jM.forEach(function(p){ var idx=cmdkItems.length; cmdkItems.push({act:function(){closeCmdk(); window.reverseSearch(p.workstream,p.jobType);}}); html+='<div class="cmdk-item" data-i="'+idx+'"><span class="ci-ic muted">'+ico('<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>')+'</span><span><span class="ci-t">'+p.jobType+'</span><br><span class="ci-s">'+p.workstream+'</span></span></div>'; }); }
+    list.innerHTML=html||'<div class="cmdk-empty">No matches</div>';
+    list.querySelectorAll('.cmdk-item').forEach(function(el){ el.onclick=function(){ var i=+el.dataset.i; if(cmdkItems[i])cmdkItems[i].act(); }; });
+    hi();
+  }
+  function openCmdk(){ buildCmdk(); document.getElementById('cmdkOverlay').classList.add('open'); var inp=document.getElementById('cmdkInput'); inp.value=''; renderCmdk(''); setTimeout(function(){inp.focus();},30); }
+  function closeCmdk(){ var o=document.getElementById('cmdkOverlay'); if(o)o.classList.remove('open'); }
+  document.addEventListener('keydown',function(e){ if((e.metaKey||e.ctrlKey)&&(e.key==='k'||e.key==='K')){ e.preventDefault(); var o=document.getElementById('cmdkOverlay'); if(o&&o.classList.contains('open'))closeCmdk(); else openCmdk(); } });
+  function injectCmdkHint(){ var nav=document.querySelector('.ds-nav'); if(!nav||document.getElementById('cmdkHint'))return; var b=document.createElement('div'); b.className='cmdk-hint'; b.id='cmdkHint'; b.innerHTML=ico('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>')+'<span>Quick find</span><kbd>\u2318K</kbd>'; b.onclick=openCmdk; nav.parentNode.insertBefore(b, nav.nextSibling); }
+
+  /* 5. REVERSE SEARCH */
+  window.reverseSearch=function(ws,jt){
+    var presets=(typeof allPresets!=='undefined'&&allPresets)?allPresets:[];
+    var p=presets.find(function(x){return x.workstream===ws&&x.jobType===jt;}); if(!p){switchPage('search');return;}
+    if(typeof selectedFilters!=='undefined'){ selectedFilters.trainings=(p.training||[]).slice(); selectedFilters.hardware=(p.hardware||[]).slice(); selectedFilters.software=(p.software||[]).slice(); selectedFilters.accreditations=(p.accreditations||[]).slice(); }
+    var mr=document.getElementById('minTrainingRating'); if(mr&&p.minRating)mr.value=p.minRating;
+    switchPage('search'); if(typeof performSearch==='function') performSearch();
+    if(typeof showToast==='function') showToast('Ranked the workforce against '+jt,'info');
+  };
+
+  /* 6. CREWS / shortlists + bulk email/teams */
+  function loadCrews(){ try{return JSON.parse(localStorage.getItem('sm_crews')||'[]');}catch(e){return [];} }
+  function saveCrews(c){ try{localStorage.setItem('sm_crews',JSON.stringify(c));}catch(e){} }
+  window.saveCrew=function(){
+    var sel=(typeof getSelectedEmployees==='function')?getSelectedEmployees():[];
+    if(!sel.length){ if(typeof showToast==='function')showToast('Select technicians first (compare toggle on cards)','info'); return; }
+    var name=prompt('Name this crew / shortlist:', 'Crew '+(loadCrews().length+1)); if(!name)return;
+    var c=loadCrews(); c.unshift({name:name.trim(),ids:sel.map(function(e){return String(e.id);}),when:Date.now()}); saveCrews(c);
+    if(typeof showToast==='function')showToast('Saved crew \u201c'+name.trim()+'\u201d');
+    if(document.getElementById('page-home')&&document.getElementById('page-home').classList.contains('active')&&typeof renderHome==='function')renderHome();
+  };
+  window.openCrew=function(i){ var c=loadCrews()[i]; if(!c)return; switchPage('search');
+    setTimeout(function(){ if(typeof bulkSelectedIds==='undefined')return; if(bulkSelectedIds.clear)bulkSelectedIds.clear();
+      c.ids.forEach(function(id){bulkSelectedIds.add(String(id));});
+      document.querySelectorAll('.employee-card[data-employee-id]').forEach(function(card){ if(c.ids.indexOf(card.dataset.employeeId)>=0){card.classList.add('bulk-selected'); var cb=card.querySelector('.card-compare'); if(cb)cb.classList.add('on');} });
+      if(typeof updateBulkActionsBar==='function')updateBulkActionsBar(); if(typeof openCompare==='function')openCompare();
+    },350);
+  };
+  window.deleteCrew=function(i,ev){ if(ev)ev.stopPropagation(); var c=loadCrews(); c.splice(i,1); saveCrews(c); if(typeof renderHome==='function')renderHome(); };
+  function emailSelected(){ var sel=(typeof getSelectedEmployees==='function')?getSelectedEmployees():[]; if(!sel.length)return; var emails=sel.map(function(e){return e.email;}).filter(Boolean).join(';'); var body=sel.map(function(e){return e.name+' \u2014 '+(e.role||'')+' ('+(e.postcode||'')+')';}).join('\n'); window.location.href='mailto:'+emails+'?subject='+encodeURIComponent('Skills Matrix shortlist')+'&body='+encodeURIComponent('Shortlisted technicians:\n\n'+body); }
+  function teamsSelected(){ var sel=(typeof getSelectedEmployees==='function')?getSelectedEmployees():[]; if(!sel.length)return; var emails=sel.map(function(e){return e.email;}).filter(Boolean).join(','); window.open('https://teams.microsoft.com/l/chat/0/0?users='+encodeURIComponent(emails),'_blank'); }
+  function injectCrewBtn(){ var ba=document.getElementById('bulkActions'); if(!ba)return;
+    if(!document.getElementById('crewBtnInj')){ var b=document.createElement('button'); b.className='bulk-btn'; b.id='crewBtnInj'; b.innerHTML=ico('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/>')+' Save crew'; b.onclick=window.saveCrew; ba.appendChild(b); }
+    if(!document.getElementById('emailBtnInj')){ var em=document.createElement('button'); em.className='bulk-btn'; em.id='emailBtnInj'; em.innerHTML=ico('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/>')+' Email'; em.onclick=emailSelected; ba.appendChild(em);
+      var tm=document.createElement('button'); tm.className='bulk-btn'; tm.id='teamsBtnInj'; tm.innerHTML=ico('<path d="M14 9V5a3 3 0 0 0-6 0v4"/><rect x="2" y="9" width="20" height="11" rx="2"/>')+' Teams'; tm.onclick=teamsSelected; ba.appendChild(tm); }
+  }
+
+  /* 7. HOME additions */
+  var oHome=window.renderHome;
+  window.renderHome=function(){
+    if(typeof oHome==='function')oHome.apply(this,arguments);
+    var host=document.getElementById('homeContent'); if(!host)return;
+    var cols=host.querySelector('.home-cols'); if(!cols)return;
+    if(!document.getElementById('revPanel')){
+      var presets=(typeof allPresets!=='undefined'&&allPresets)?allPresets:[];
+      var wss=[]; presets.forEach(function(p){ if(p.workstream&&wss.indexOf(p.workstream)<0)wss.push(p.workstream); });
+      var rp=document.createElement('div'); rp.className='home-panel'; rp.id='revPanel'; rp.style.marginBottom='20px';
+      rp.innerHTML='<h3>Match everyone to a job</h3><div class="sub">Pick a job type and instantly rank the whole workforce against it</div><div class="rev-form"><div class="rf-field"><label>Workstream</label><select id="revWs"><option value="">Select\u2026</option>'+wss.map(function(w){return '<option>'+w+'</option>';}).join('')+'</select></div><div class="rf-field"><label>Job type</label><select id="revJt" disabled><option value="">Select workstream first</option></select></div><button class="btn btn-primary" style="width:auto;margin:0;" id="revGo">Rank workforce</button></div>';
+      cols.parentNode.insertBefore(rp, cols);
+      var ws=document.getElementById('revWs'), jt=document.getElementById('revJt');
+      ws.onchange=function(){ var v=ws.value; jt.innerHTML='<option value="">Select\u2026</option>'+presets.filter(function(p){return p.workstream===v;}).map(function(p){return '<option>'+p.jobType+'</option>';}).join(''); jt.disabled=!v; };
+      document.getElementById('revGo').onclick=function(){ if(ws.value&&jt.value)window.reverseSearch(ws.value,jt.value); else if(typeof showToast==='function')showToast('Pick a workstream and job type','info'); };
+    }
+    var crews=loadCrews();
+    var cp=document.createElement('div'); cp.className='home-panel'; cp.style.marginTop='20px';
+    cp.innerHTML='<h3>Saved crews</h3><div class="sub">Shortlists you\u2019ve saved</div>'+(crews.length?('<div class="home-recent">'+crews.slice(0,6).map(function(c,i){return '<div class="home-recent-item" onclick="openCrew('+i+')"><span class="r-name">'+c.name+'</span><span class="r-meta">'+c.ids.length+' people</span><button onclick="deleteCrew('+i+',event)" style="background:none;border:none;cursor:pointer;color:var(--text-muted);margin-left:8px;font-size:1rem;">\u2715</button></div>';}).join('')+'</div>'):'<div class="home-empty">Select technicians on Search and hit \u201cSave crew\u201d.</div>');
+    var panels=cols.querySelectorAll('.home-panel'); if(panels.length) panels[panels.length-1].appendChild(cp); else cols.appendChild(cp);
+    addExpiryAlert(host);
+  };
+  function addExpiryAlert(host){
+    if(document.getElementById('expAlert'))return;
+    var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[]; var soon=0,expd=0;
+    emps.forEach(function(e){ empExpiries(e).forEach(function(o){ var d=days(o.date); if(d===null)return; if(d<0)expd++; else if(d<=60)soon++; }); });
+    if(!soon&&!expd)return; var kpis=host.querySelector('.home-kpis'); if(!kpis)return;
+    var a=document.createElement('div'); a.id='expAlert'; a.className='home-panel'; a.style.cssText='margin-bottom:20px;border-color:rgba(239,68,68,.3);display:flex;align-items:center;gap:14px;';
+    a.innerHTML='<span class="k-ico" style="background:rgba(239,68,68,.12);color:#dc2626;margin:0;">'+ico('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>')+'</span><div><div style="font-weight:700;">'+(expd?expd+' expired':'')+(expd&&soon?' \u00b7 ':'')+(soon?soon+' expiring soon':'')+'</div><div style="color:var(--text-muted);font-size:.85rem;">Accreditations need attention \u2014 see Dashboard for the full list</div></div><button class="btn btn-secondary" style="width:auto;margin:0 0 0 auto;padding:9px 16px;" onclick="switchPage(\u0027dashboard\u0027)">View</button>';
+    kpis.parentNode.insertBefore(a, kpis.nextSibling);
+  }
+
+  /* 8. DASHBOARD depth */
+  var oDash=window.renderDashboard;
+  window.renderDashboard=function(){
+    var c=document.getElementById('dashboardContent');
+    var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
+    if(!c||!emps.length){ if(typeof oDash==='function')return oDash.apply(this,arguments); return; }
+    var presets=(typeof allPresets!=='undefined'&&allPresets)?allPresets:[];
+    var TR=(typeof TRAINING_COLUMNS!=='undefined'&&TRAINING_COLUMNS)?TRAINING_COLUMNS:[];
+    var ACC=(typeof ACCREDITATION_OPTIONS!=='undefined'&&ACCREDITATION_OPTIONS)?ACCREDITATION_OPTIONS:[];
+    var HW=(typeof HARDWARE_OPTIONS!=='undefined'&&HARDWARE_OPTIONS)?HARDWARE_OPTIONS:[];
+    var SW=(typeof SOFTWARE_OPTIONS!=='undefined'&&SOFTWARE_OPTIONS)?SOFTWARE_OPTIONS:[];
+    var pr=(typeof parseRating==='function')?parseRating:function(v){var m=String(v||'').match(/\d/);return m?+m[0]:0;};
+    var n=emps.length;
+    var depts={}; emps.forEach(function(e){var d=e.department||'Unassigned'; depts[d]=(depts[d]||0)+1;});
+    var deptArr=Object.entries(depts).sort(function(a,b){return b[1]-a[1];});
+    var avgSkills=(emps.reduce(function(s,e){var t=Object.keys(e.trainings||{}).filter(function(k){return e.trainings[k]&&e.trainings[k]!=='N/A';}).length; return s+t+(e.hardware||[]).length+(e.software||[]).length+(e.accreditations||[]).length;},0)/n).toFixed(1);
+    function cov(opts, has){ return opts.map(function(o){return [o, emps.filter(function(e){return has(e,o);}).length];}).sort(function(a,b){return b[1]-a[1];}); }
+    var trCov=TR.map(function(t){var cnt=emps.filter(function(e){return pr(e.trainings&&e.trainings[t])>0;}).length; var sum=0,c2=0; emps.forEach(function(e){var r=pr(e.trainings&&e.trainings[t]); if(r>0){c2++;sum+=r;}}); return {name:t,count:cnt,avg:c2?(sum/c2):0};}).sort(function(a,b){return b.count-a.count;});
+    var accCov=cov(ACC,function(e,o){return (e.accreditations||[]).includes(o);});
+    var hwCov=cov(HW,function(e,o){return (e.hardware||[]).includes(o);});
+    var swCov=cov(SW,function(e,o){return (e.software||[]).includes(o);});
+    var lowRatings=trCov.filter(function(t){return t.count>0;}).slice().sort(function(a,b){return a.avg-b.avg;}).slice(0,5);
+    var rareAccs=accCov.filter(function(a){return a[1]>0;}).slice().reverse().slice(0,5);
+    var exps=[]; emps.forEach(function(e){ empExpiries(e).forEach(function(o){var d=days(o.date); if(d!==null&&d<=120)exps.push({nm:e.name,cn:o.name,d:d});}); }); exps.sort(function(a,b){return a.d-b.d;});
+    var counts={}; emps.forEach(function(e){(e.accreditations||[]).forEach(function(a){counts['A:'+a]=(counts['A:'+a]||0)+1;}); Object.keys(e.trainings||{}).forEach(function(t){ if(pr(e.trainings[t])>0) counts['T:'+t]=(counts['T:'+t]||0)+1;});});
+    var spof=Object.keys(counts).filter(function(k){return counts[k]===1;}).map(function(k){return k.slice(2).replace(/^\[T\d+\]\s*/,'');});
+
+    function bars(arr, color){ if(!arr.length)return '<div class="dash-empty">No data</div>'; return '<div class="dash-bar-chart">'+arr.slice(0,8).map(function(it){ var name=it.name!=null?it.name:it[0]; var cnt=it.count!=null?it.count:it[1]; var sn=String(name).replace(/^\[T\d+\]\s*/,''); var pct=Math.round((cnt/n)*100); return '<div class="dash-bar-row"><span class="dash-bar-label" title="'+sn+'">'+sn+'</span><div class="dash-bar-track"><div class="dash-bar-fill" style="width:'+pct+'%;background:'+color+';"></div></div><span class="dash-bar-count">'+cnt+'</span></div>'; }).join('')+'</div>'; }
+    function card(icon,title,body){ return '<div class="dash-card"><h3>'+ico(icon)+title+'</h3>'+body+'</div>'; }
+
+    var H='<div class="dboard">';
+    var kpis=[[n,'Technicians','<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
+      [deptArr.length,'Departments','<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'],
+      [avgSkills,'Avg skills / person','<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>'],
+      [presets.length,'Job presets','<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>']];
+    H+='<div class="dboard-kpis">'+kpis.map(function(k){return '<div class="dboard-kpi"><span class="k-ic">'+ico(k[2])+'</span><div class="k-n">'+k[0]+'</div><div class="k-l">'+k[1]+'</div></div>';}).join('')+'</div>';
+
+    if(exps.length || spof.length){
+      var expBody = exps.length? exps.slice(0,8).map(function(x){var cls=x.d<0?'red':(x.d<=60?'amber':'');var lbl=x.d<0?Math.abs(x.d)+'d ago':'in '+x.d+'d';return '<div class="dash-exp-row"><span>'+x.nm+' \u2014 <b>'+x.cn+'</b></span><span class="dash-exp-when '+cls+'">'+lbl+'</span></div>';}).join('') : '<div class="dash-empty">No expiries in the next 120 days.</div>';
+      var spofBody='<div style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;">Skills held by only one person \u2014 a coverage risk.</div>'+(spof.length?spof.map(function(s){return '<span class="dash-spof-tag">'+s+'</span>';}).join(''):'<div class="dash-empty">None \u2014 good redundancy.</div>');
+      H+='<div class="dboard-section"><div class="dboard-shead">Needs attention</div><div class="dboard-grid">'+
+        card('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',' Upcoming cert expiries',expBody)+
+        card('<path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/>',' Single points of failure',spofBody)+
+        '</div></div>';
+    }
+
+    H+='<div class="dboard-section"><div class="dboard-shead">Capability coverage</div><div class="dboard-grid">'+
+      card('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',' Training',bars(trCov,'var(--accent-green)'))+
+      card('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',' Accreditations',bars(accCov,'#0891b2'))+
+      card('<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',' Hardware',bars(hwCov,'var(--accent-orange)'))+
+      card('<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',' Software',bars(swCov,'var(--accent-purple)'))+
+      '</div></div>';
+
+    if(presets.length && typeof calcGapScore==='function'){
+      var tiles=presets.map(function(p){ var ready=emps.filter(function(e){var s=calcGapScore(e,p);return s&&s.total>0&&s.met===s.total;}).length; var pct=Math.round((ready/n)*100); var cls=pct>=50?'full':(pct>=20?'mid':'low'); return '<div class="job-tile"><div><span class="jt-pct '+cls+'">'+pct+'%</span><span class="jt-name">'+p.jobType+'</span><div class="jt-ws">'+p.workstream+'</div></div><div class="jt-bar"><div class="jt-fill" style="width:'+pct+'%"></div></div><div class="jt-foot"><b>'+ready+'</b> of '+n+' fully ready</div></div>'; }).join('');
+      H+='<div class="dboard-section"><div class="dboard-shead">Job readiness</div>'+card('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',' Workforce ready per job type','<div class="job-grid">'+tiles+'</div>')+'</div>';
+    }
+
+    var deptBody='<div class="dash-dept-grid">'+deptArr.map(function(d){return '<div class="dash-dept-box"><div class="dept-count">'+d[1]+'</div><div class="dept-name" title="'+d[0]+'">'+d[0]+'</div></div>';}).join('')+'</div>';
+    var lowBody = lowRatings.length? '<div class="dash-list">'+lowRatings.map(function(t){var sn=String(t.name).replace(/^\[T\d+\]\s*/,'');return '<div class="dash-list-item"><span class="dash-list-name">'+sn+'</span><span class="dash-list-value">'+t.avg.toFixed(1)+'/5 avg ('+t.count+')</span></div>';}).join('')+'</div>' : '<div class="dash-empty">No training data yet</div>';
+    var rareBody = rareAccs.length? '<div class="dash-list">'+rareAccs.map(function(a){return '<div class="dash-list-item"><span class="dash-list-name">'+a[0]+'</span><span class="dash-list-value">'+(a[1]===1?'1 person':a[1]+' people')+'</span></div>';}).join('')+'</div>' : '<div class="dash-empty">No accreditation data yet</div>';
+    H+='<div class="dboard-section"><div class="dboard-shead">Insights</div><div class="dboard-grid cols-3">'+
+      card('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',' Employees by department',deptBody)+
+      card('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',' Lowest avg training',lowBody)+
+      card('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',' Rarest accreditations',rareBody)+
+      '</div></div>';
+
+    H+='</div>';
+    c.innerHTML=H;
+  };
+
+  /* 9. MAP radius (supersede renderMap with radius support) */
+  window.renderMap=async function(){
+    var mv=document.getElementById('mapView'); if(!mv)return;
+    if(typeof L==='undefined'){ mv.innerHTML='<div class="map-hint">'+ico('<polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>')+'<div>Map could not load (network blocked). Everything else works.</div></div>'; return; }
+    if(!document.getElementById('mapControls')){ var mc=document.createElement('div'); mc.className='map-controls'; mc.id='mapControls'; mc.innerHTML='<label>Show within</label><input type="number" id="mapRadius" min="0" step="5" placeholder="all" value="'+(window.__mapRadius||'')+'" /><label>miles of job</label><span class="mc-note" id="mapNote"></span>'; mv.insertBefore(mc, mv.firstChild); document.getElementById('mapRadius').addEventListener('change',function(){ window.__mapRadius=parseFloat(this.value)||0; window.renderMap(); }); }
+    if(!document.getElementById('techMap')){ var t=document.createElement('div'); t.id='techMap'; mv.appendChild(t); }
+    var host=document.getElementById('techMap');
+    var hasJob=(typeof jobCoordinates!=='undefined'&&jobCoordinates);
+    var rad=window.__mapRadius||0;
+    document.getElementById('mapNote').textContent = hasJob ? (rad?('Within '+rad+' mi of job'):'Set a radius to filter') : 'Set a Job Location in Search to enable radius';
+    var emps=(typeof lastSearchResults!=='undefined'&&lastSearchResults.length)?lastSearchResults:((typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[]);
+    if(rad&&hasJob) emps=emps.filter(function(e){return e.distance!=null&&e.distance!==Infinity&&e.distance<=rad;});
+    if(window.__techMap){ try{window.__techMap.remove();}catch(e){} window.__techMap=null; host.innerHTML=''; }
+    var map=L.map(host).setView([54.2,-2.5],5); window.__techMap=map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'\u00a9 OpenStreetMap'}).addTo(map);
+    var pts=[];
+    if(hasJob){ L.marker([jobCoordinates.lat,jobCoordinates.lng]).addTo(map).bindPopup('<div class="map-pin-pop"><b>Job location</b></div>'); pts.push([jobCoordinates.lat,jobCoordinates.lng]); if(rad){ try{ L.circle([jobCoordinates.lat,jobCoordinates.lng],{radius:rad*1609,color:'#e91e8c',weight:1,fillColor:'#e91e8c',fillOpacity:.06}).addTo(map); }catch(e){} } }
+    var tasks=emps.filter(function(e){return e.postcode&&e.postcode!=='N/A';}).slice(0,60).map(async function(e){
+      try{ var c=(typeof getCoordinatesFromLocation==='function')?await getCoordinatesFromLocation(e.postcode):null;
+        if(c){ var d=(e.distance!=null&&e.distance!==Infinity)?(' \u00b7 ~'+Math.round(e.distance)+' mi away'):'';
+          L.circleMarker([c.lat,c.lng],{radius:8,color:'#fff',weight:2,fillColor:'#e91e8c',fillOpacity:.9}).addTo(map).bindPopup('<div class="map-pin-pop"><b>'+e.name+'</b><br><span>'+(e.role||'')+' \u00b7 '+e.postcode+d+'</span></div>'); pts.push([c.lat,c.lng]); } }catch(err){}
+    });
+    await Promise.all(tasks);
+    if(pts.length){ try{ map.fitBounds(pts,{padding:[40,40],maxZoom:11}); }catch(e){} }
+    setTimeout(function(){ try{map.invalidateSize();}catch(e){} },180);
+  };
+
+  /* 10. CACHING wrappers */
+  function wrapCache(name,key,getVar,setVar){ var o=window[name]; if(typeof o!=='function')return;
+    window[name]=function(){ var r; function restore(){ try{var c=JSON.parse(localStorage.getItem(key)||'null'); if(c&&c.length){ setVar(c); if(name==='fetchEmployees'){ if(typeof populateDepartments==='function')populateDepartments(); if(typeof showEmptyState==='function')showEmptyState(); } if(typeof showToast==='function')showToast('Showing cached data (couldn\u2019t reach SharePoint)','warning'); } }catch(e){} }
+      try{ r=o.apply(this,arguments); }catch(e){ restore(); throw e; }
+      Promise.resolve(r).then(function(){ try{ var v=getVar(); if(v&&v.length)localStorage.setItem(key,JSON.stringify(v)); }catch(e){} }).catch(function(){ restore(); });
+      return r;
+    };
+  }
+
+  function start(){
+    injectPrio(); injectCmdkHint(); injectCrewBtn();
+    wrapCache('fetchEmployees','sm_emps',function(){return (typeof allEmployees!=='undefined')?allEmployees:[];},function(v){ allEmployees=v; });
+    wrapCache('fetchPresets','sm_presets',function(){return (typeof allPresets!=='undefined')?allPresets:[];},function(v){ allPresets=v; });
+    ['testLogin','showApp'].forEach(function(n){ var o=window[n]; if(typeof o==='function'){ window[n]=function(){ var r=o.apply(this,arguments); setTimeout(function(){injectPrio();injectCrewBtn();},250); return r; }; } });
+    var oUB=window.updateBulkActionsBar; if(typeof oUB==='function'){ window.updateBulkActionsBar=function(){ oUB.apply(this,arguments); injectCrewBtn(); }; }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
 </body>
 </html>
