@@ -708,8 +708,7 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.14);
         }
         .emp-avatar.is-perfect { background: linear-gradient(135deg, var(--accent-green), #34d399); }
-        .has-photo { background-size: cover !important; background-position: center !important; background-repeat: no-repeat !important; color: transparent !important; }
-        .has-photo svg { display: none !important; }
+        .emp-avatar.has-photo, .modal-avatar.has-photo { background-size: cover !important; background-position: center !important; background-repeat: no-repeat; color: transparent; }
         .emp-id { min-width: 0; flex: 1; }
         .employee-card .employee-name { font-size: 1.12rem; font-weight: 700; margin-bottom: 2px; line-height: 1.25; }
         .employee-card .employee-role { margin-bottom: 0; }
@@ -3534,10 +3533,7 @@
             // Show user info
             const name = account.name || account.username;
             document.getElementById('userName').textContent = name;
-            const _ua = document.getElementById('userAvatar');
-            _ua.textContent = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            const myEmail = account.username || (account.idTokenClaims && account.idTokenClaims.preferred_username) || '';
-            if (myEmail) hydrateOneAvatar(_ua, myEmail);
+            document.getElementById('userAvatar').textContent = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
             // Initialize app - fetch presets first to build dynamic dropdowns
             initModal();
@@ -4770,14 +4766,12 @@
             });
         }
 
-        function hydrateAvatars(root) {
-            (root || document).querySelectorAll('[data-photo-email]:not([data-photo-done])').forEach(el => {
+        function hydrateAvatars() {
+            document.querySelectorAll('.emp-avatar[data-photo-email]:not([data-photo-done])').forEach(el => {
                 el.setAttribute('data-photo-done', '1');
                 hydrateOneAvatar(el, el.getAttribute('data-photo-email'));
             });
         }
-        window.hydrateAvatars = hydrateAvatars;
-        window.hydrateOneAvatar = hydrateOneAvatar;
 
         function createEmployeeCard(employee, index) {
             const totalFilters = selectedFilters.trainings.length + selectedFilters.hardware.length + selectedFilters.software.length + selectedFilters.accreditations.length;
@@ -6675,7 +6669,7 @@
     var people=sel.map(enrich);
     var totalF=(sf.trainings.length+sf.hardware.length+sf.software.length+sf.accreditations.length);
     var h='<table><thead><tr><th></th>';
-    people.forEach(function(p){ h+='<th><div class="cmp-person"><div class="cmp-av"'+(p.photoEmail?' data-photo-email="'+p.photoEmail+'"':'')+'>'+av(p.name)+'</div><div><div class="cmp-name">'+p.name+'</div><div class="cmp-role">'+(p.role||'')+'</div></div></div></th>'; });
+    people.forEach(function(p){ h+='<th><div class="cmp-person"><div class="cmp-av">'+av(p.name)+'</div><div><div class="cmp-name">'+p.name+'</div><div class="cmp-role">'+(p.role||'')+'</div></div></div></th>'; });
     h+='</tr></thead><tbody>';
     if(totalF){ h+='<tr><th>Match score</th>'; people.forEach(function(p){ var pct=Math.round(((p.matchCount||0)/totalF)*100); h+='<td><span class="cmp-score">'+pct+'%</span></td>'; }); h+='</tr>'; }
     h+='<tr><th>Department</th>'; people.forEach(function(p){ h+='<td>'+(p.department||'\u2014')+'</td>'; }); h+='</tr>';
@@ -6692,7 +6686,6 @@
     }
     h+='</tbody></table>';
     document.getElementById('compareGridWrap').innerHTML=h;
-    if(typeof hydrateAvatars==='function')hydrateAvatars(document.getElementById('compareGridWrap'));
     var m=document.getElementById('compareModal'); m.classList.add('open'); document.body.style.overflow='hidden';
   };
   window.toggleCompareCard=function(ev,id){ ev.stopPropagation(); ev.preventDefault(); if(typeof bulkSelectedIds==='undefined')return; var sid=String(id); var btn=ev.currentTarget; var card=btn.closest('.employee-card'); if(bulkSelectedIds.has(sid)){bulkSelectedIds.delete(sid); if(card)card.classList.remove('bulk-selected'); btn.classList.remove('on');} else {bulkSelectedIds.add(sid); if(card)card.classList.add('bulk-selected'); btn.classList.add('on');} if(typeof updateBulkActionsBar==='function')updateBulkActionsBar(); injectCompareBtn(); };
@@ -6836,11 +6829,10 @@
     var sM=screens.filter(function(s){return !q||s[1].toLowerCase().includes(q);});
     if(sM.length){ html+='<div class="cmdk-group">Go to</div>'; sM.forEach(function(s){ var idx=cmdkItems.length; cmdkItems.push({act:function(){switchPage(s[0]);closeCmdk();}}); html+='<div class="cmdk-item" data-i="'+idx+'"><span class="ci-ic muted">'+ico('<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>')+'</span><span class="ci-t">'+s[1]+'</span></div>'; }); }
     var pM=emps.filter(function(e){return q&&((e.name||'').toLowerCase().includes(q)||(e.role||'').toLowerCase().includes(q)||(e.department||'').toLowerCase().includes(q));}).slice(0,8);
-    if(pM.length){ html+='<div class="cmdk-group">People</div>'; pM.forEach(function(e){ var idx=cmdkItems.length; cmdkItems.push({act:function(){closeCmdk(); if(typeof openEmployeeModal==='function')openEmployeeModal(e.id);}}); html+='<div class="cmdk-item" data-i="'+idx+'"><span class="ci-ic"'+(e.photoEmail?' data-photo-email="'+e.photoEmail+'"':'')+'>'+initials(e.name)+'</span><span><span class="ci-t">'+e.name+'</span><br><span class="ci-s">'+(e.role||'')+' \u00b7 '+(e.department||'')+'</span></span></div>'; }); }
+    if(pM.length){ html+='<div class="cmdk-group">People</div>'; pM.forEach(function(e){ var idx=cmdkItems.length; cmdkItems.push({act:function(){closeCmdk(); if(typeof openEmployeeModal==='function')openEmployeeModal(e.id);}}); html+='<div class="cmdk-item" data-i="'+idx+'"><span class="ci-ic">'+initials(e.name)+'</span><span><span class="ci-t">'+e.name+'</span><br><span class="ci-s">'+(e.role||'')+' \u00b7 '+(e.department||'')+'</span></span></div>'; }); }
     var jM=presets.filter(function(p){return q&&((p.jobType||'').toLowerCase().includes(q)||(p.workstream||'').toLowerCase().includes(q));}).slice(0,6);
     if(jM.length){ html+='<div class="cmdk-group">Match everyone to a job</div>'; jM.forEach(function(p){ var idx=cmdkItems.length; cmdkItems.push({act:function(){closeCmdk(); window.reverseSearch(p.workstream,p.jobType);}}); html+='<div class="cmdk-item" data-i="'+idx+'"><span class="ci-ic muted">'+ico('<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>')+'</span><span><span class="ci-t">'+p.jobType+'</span><br><span class="ci-s">'+p.workstream+'</span></span></div>'; }); }
     list.innerHTML=html||'<div class="cmdk-empty">No matches</div>';
-    if(typeof hydrateAvatars==='function')hydrateAvatars(list);
     list.querySelectorAll('.cmdk-item').forEach(function(el){ el.onclick=function(){ var i=+el.dataset.i; if(cmdkItems[i])cmdkItems[i].act(); }; });
     hi();
   }
